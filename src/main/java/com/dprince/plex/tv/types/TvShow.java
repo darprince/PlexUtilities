@@ -5,20 +5,23 @@ import javax.inject.Singleton;
 @Singleton
 public class TvShow {
     String rawTvShowName;
+    String year;
     String tvEpisodeNumber;
     String tvSeasonNumber;
     String extension;
 
     String filename;
+    String newFilename;
     String originalFilepath;
     String newFilepath;
-    String formattedTvShowName;
+    String properTvShowName;
 
     String tvEpisodeTitle;
 
-    public TvShow(String rawTvShowName, String tvEpisodeNumber, String tvSeasonNumber,
+    public TvShow(String rawTvShowName, String year, String tvEpisodeNumber, String tvSeasonNumber,
             String extension) {
         this.rawTvShowName = rawTvShowName;
+        this.year = year;
         this.tvEpisodeNumber = tvEpisodeNumber;
         this.tvSeasonNumber = tvSeasonNumber;
         this.extension = extension;
@@ -36,11 +39,35 @@ public class TvShow {
         this.newFilepath = newFilepath;
     }
 
-    public void setFormattedTvShowName(String formattedTvShowName) {
-        this.formattedTvShowName = formattedTvShowName;
+    public void setFormattedTvShowName(String properTvShowName) {
+        this.properTvShowName = properTvShowName;
+    }
+
+    public void setNewFilename(String newFilename) {
+        this.newFilename = newFilename;
     }
 
     public void setTvEpisodeTitle(String tvEpisodeTitle) {
         this.tvEpisodeTitle = tvEpisodeTitle;
+    }
+
+    public String getRawTvShowName() {
+        return this.rawTvShowName;
+    }
+
+    public String getProperTvShowName() {
+        return this.properTvShowName;
+    }
+
+    public String getTvEpisodeNumber() {
+        return this.tvEpisodeNumber;
+    }
+
+    public String getTvSeasonNumber() {
+        return this.tvSeasonNumber;
+    }
+
+    public String getNewFilename() {
+        return this.newFilename;
     }
 }
