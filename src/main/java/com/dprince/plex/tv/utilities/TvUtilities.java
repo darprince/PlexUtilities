@@ -67,7 +67,7 @@ public class TvUtilities {
 
             String year = "";
             if (matcher.group(2) != null) {
-                year = matcher.group(2);
+                year = matcher.group(2).replaceAll("\\(", "").replaceAll("\\)", "");
             }
             return new TvShow(rawTvShowName, year, tvEpisodeNumber, tvSeasonNumber, extension);
         }
