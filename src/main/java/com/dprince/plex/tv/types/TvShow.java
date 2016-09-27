@@ -27,6 +27,14 @@ public class TvShow {
         this.extension = extension;
     }
 
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    public String getYear() {
+        return this.year;
+    }
+
     public void setFilename(String filename) {
         this.filename = filename;
     }
