@@ -15,7 +15,7 @@ public class PlexUtilities {
                 final String file = argument;
 
                 final TvShow tvShow = TvUtilities.parseFileName(filename);
-                TvUtilities.setProperFilename(tvShow);
+                TvUtilities.setFormattedTvShowname(tvShow);
         }
     }
 }
