@@ -1,10 +1,14 @@
 package com.dprince.plex.tv.utilities;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,13 +80,20 @@ public class TvUtilities {
         return null;
     }
 
-    public static void setOriginalFilepath(TvShow tvShow, final String file) {
-        tvShow.setOriginalFilepath(file);
+    public static void setOriginalFilepath(TvShow tvShow, final String originalFilepath) {
+        tvShow.setOriginalFilepath(originalFilepath);
     }
 
-    public static void setProperFilename(TvShow tvShow) {
-        final File tvShowFoldersFile = new File("C:\\FileManipulation\\TVShowRenamer\\folders.txt");
+    public static void setFormattedTvShowname(TvShow tvShow) {
         String[][] titles = null;
+        File tvShowFoldersFile = new File("C:\\FileManipulation\\TVShowRenamer\\folders.txt");
+        if (!tvShowFoldersFile.exists()) {
+            tvShowFoldersFile = new File("\\\\DESKTOP-DOWNLOA\\TVShowRenamer\\folders.txt");
+            if (!tvShowFoldersFile.exists()) {
+                System.out.println("Creating folders.txt file at: " + tvShowFoldersFile);
+                createFoldersFile(tvShowFoldersFile, titles);
+            }
+        }
 
         // get show titles from file
         try {
@@ -157,8 +168,8 @@ public class TvUtilities {
         // }
     }
 
-    public static void getEpisodeNameFromAPI(TvShow tvShow) {
-        final String episodeName = TheTvDbLookup.getEpisodeName(tvShow.getProperTvShowName(),
+    public static void getTvEpisodeTitleFromAPI(TvShow tvShow) {
+        final String episodeName = TheTvDbLookup.getEpisodeName(tvShow.getFormattedTvShowName(),
                 tvShow.getTvEpisodeNumber(), tvShow.getTvSeasonNumber());
         tvShow.setTvEpisodeTitle(episodeName);
     }
@@ -172,7 +183,7 @@ public class TvUtilities {
         File queriedDrive = null;
         String queryString = null;
         for (final String sharedDrive : DesktopPlexLocation) {
-            queryString = DESKTOP_PLEX + sharedDrive + "/" + tvShow.getProperTvShowName();
+            queryString = DESKTOP_PLEX + sharedDrive + "/" + tvShow.getFormattedTvShowName();
             queriedDrive = new File(queryString);
             if (queriedDrive.exists()) {
                 System.out.println("Destination: " + queryString);
@@ -183,6 +194,72 @@ public class TvUtilities {
         // build destination
         final String destinationFolder = queryString + "\\" + tvShow.getTvSeasonNumber() + "\\";
         final String destinationFilename = destinationFolder + "\\" + tvShow.getNewFilename();
+    }
+
+    // TODO: This is from the old version, should be updated
+    private static void createFoldersFile(final File foldersFile, String[][] titles) {
+        try {
+            foldersFile.createNewFile();
+        } catch (final IOException e) {
+            System.out.println("Creating folders.txt file failed");
+            System.out.println(e.toString());
+        }
+        titles = getTitles();
+
+        BufferedWriter outputWriter = null;
+        try {
+            outputWriter = new BufferedWriter(new FileWriter(foldersFile));
+
+            outputWriter.write(String.valueOf(titles.length));
+            outputWriter.newLine();
+
+            for (final String[] folderLine : titles) {
+                outputWriter.write(folderLine[0] + "^^^" + folderLine[1]);
+                outputWriter.newLine();
+            }
+            outputWriter.flush();
+            outputWriter.close();
+        } catch (final IOException e) {
+            System.out.println("Writing to folders file failed.");
+            System.out.println(e.toString());
+        }
+    }
+
+    // TODO: also from old version
+    public static String[][] getTitles() {
+        final String downloadsDirectories[] = {
+                "M:\\", "N:\\", "O:\\", "R:\\"
+        };
+
+        File file = null;
+        File[] files = null;
+        final List<File> finalFileList = new ArrayList<File>();
+
+        for (final String dir : downloadsDirectories) {
+            file = new File(dir);
+            files = file.listFiles();
+            for (final File tempFile : files) {
+                finalFileList.add(tempFile);
+            }
+        }
+
+        final String[][] allFiles = new String[finalFileList.size()][2];
+        String tempString = null;
+        String replacement = null;
+
+        for (int i = 0; i < finalFileList.size(); i++) {
+            tempString = finalFileList.get(i).toString();
+            replacement = tempString.substring(tempString.lastIndexOf("\\") + 1,
+                    tempString.length());
+            allFiles[i][0] = replacement;
+
+            allFiles[i][1] = replacement.toLowerCase().replaceAll("'", "").replaceAll("\\.", "")
+                    .replaceAll(",", "").replaceAll("marvels ", " ").replaceAll(" the ", " ")
+                    .replaceAll("the ", "").replaceAll(" on ", " ").replaceAll(" a ", " ")
+                    .replaceAll(" of ", " ").trim();
+        }
+
+        return allFiles;
     }
 
     public static boolean moveFile() {
