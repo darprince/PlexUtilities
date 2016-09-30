@@ -12,10 +12,14 @@ public class PlexUtilities {
             case ("tvShowRename"):
                 final String filename = argument.substring(argument.lastIndexOf("/"),
                         argument.length());
-                final String file = argument;
+                final String originalFilepath = argument;
 
                 final TvShow tvShow = TvUtilities.parseFileName(filename);
                 TvUtilities.setFormattedTvShowname(tvShow);
+                TvUtilities.getTvEpisodeTitleFromAPI(tvShow);
+                TvUtilities.setNewFilename(tvShow);
+                TvUtilities.setNewFilepath(tvShow);
+
         }
     }
 }

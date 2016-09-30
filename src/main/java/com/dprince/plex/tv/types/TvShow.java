@@ -10,17 +10,16 @@ public class TvShow {
     String tvSeasonNumber;
     String extension;
 
-    String filename;
-    String newFilename;
     String originalFilepath;
-    String newFilepath;
     String formattedTvShowName;
-
     String tvEpisodeTitle;
+    String newFilename;
+    String newFilepath;
 
-    public TvShow(String rawTvShowName, String year, String tvEpisodeNumber, String tvSeasonNumber,
-            String extension) {
+    public TvShow(String rawTvShowName, String originalFilepath, String year,
+            String tvEpisodeNumber, String tvSeasonNumber, String extension) {
         this.rawTvShowName = rawTvShowName;
+        this.originalFilepath = originalFilepath;
         this.year = year;
         this.tvEpisodeNumber = tvEpisodeNumber;
         this.tvSeasonNumber = tvSeasonNumber;
@@ -31,10 +30,9 @@ public class TvShow {
     public String toString() {
         return "TvShow [rawTvShowName=" + rawTvShowName + ", year=" + year + ", tvEpisodeNumber="
                 + tvEpisodeNumber + ", tvSeasonNumber=" + tvSeasonNumber + ", extension="
-                + extension + ", filename=" + filename + ", newFilename=" + newFilename
-                + ", originalFilepath=" + originalFilepath + ", newFilepath=" + newFilepath
-                + ", formattedTvShowName=" + formattedTvShowName + ", tvEpisodeTitle="
-                + tvEpisodeTitle + "]";
+                + extension + ", newFilename=" + newFilename + ", originalFilepath="
+                + originalFilepath + ", newFilepath=" + newFilepath + ", formattedTvShowName="
+                + formattedTvShowName + ", tvEpisodeTitle=" + tvEpisodeTitle + "]";
     }
 
     public String getRawTvShowName() {
@@ -59,14 +57,6 @@ public class TvShow {
 
     public String getExtension() {
         return this.extension;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public String getFilename() {
-        return this.filename;
     }
 
     public void setOriginalFilepath(String originalFilepath) {
