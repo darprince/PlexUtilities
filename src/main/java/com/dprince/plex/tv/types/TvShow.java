@@ -5,12 +5,12 @@ import javax.inject.Singleton;
 @Singleton
 public class TvShow {
     String rawTvShowName;
+    String originalFilepath;
     String year;
     String tvEpisodeNumber;
     String tvSeasonNumber;
     String extension;
 
-    String originalFilepath;
     String formattedTvShowName;
     String tvEpisodeTitle;
     String newFilename;

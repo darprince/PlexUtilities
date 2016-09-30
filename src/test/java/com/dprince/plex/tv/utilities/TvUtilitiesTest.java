@@ -3,6 +3,7 @@ package com.dprince.plex.tv.utilities;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.dprince.plex.tv.types.TvShow;
@@ -30,18 +31,20 @@ public class TvUtilitiesTest {
     private static final TvShow TVSHOW_AHS = new TvShow("orange is the new black", FILEPATH_OITNB,
             null, "02", "02", "avi");
 
+    @BeforeClass
+    public static void createFoldersFileIfNotThere() {
+        TvFileUtilities.createFoldersFile();
+    }
+
     @Test
     public void parseFileName_Test() throws Exception {
         for (final String filepath : RAW_FILENAMES) {
             final TvShow tvShow = TvUtilities.parseFileName(filepath);
             assertNotNull(tvShow);
-            // assertEquals("Tv Raw Showname ", "Orange Is The New Black",
-            // tvShow.getRawTvShowName());
-            // assertEquals("Episode Number ", "09",
-            // tvShow.getTvEpisodeNumber());
-            // assertEquals("Episode Season ", "01",
-            // tvShow.getTvSeasonNumber());
-            // assertNotNull(tvShow.getExtension());
+            assertEquals("Tv Raw Showname ", "Orange Is The New Black", tvShow.getRawTvShowName());
+            assertEquals("Episode Number ", "09", tvShow.getTvEpisodeNumber());
+            assertEquals("Episode Season ", "01", tvShow.getTvSeasonNumber());
+            assertNotNull(tvShow.getExtension());
         }
     }
 
@@ -51,7 +54,7 @@ public class TvUtilitiesTest {
             final TvShow tvShow = TvUtilities.parseFileName(filepath);
             assertNotNull(tvShow);
             TvUtilities.setFormattedTvShowname(tvShow);
-            TvUtilities.getTvEpisodeTitleFromAPI(tvShow);
+            TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
             assertEquals("Tv Raw Showname ", "American Gothic", tvShow.getRawTvShowName());
             assertEquals("Episode Number ", "09", tvShow.getTvEpisodeNumber());
             assertEquals("Episode Season ", "01", tvShow.getTvSeasonNumber());
@@ -81,7 +84,7 @@ public class TvUtilitiesTest {
         final TvShow tvShow = TVSHOW_AHS;
         TvUtilities.setFormattedTvShowname(tvShow);
         tvShow.setFormattedTvShowName("Orange Is The New Black");
-        TvUtilities.getTvEpisodeTitleFromAPI(tvShow);
+        TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
         assertEquals("TvEpisodeTitle", "Looks Blue, Tastes Red", tvShow.getTvEpisodeTitle());
     }
 
@@ -90,7 +93,7 @@ public class TvUtilitiesTest {
         final TvShow tvShow = TVSHOW_AHS;
         TvUtilities.setFormattedTvShowname(tvShow);
         tvShow.setFormattedTvShowName("Orange Is The New Black");
-        TvUtilities.getTvEpisodeTitleFromAPI(tvShow);
+        TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
         TvUtilities.setNewFilename(tvShow);
         assertEquals("New Filename",
                 "Orange Is The New Black - S02E02 - Looks Blue, Tastes Red.avi",
@@ -102,7 +105,7 @@ public class TvUtilitiesTest {
         final TvShow tvShow = new TvShow("orange.is.the.new.black", FILEPATH_OITNB, null, "06",
                 "01", "avi");
         tvShow.setFormattedTvShowName("Orange Is The New Black");
-        TvUtilities.getTvEpisodeTitleFromAPI(tvShow);
+        TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
         TvUtilities.setNewFilename(tvShow);
         TvUtilities.setNewFilepath(tvShow);
         assertEquals("New Filepath",

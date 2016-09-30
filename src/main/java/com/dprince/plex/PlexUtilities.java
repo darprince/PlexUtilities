@@ -1,6 +1,7 @@
 package com.dprince.plex;
 
 import com.dprince.plex.tv.types.TvShow;
+import com.dprince.plex.tv.utilities.TvFileUtilities;
 import com.dprince.plex.tv.utilities.TvUtilities;
 
 public class PlexUtilities {
@@ -10,16 +11,17 @@ public class PlexUtilities {
 
         switch (function) {
             case ("tvShowRename"):
-                final String filename = argument.substring(argument.lastIndexOf("/"),
-                        argument.length());
                 final String originalFilepath = argument;
 
-                final TvShow tvShow = TvUtilities.parseFileName(filename);
+                final TvShow tvShow = TvUtilities.parseFileName(originalFilepath);
                 TvUtilities.setFormattedTvShowname(tvShow);
-                TvUtilities.getTvEpisodeTitleFromAPI(tvShow);
+                TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
                 TvUtilities.setNewFilename(tvShow);
                 TvUtilities.setNewFilepath(tvShow);
 
+            case ("refreshTitlesFile"):
+                TvFileUtilities.deleteFoldersFile();
+                TvFileUtilities.createFoldersFile();
         }
     }
 }
