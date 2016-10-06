@@ -1,5 +1,8 @@
 package com.dprince.plex;
 
+import java.io.IOException;
+
+import com.dprince.plex.shared.MetaDataFormatter;
 import com.dprince.plex.tv.types.TvShow;
 import com.dprince.plex.tv.utilities.TvFileUtilities;
 import com.dprince.plex.tv.utilities.TvUtilities;
@@ -22,6 +25,18 @@ public class PlexUtilities {
             case ("refreshTitlesFile"):
                 TvFileUtilities.deleteFoldersFile();
                 TvFileUtilities.createFoldersFile();
+
+            case ("metaDataEdit"):
+                final String filepath = argument;
+                try {
+                    MetaDataFormatter.writeRandomMetadata(filepath, "");
+                } catch (final IOException e) {
+                    e.printStackTrace();
+                }
+            case ("newSeasonFolder"):
+
+            default:
+                System.exit(0);
         }
     }
 }
