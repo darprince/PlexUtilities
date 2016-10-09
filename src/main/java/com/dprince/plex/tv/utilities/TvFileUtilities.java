@@ -10,9 +10,21 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+
+import com.dprince.logger.Logging;
+
 public class TvFileUtilities {
 
     private static final String FOLDERS_FILE_LOCATION = "\\\\DESKTOP-DOWNLOA\\TVShowRenamer\\folders.txt";
+    private static final String DIRECTORIES[] = {
+            "M:\\", "N:\\", "O:\\", "P:\\", "R:\\"
+    };
+    private static final String DESKTOP_DIRECTORIES[] = {
+            "H:\\", "I:\\", "J:\\TV T-Z", "K:\\", "M:\\Kids\\TV Shows"
+    };
+
+    private static final Logger LOG = Logging.getLogger(TvFileUtilities.class);
 
     // TODO: This is from the old version, should be updated
     public static void createFoldersFile() {
@@ -23,11 +35,13 @@ public class TvFileUtilities {
 
         String[][] titles = null;
 
-        try {
-            tvShowFoldersFile.createNewFile();
-        } catch (final IOException e) {
-            System.out.println("Creating folders.txt file failed");
-            System.out.println(e.toString());
+        if (!tvShowFoldersFile.exists()) {
+            try {
+                tvShowFoldersFile.createNewFile();
+            } catch (final IOException e) {
+                System.out.println("Creating folders.txt file failed");
+                System.out.println(e.toString());
+            }
         }
         titles = TvFileUtilities.setTitlesFromDirectories();
 
@@ -44,8 +58,9 @@ public class TvFileUtilities {
             }
             outputWriter.flush();
             outputWriter.close();
+            LOG.info("Folders file created");
         } catch (final IOException e) {
-            System.out.println("Writing to folders file failed.");
+            LOG.info("Writing to folders file failed.");
             System.out.println(e.toString());
         }
     }
@@ -53,7 +68,7 @@ public class TvFileUtilities {
     public static void deleteFoldersFile() {
         final File tvShowFoldersFile = new File(FOLDERS_FILE_LOCATION);
         if (tvShowFoldersFile.exists()) {
-            tvShowFoldersFile.delete();
+            LOG.info("Folders file deleted: " + tvShowFoldersFile.delete());
         }
     }
 
@@ -61,14 +76,11 @@ public class TvFileUtilities {
     public static String[][] setTitlesFromDirectories() {
         final List<File> finalFileList = new ArrayList<File>();
         try {
-            final String downloadsDirectories[] = {
-                    "M:\\", "N:\\", "O:\\", "R:\\"
-            };
-
+            LOG.info("Reading Downloads directories");
             File file = null;
             File[] files = null;
 
-            for (final String dir : downloadsDirectories) {
+            for (final String dir : DIRECTORIES) {
                 file = new File(dir);
                 files = file.listFiles();
                 for (final File tempFile : files) {
@@ -76,14 +88,12 @@ public class TvFileUtilities {
                 }
             }
         } catch (final Exception e) {
-            final String downloadsDirectories[] = {
-                    "K:\\", "H:\\TV J-S", "J:\\TV T-Z", "I:\\Kids\\TV Shows"
-            };
+            LOG.info("Reading Desktop directories");
 
             File file = null;
             File[] files = null;
 
-            for (final String dir : downloadsDirectories) {
+            for (final String dir : DESKTOP_DIRECTORIES) {
                 file = new File(dir);
                 files = file.listFiles();
                 for (final File tempFile : files) {
@@ -132,7 +142,7 @@ public class TvFileUtilities {
                 titles[i][1] = splitLine[1];
             }
         } catch (final IOException e) {
-            System.out.println("Reading folders.txt failed");
+            LOG.info("Reading folders.txt failed");
             System.out.println(e.toString());
         }
         return titles;
