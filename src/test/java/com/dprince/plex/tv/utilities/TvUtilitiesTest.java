@@ -2,6 +2,9 @@ package com.dprince.plex.tv.utilities;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -111,5 +114,17 @@ public class TvUtilitiesTest {
         assertEquals("New Filepath",
                 "//DESKTOP-PLEX/tv j-s/Orange Is The New Black/Season 01/Orange Is The New Black - S01E06 - WAC Pack.avi",
                 tvShow.getNewFilepath());
+    }
+
+    @Test
+    public void testTvDirectories() throws Exception {
+        final TvFileUtilities tvFileUtilities = new TvFileUtilities();
+        final String[] directories = tvFileUtilities.getTvDirectories();
+        final String plexPrefix = "\\\\Desktop-plex\\";
+
+        for (final String dir : directories) {
+            final File file = new File(plexPrefix + dir);
+            assertTrue(file.exists());
+        }
     }
 }

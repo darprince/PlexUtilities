@@ -16,13 +16,16 @@ import com.dprince.logger.Logging;
 
 public class TvFileUtilities {
 
+    public TvFileUtilities() {
+
+    }
+
     private static final String FOLDERS_FILE_LOCATION = "\\\\DESKTOP-DOWNLOA\\TVShowRenamer\\folders.txt";
-    private static final String DIRECTORIES[] = {
-            "M:\\", "N:\\", "O:\\", "P:\\", "R:\\"
+
+    private static final String DESKTOP_SHARED_DIRECTORIES[] = {
+            "tv a-e", "tv f-l", "tv m-s", "tv t-z", "Kids Tv"
     };
-    private static final String DESKTOP_DIRECTORIES[] = {
-            "H:\\", "I:\\", "J:\\TV T-Z", "K:\\", "M:\\Kids\\TV Shows"
-    };
+    private static final String PLEX_PREFIX = "\\\\Desktop-plex\\";
 
     private static final Logger LOG = Logging.getLogger(TvFileUtilities.class);
 
@@ -80,26 +83,15 @@ public class TvFileUtilities {
             File file = null;
             File[] files = null;
 
-            for (final String dir : DIRECTORIES) {
-                file = new File(dir);
+            for (final String dir : DESKTOP_SHARED_DIRECTORIES) {
+                file = new File(PLEX_PREFIX + dir);
                 files = file.listFiles();
                 for (final File tempFile : files) {
                     finalFileList.add(tempFile);
                 }
             }
         } catch (final Exception e) {
-            LOG.info("Reading Desktop directories");
-
-            File file = null;
-            File[] files = null;
-
-            for (final String dir : DESKTOP_DIRECTORIES) {
-                file = new File(dir);
-                files = file.listFiles();
-                for (final File tempFile : files) {
-                    finalFileList.add(tempFile);
-                }
-            }
+            LOG.info("Setting titles from directories failed");
         }
 
         final String[][] allFiles = new String[finalFileList.size()][2];
@@ -146,5 +138,13 @@ public class TvFileUtilities {
             System.out.println(e.toString());
         }
         return titles;
+    }
+
+    /*
+     * Getters for Testing
+     */
+
+    public String[] getTvDirectories() {
+        return DESKTOP_SHARED_DIRECTORIES;
     }
 }
