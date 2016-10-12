@@ -1,6 +1,7 @@
 package com.dprince.plex.tv.utilities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -126,5 +127,28 @@ public class TvUtilitiesTest {
             final File file = new File(plexPrefix + dir);
             assertTrue(file.exists());
         }
+    }
+
+    @Test
+    public void createNewSeasonFolder_Test() throws Exception {
+        final String folderLocation = "\\\\Desktop-downloa\\TVShowRenamer\\TestFolder.204.kljf.avi";
+        TvFileUtilities.createNewSeasonFolder(folderLocation);
+        final File file = new File("\\\\Desktop-plex\\Tv a-e\\TestFolder\\Season 02");
+        assertTrue(file.exists());
+        file.delete();
+        assertFalse(file.exists());
+    }
+
+    @Test
+    public void runMKVEditorForTvShow_Test() throws Exception {
+        final String filepath = "\\\\Desktop-plex\\Tv a-e\\Deadbeat\\Season 03\\Deadbeat - S03E01.mkv";
+        File file = new File(filepath);
+        assertTrue(file.exists());
+        file = new File("\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe");
+        assertTrue(file.exists());
+
+        TvFileUtilities.runMKVEditorForTvShow(filepath);
+        // TODO: need to assert that the title was something before and after
+        // change
     }
 }

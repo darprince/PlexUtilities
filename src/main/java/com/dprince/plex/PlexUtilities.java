@@ -25,9 +25,9 @@ public class PlexUtilities {
         switch (function) {
             case ("tvShowRename"):
                 LOG.info("Renaming function called");
-                final String originalFilepath = args[1];
+                final String renameOriginalFilepath = args[1];
 
-                final TvShow tvShow = TvUtilities.parseFileName(originalFilepath);
+                final TvShow tvShow = TvUtilities.parseFileName(renameOriginalFilepath);
                 TvUtilities.setFormattedTvShowname(tvShow);
                 TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
                 TvUtilities.setNewFilename(tvShow);
@@ -43,15 +43,24 @@ public class PlexUtilities {
                 return;
             case ("metaDataEdit"):
                 LOG.info("MetaDataEdit function called");
-                final String filepath = args[1];
-                try {
-                    MetaDataFormatter.writeRandomMetadata(filepath, "");
-                } catch (final IOException e) {
-                    e.printStackTrace();
+                final String editFilepath = args[1];
+                final TvShow editFilepathTvShow = TvUtilities.parseFileName(editFilepath);
+                final String extension = editFilepathTvShow.getExtension();
+
+                if (extension.toLowerCase().matches(".mp4|.avi")) {
+                    try {
+                        MetaDataFormatter.writeRandomMetadata(editFilepath, "");
+                    } catch (final IOException e) {
+                        e.printStackTrace();
+                    }
+                } else if (extension.toLowerCase().matches(".mkv")) {
+                    TvFileUtilities.runMKVEditorForTvShow(editFilepath);
                 }
                 return;
             case ("newSeasonFolder"):
                 LOG.info("Create New Season folder called");
+                final String seasonOriginalFilepath = args[1];
+                TvFileUtilities.createNewSeasonFolder(seasonOriginalFilepath);
                 return;
             default:
                 System.exit(0);

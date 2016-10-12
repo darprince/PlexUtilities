@@ -22,13 +22,7 @@ public class TvUtilities {
      */
     public static TvShow parseFileName(String originalFilepath) {
         String filename = null;
-        try {
-            filename = originalFilepath.substring(originalFilepath.lastIndexOf("/") + 1,
-                    originalFilepath.length());
-        } catch (final StringIndexOutOfBoundsException e) {
-            filename = originalFilepath.substring(originalFilepath.lastIndexOf("\\") + 1,
-                    originalFilepath.length());
-        }
+        filename = TvFileUtilities.getFilenameFromPath(originalFilepath);
 
         if (filename == null) {
             System.out.println("Filename is null from filepath.");

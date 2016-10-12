@@ -13,6 +13,7 @@ import java.util.List;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
+import com.dprince.plex.tv.types.TvShow;
 
 public class TvFileUtilities {
 
@@ -138,6 +139,64 @@ public class TvFileUtilities {
             System.out.println(e.toString());
         }
         return titles;
+    }
+
+    static String getFilenameFromPath(String originalFilepath) {
+        String filename;
+        try {
+            filename = originalFilepath.substring(originalFilepath.lastIndexOf("/") + 1,
+                    originalFilepath.length());
+        } catch (final StringIndexOutOfBoundsException e) {
+            filename = originalFilepath.substring(originalFilepath.lastIndexOf("\\") + 1,
+                    originalFilepath.length());
+        }
+        return filename;
+    }
+
+    public static void createNewSeasonFolder(String filepath) {
+        final TvShow tvShow = TvUtilities.parseFileName(filepath);
+        TvUtilities.setFormattedTvShowname(tvShow);
+        final String showname = tvShow.getFormattedTvShowName();
+
+        for (final String dir : DESKTOP_SHARED_DIRECTORIES) {
+            final File file = new File(PLEX_PREFIX + dir + "\\" + showname);
+            if (file.exists()) {
+                int season = 1;
+                final String seasonFolderPrefix = file.getPath() + "\\Season 0";
+                File seasonFolder = new File(seasonFolderPrefix + season);
+                while (seasonFolder.exists()) {
+                    season++;
+                    seasonFolder = new File(seasonFolderPrefix + season);
+                }
+                final boolean success = seasonFolder.mkdir();
+                if (success) {
+                    LOG.info("New season folder created");
+                } else {
+                    LOG.info("New season folder not created");
+                }
+
+                return;
+            }
+        }
+    }
+
+    // TODO: Does setTvEpisodeTitleFromAPI return null???
+    public static void runMKVEditorForTvShow(String filepath) {
+        final String parserPath = "\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe";
+        final TvShow tvShow = new TvShow("Deadbeat", filepath, null, "01", "03", ".mkv");
+        TvUtilities.setFormattedTvShowname(tvShow);
+        TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
+
+        final String title = tvShow.getTvEpisodeTitle();
+        final String command = parserPath + " \"" + filepath + "\" --set title=\"" + title + "\"";
+
+        LOG.info("Command " + command);
+
+        try {
+            Runtime.getRuntime().exec(command);
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /*
