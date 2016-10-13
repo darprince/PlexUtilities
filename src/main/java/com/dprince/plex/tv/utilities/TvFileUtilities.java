@@ -143,13 +143,14 @@ public class TvFileUtilities {
 
     static String getFilenameFromPath(String originalFilepath) {
         String filename;
-        try {
+        if (originalFilepath.contains("/")) {
             filename = originalFilepath.substring(originalFilepath.lastIndexOf("/") + 1,
                     originalFilepath.length());
-        } catch (final StringIndexOutOfBoundsException e) {
+        } else {
             filename = originalFilepath.substring(originalFilepath.lastIndexOf("\\") + 1,
                     originalFilepath.length());
         }
+        System.out.println("Filename from function: " + filename);
         return filename;
     }
 
@@ -181,14 +182,14 @@ public class TvFileUtilities {
     }
 
     // TODO: Does setTvEpisodeTitleFromAPI return null???
-    public static void runMKVEditorForTvShow(String filepath) {
+    public static void runMKVEditorForTvShow(TvShow tvShow) {
         final String parserPath = "\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe";
-        final TvShow tvShow = new TvShow("Deadbeat", filepath, null, "01", "03", ".mkv");
         TvUtilities.setFormattedTvShowname(tvShow);
         TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
 
         final String title = tvShow.getTvEpisodeTitle();
-        final String command = parserPath + " \"" + filepath + "\" --set title=\"" + title + "\"";
+        final String command = parserPath + " \"" + tvShow.getOriginalFilePath()
+                + "\" --set title=\"" + title + "\"";
 
         LOG.info("Command " + command);
 

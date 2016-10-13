@@ -5,12 +5,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.text.WordUtils;
+import org.slf4j.Logger;
 
+import com.dprince.logger.Logging;
 import com.dprince.plex.tv.types.TvShow;
 import com.dprince.tv.source.TheTvDbLookup;
 
 public class TvUtilities {
+
+    private static final Logger LOG = Logging.getLogger(TvUtilities.class);
+
     private static final String REGEX = "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})\\.).*(.mkv|.mp4|.avi|.mpg){1}";
+    private static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[ -]{3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(.mkv|.mp4|.avi|.mpg){1}";
 
     /**
      * Takes the show's filename and determines the rawTvShowName,
@@ -26,16 +32,22 @@ public class TvUtilities {
 
         if (filename == null) {
             System.out.println("Filename is null from filepath.");
+        } else {
+            System.out.println("Filename from parser: " + filename);
         }
 
         final Pattern pattern = Pattern.compile(REGEX);
         final Matcher matcher = pattern.matcher(filename);
 
         while (matcher.find()) {
+            System.out.println("Parser: matcher found");
+            LOG.info("Parser: matcher found");
             final String rawTvShowname = WordUtils
                     .capitalize(matcher.group(1).replaceAll("\\.", " ").toLowerCase()).trim();
-                    // TODO: move to show matcher
+            // TODO: move to show matcher
 
+            System.out.println("Parser: " + rawTvShowname);
+            LOG.info("Parser: rawTvShowname = " + rawTvShowname);
             // for (final AwkwardTvShows awkwardTvShows :
             // AwkwardTvShows.values()) {
             // if (show.toLowerCase().contains(awkwardTvShows.match)) {
@@ -83,7 +95,22 @@ public class TvUtilities {
             }
         }
 
-        // TODO: LOG error and exit
+        final Pattern patternFormatted = Pattern.compile(REGEX_FORMATTED_FILENAME);
+        final Matcher matcherFormatted = patternFormatted.matcher(filename);
+        System.out.println("FN: " + filename);
+        while (matcherFormatted.find()) {
+            final String showName = matcherFormatted.group(1);
+            final String seasonNumber = matcherFormatted.group(2);
+            final String episodeNumber = matcherFormatted.group(3);
+            final String extension = matcherFormatted.group(4);
+
+            final TvShow tvShow = new TvShow(showName, originalFilepath, null, episodeNumber,
+                    seasonNumber, extension);
+            tvShow.setFormattedTvShowName(showName);
+            return tvShow;
+        }
+
+        LOG.info("Error in parseFileName()");
         return null;
     }
 

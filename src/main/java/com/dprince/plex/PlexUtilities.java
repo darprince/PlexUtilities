@@ -20,6 +20,15 @@ public class PlexUtilities {
             System.exit(0);
         }
 
+        for (final String string : args) {
+            System.out.println("Arg: " + string);
+        }
+        try {
+            Thread.sleep(5000);
+        } catch (final InterruptedException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
         final String function = args[0];
 
         switch (function) {
@@ -54,7 +63,12 @@ public class PlexUtilities {
                         e.printStackTrace();
                     }
                 } else if (extension.toLowerCase().matches(".mkv")) {
-                    TvFileUtilities.runMKVEditorForTvShow(editFilepath);
+                    TvFileUtilities.runMKVEditorForTvShow(editFilepathTvShow);
+                }
+                try {
+                    Thread.sleep(5000);
+                } catch (final InterruptedException e) {
+                    e.printStackTrace();
                 }
                 return;
             case ("newSeasonFolder"):

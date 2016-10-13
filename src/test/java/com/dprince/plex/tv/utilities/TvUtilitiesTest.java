@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.dprince.plex.tv.types.TvShow;
@@ -66,6 +67,14 @@ public class TvUtilitiesTest {
             assertEquals("TvEpisodeTitle", "The Oxbow", tvShow.getTvEpisodeTitle());
             assertNotNull(tvShow.getExtension());
         }
+    }
+
+    @Test
+    public void parseFormattedFilename_Test() throws Exception {
+        final String filepath = "C:\\directory\\The Big Bang Theory - S03E04.mkv";
+        final TvShow tvShow = TvUtilities.parseFileName(filepath);
+
+        assertEquals("TvShowName", "The Big Bang Theory", tvShow.getFormattedTvShowName());
     }
 
     @Test
@@ -140,14 +149,16 @@ public class TvUtilitiesTest {
     }
 
     @Test
+    @Ignore
     public void runMKVEditorForTvShow_Test() throws Exception {
         final String filepath = "\\\\Desktop-plex\\Tv a-e\\Deadbeat\\Season 03\\Deadbeat - S03E01.mkv";
         File file = new File(filepath);
         assertTrue(file.exists());
+        final TvShow tvShow = TvUtilities.parseFileName(filepath);
         file = new File("\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe");
         assertTrue(file.exists());
 
-        TvFileUtilities.runMKVEditorForTvShow(filepath);
+        TvFileUtilities.runMKVEditorForTvShow(tvShow);
         // TODO: need to assert that the title was something before and after
         // change
     }
