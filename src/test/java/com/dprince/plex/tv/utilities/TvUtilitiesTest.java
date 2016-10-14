@@ -122,7 +122,7 @@ public class TvUtilitiesTest {
         TvUtilities.setNewFilename(tvShow);
         TvUtilities.setNewFilepath(tvShow);
         assertEquals("New Filepath",
-                "//DESKTOP-PLEX/tv j-s/Orange Is The New Black/Season 01/Orange Is The New Black - S01E06 - WAC Pack.avi",
+                "//DESKTOP-PLEX/tv m-s/Orange Is The New Black/Season 01/Orange Is The New Black - S01E06 - WAC Pack.avi",
                 tvShow.getNewFilepath());
     }
 

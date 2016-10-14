@@ -23,12 +23,6 @@ public class PlexUtilities {
         for (final String string : args) {
             System.out.println("Arg: " + string);
         }
-        try {
-            Thread.sleep(5000);
-        } catch (final InterruptedException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
         final String function = args[0];
 
         switch (function) {
@@ -41,6 +35,11 @@ public class PlexUtilities {
                 TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
                 TvUtilities.setNewFilename(tvShow);
                 TvUtilities.setNewFilepath(tvShow);
+
+                final boolean success = TvFileUtilities.renameFile(tvShow.getOriginalFilePath(),
+                        tvShow.getNewFilepath());
+
+                LOG.info("File renamed: " + success);
                 return;
             case ("moveFile"):
                 LOG.info("Move File function called");

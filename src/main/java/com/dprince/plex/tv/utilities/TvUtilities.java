@@ -82,7 +82,7 @@ public class TvUtilities {
             // matcher.group(4) + " "
             // + matcher.group(5) + " " + matcher.group(6));
 
-            String year = "";
+            String year = null;
             if (matcher.group(2) != null) {
                 year = matcher.group(2).replaceAll("\\(", "").replaceAll("\\)", "");
             }
@@ -205,7 +205,7 @@ public class TvUtilities {
     public static void setNewFilepath(TvShow tvShow) {
         final String DESKTOP_PLEX = "//DESKTOP-PLEX/";
         final String[] DesktopPlexLocation = {
-                "tv a-i", "tv t-z", "tv j-s"
+                "tv a-e", "tv f-l", "tv m-s", "tv t-z"
         };
 
         File queriedDrive = null;

@@ -200,6 +200,16 @@ public class TvFileUtilities {
         }
     }
 
+    public static boolean renameFile(String originalFilename, String newFileName) {
+        final File oldName = new File(originalFilename);
+        final File newName = new File(newFileName);
+        if (oldName.renameTo(newName)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /*
      * Getters for Testing
      */
