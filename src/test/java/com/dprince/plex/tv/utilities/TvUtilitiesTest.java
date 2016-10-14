@@ -34,7 +34,7 @@ public class TvUtilitiesTest {
     private static final String FILEPATH_OITNB = "C://Documents and Settings/Users/Darren/orange.is.the.new.black.1x06.WEB-DL.XviD-FUM[ettv].avi";
 
     private static final TvShow TVSHOW_AHS = new TvShow("orange is the new black", FILEPATH_OITNB,
-            null, "02", "02", "avi");
+            null, "02", "02", ".avi");
 
     @BeforeClass
     public static void createFoldersFileIfNotThere() {
@@ -116,7 +116,7 @@ public class TvUtilitiesTest {
     @Test
     public void setNewFilepath_Test() throws Exception {
         final TvShow tvShow = new TvShow("orange.is.the.new.black", FILEPATH_OITNB, null, "06",
-                "01", "avi");
+                "01", ".avi");
         tvShow.setFormattedTvShowName("Orange Is The New Black");
         TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
         TvUtilities.setNewFilename(tvShow);
@@ -128,8 +128,7 @@ public class TvUtilitiesTest {
 
     @Test
     public void testTvDirectories() throws Exception {
-        final TvFileUtilities tvFileUtilities = new TvFileUtilities();
-        final String[] directories = tvFileUtilities.getTvDirectories();
+        final String[] directories = TvFileUtilities.DESKTOP_SHARED_DIRECTORIES;
         final String plexPrefix = "\\\\Desktop-plex\\";
 
         for (final String dir : directories) {
@@ -151,14 +150,14 @@ public class TvUtilitiesTest {
     @Test
     @Ignore
     public void runMKVEditorForTvShow_Test() throws Exception {
-        final String filepath = "\\\\Desktop-plex\\Tv a-e\\Deadbeat\\Season 03\\Deadbeat - S03E01.mkv";
+        final String filepath = "\\\\Desktop-plex\\Tv a-e\\Deadbeat\\Season 03\\Deadbeat - S03E01.mp4";
         File file = new File(filepath);
-        assertTrue(file.exists());
+        // assertTrue(file.exists());
         final TvShow tvShow = TvUtilities.parseFileName(filepath);
         file = new File("\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe");
         assertTrue(file.exists());
 
-        TvFileUtilities.runMKVEditorForTvShow(tvShow);
+        TvUtilities.editMetaData(tvShow);
         // TODO: need to assert that the title was something before and after
         // change
     }

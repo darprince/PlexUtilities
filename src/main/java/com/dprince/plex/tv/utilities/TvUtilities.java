@@ -1,6 +1,7 @@
 package com.dprince.plex.tv.utilities;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
+import com.dprince.plex.shared.MetaDataFormatter;
 import com.dprince.plex.tv.types.TvShow;
 import com.dprince.tv.source.TheTvDbLookup;
 
@@ -179,34 +181,42 @@ public class TvUtilities {
         if (tvShow.getYear() == null) {
             final String episodeName = TheTvDbLookup.getEpisodeName(tvShow.getFormattedTvShowName(),
                     tvShow.getTvEpisodeNumber(), tvShow.getTvSeasonNumber());
+            LOG.info("Setting episode title:" + episodeName);
             tvShow.setTvEpisodeTitle(episodeName);
         } else {
             final String episodeName = TheTvDbLookup.getEpisodeName(
                     tvShow.getFormattedTvShowName() + " (" + tvShow.getYear() + ")",
                     tvShow.getTvEpisodeNumber(), tvShow.getTvSeasonNumber());
+            LOG.info("Setting episode title");
             tvShow.setTvEpisodeTitle(episodeName);
         }
     }
 
     public static void setNewFilename(TvShow tvShow) {
+        LOG.info("Setting new filename");
+        String title = "";
+        if (tvShow.getTvEpisodeTitle() != null) {
+            title = " - " + tvShow.getTvEpisodeTitle();
+        }
         if (tvShow.getYear() == null) {
             final String newFilename = tvShow.getFormattedTvShowName() + " - S"
-                    + tvShow.getTvSeasonNumber() + "E" + tvShow.getTvEpisodeNumber() + " - "
-                    + tvShow.getTvEpisodeTitle() + "." + tvShow.getExtension();
+                    + tvShow.getTvSeasonNumber() + "E" + tvShow.getTvEpisodeNumber() + title
+                    + tvShow.getExtension();
+            LOG.info("Setting new filename: " + newFilename);
             tvShow.setNewFilename(newFilename);
         } else {
             final String newFilename = tvShow.getFormattedTvShowName() + " (" + tvShow.getYear()
                     + ") - S" + tvShow.getTvSeasonNumber() + "E" + tvShow.getTvEpisodeNumber()
-                    + " - " + tvShow.getTvEpisodeTitle() + "." + tvShow.getExtension();
+                    + title + tvShow.getExtension();
+            LOG.info("Setting new filename: " + newFilename);
             tvShow.setNewFilename(newFilename);
         }
     }
 
     public static void setNewFilepath(TvShow tvShow) {
+        LOG.info("Setting new filepath");
         final String DESKTOP_PLEX = "//DESKTOP-PLEX/";
-        final String[] DesktopPlexLocation = {
-                "tv a-e", "tv f-l", "tv m-s", "tv t-z"
-        };
+        final String[] DesktopPlexLocation = TvFileUtilities.DESKTOP_SHARED_DIRECTORIES;
 
         File queriedDrive = null;
         String queryString = null;
@@ -220,6 +230,24 @@ public class TvUtilities {
 
         tvShow.setNewFilepath(queryString + "/Season " + tvShow.getTvSeasonNumber() + "/"
                 + tvShow.getNewFilename());
+    }
+
+    public static void editMetaData(TvShow tvShow) throws IOException {
+        final String extension = tvShow.getExtension();
+        LOG.info("Editing metadata with extension: " + extension);
+
+        if (extension.toLowerCase().matches(".mp4|.avi")) {
+            LOG.info("Editing metadata for mp4/avi");
+            LOG.info("Initial meta = "
+                    + MetaDataFormatter.getTitleFromMetaData(tvShow.getOriginalFilePath()));
+            MetaDataFormatter.writeRandomMetadata(tvShow.getOriginalFilePath(),
+                    tvShow.getTvEpisodeTitle());
+            LOG.info("New meta = "
+                    + MetaDataFormatter.getTitleFromMetaData(tvShow.getOriginalFilePath()));
+        } else if (extension.toLowerCase().matches(".mkv")) {
+            LOG.info("Editing metadata for mkv");
+            TvFileUtilities.runMKVEditorForTvShow(tvShow);
+        }
     }
 
     public static boolean moveFile() {

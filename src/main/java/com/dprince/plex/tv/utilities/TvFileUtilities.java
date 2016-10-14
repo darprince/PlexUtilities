@@ -23,7 +23,7 @@ public class TvFileUtilities {
 
     private static final String FOLDERS_FILE_LOCATION = "\\\\DESKTOP-DOWNLOA\\TVShowRenamer\\folders.txt";
 
-    private static final String DESKTOP_SHARED_DIRECTORIES[] = {
+    public static final String DESKTOP_SHARED_DIRECTORIES[] = {
             "tv a-e", "tv f-l", "tv m-s", "tv t-z", "Kids Tv"
     };
     private static final String PLEX_PREFIX = "\\\\Desktop-plex\\";
@@ -208,13 +208,5 @@ public class TvFileUtilities {
         } else {
             return false;
         }
-    }
-
-    /*
-     * Getters for Testing
-     */
-
-    public String[] getTvDirectories() {
-        return DESKTOP_SHARED_DIRECTORIES;
     }
 }
