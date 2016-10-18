@@ -196,7 +196,7 @@ public class TvUtilities {
         LOG.info("Setting new filename");
         String title = "";
         if (tvShow.getTvEpisodeTitle() != null) {
-            title = " - " + tvShow.getTvEpisodeTitle();
+            title = " - " + tvShow.getTvEpisodeTitle().replaceAll("[^A-Za-z0-9'_ ]", ",");
         }
         if (tvShow.getYear() == null) {
             final String newFilename = tvShow.getFormattedTvShowName() + " - S"
@@ -236,8 +236,8 @@ public class TvUtilities {
         final String extension = tvShow.getExtension();
         LOG.info("Editing metadata with extension: " + extension);
 
-        if (extension.toLowerCase().matches(".mp4|.avi")) {
-            LOG.info("Editing metadata for mp4/avi");
+        if (extension.toLowerCase().matches(".mp4")) {
+            LOG.info("Editing metadata for mp4");
             LOG.info("Initial meta = "
                     + MetaDataFormatter.getTitleFromMetaData(tvShow.getOriginalFilePath()));
             MetaDataFormatter.writeRandomMetadata(tvShow.getOriginalFilePath(),

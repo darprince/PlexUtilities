@@ -184,10 +184,16 @@ public class TvFileUtilities {
     // TODO: Does setTvEpisodeTitleFromAPI return null???
     public static void runMKVEditorForTvShow(TvShow tvShow) {
         final String parserPath = "\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe";
-        TvUtilities.setFormattedTvShowname(tvShow);
-        TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
 
-        final String title = tvShow.getTvEpisodeTitle();
+        if (tvShow.getRawTvShowName() == null) {
+            TvUtilities.setFormattedTvShowname(tvShow);
+            TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
+        }
+
+        String title = tvShow.getTvEpisodeTitle();
+        if (title == null || title.equals("null")) {
+            title = "";
+        }
         final String command = parserPath + " \"" + tvShow.getOriginalFilePath()
                 + "\" --set title=\"" + title + "\"";
 
