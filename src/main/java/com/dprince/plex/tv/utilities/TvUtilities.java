@@ -205,9 +205,9 @@ public class TvUtilities {
             LOG.info("Setting new filename: " + newFilename);
             tvShow.setNewFilename(newFilename);
         } else {
-            final String newFilename = tvShow.getFormattedTvShowName() + " (" + tvShow.getYear()
-                    + ") - S" + tvShow.getTvSeasonNumber() + "E" + tvShow.getTvEpisodeNumber()
-                    + title + tvShow.getExtension();
+            final String newFilename = tvShow.getFormattedTvShowName() + " - S"
+                    + tvShow.getTvSeasonNumber() + "E" + tvShow.getTvEpisodeNumber() + title
+                    + tvShow.getExtension();
             LOG.info("Setting new filename: " + newFilename);
             tvShow.setNewFilename(newFilename);
         }

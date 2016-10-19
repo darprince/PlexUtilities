@@ -36,18 +36,18 @@ public class PlexUtilities {
                 TvUtilities.setNewFilename(tvShow);
                 TvUtilities.setNewFilepath(tvShow);
 
+                while (!TvFileUtilities.seasonFolderExists(tvShow.getNewFilepath())) {
+                    LOG.info("Creating new season folder");
+                    TvFileUtilities.createNewSeasonFolder(tvShow.getNewFilepath());
+                }
+
                 final boolean success = TvFileUtilities.renameFile(tvShow.getOriginalFilePath(),
                         tvShow.getNewFilepath());
                 LOG.info("File renamed: " + success);
 
-                while (!TvFileUtilities.seasonFolderExists(tvShow.getNewFilepath())) {
-                    // create Season folder
-                    TvFileUtilities.createNewSeasonFolder(tvShow.getNewFilepath());
-                }
-
                 tvShow.setOriginalFilepath(tvShow.getNewFilepath());
                 while (!(new File(tvShow.getNewFilepath()).exists())) {
-                    LOG.info("File doesn't exist");
+                    LOG.info(tvShow.getNewFilepath() + " doesn't exist");
                 }
 
                 TvUtilities.editMetaData(tvShow);
