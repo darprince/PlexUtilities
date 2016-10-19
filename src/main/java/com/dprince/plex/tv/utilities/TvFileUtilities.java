@@ -246,4 +246,18 @@ public class TvFileUtilities {
         }
         return false;
     }
+
+    public static boolean episodeExists(TvShow tvShow) {
+        final File file = new File(tvShow.getNewFilepath());
+        final File folder = new File(file.getParent());
+        final String seasonEpisode = "S" + tvShow.getTvSeasonNumber() + "E"
+                + tvShow.getTvEpisodeNumber();
+
+        for (final File episode : folder.listFiles()) {
+            if (episode.toString().contains(seasonEpisode)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

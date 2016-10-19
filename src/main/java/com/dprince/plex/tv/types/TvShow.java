@@ -47,8 +47,16 @@ public class TvShow {
         return this.year;
     }
 
+    public void setTvEpisodeNumber(String tvEpisodeNumber) {
+        this.tvEpisodeNumber = tvEpisodeNumber;
+    }
+
     public String getTvEpisodeNumber() {
         return this.tvEpisodeNumber;
+    }
+
+    public void setTvSeasonNumber(String tvSeasonNumber) {
+        this.tvSeasonNumber = tvSeasonNumber;
     }
 
     public String getTvSeasonNumber() {
