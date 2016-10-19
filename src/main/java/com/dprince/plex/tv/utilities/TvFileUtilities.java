@@ -181,6 +181,31 @@ public class TvFileUtilities {
         }
     }
 
+    public static void createNewSeasonFolderFromDir(String filepath) {
+        // final TvShow tvShow = TvUtilities.parseFileName(filepath);
+        // TvUtilities.setFormattedTvShowname(tvShow);
+        // final String showname = tvShow.getFormattedTvShowName();
+
+        final File file = new File(filepath);
+        if (file.exists()) {
+            int season = 1;
+            final String seasonFolderPrefix = file.getPath() + "\\Season 0";
+            File seasonFolder = new File(seasonFolderPrefix + season);
+            while (seasonFolder.exists()) {
+                season++;
+                seasonFolder = new File(seasonFolderPrefix + season);
+            }
+            final boolean success = seasonFolder.mkdir();
+            if (success) {
+                LOG.info("New season folder created");
+            } else {
+                LOG.info("New season folder not created");
+            }
+
+            return;
+        }
+    }
+
     // TODO: Does setTvEpisodeTitleFromAPI return null???
     public static void runMKVEditorForTvShow(TvShow tvShow) {
         final String parserPath = "\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe";

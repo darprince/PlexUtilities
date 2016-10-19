@@ -66,6 +66,10 @@ public class PlexUtilities {
                 final String seasonOriginalFilepath = args[1];
                 TvFileUtilities.createNewSeasonFolder(seasonOriginalFilepath);
                 return;
+            case ("newFolderFromDir"):
+                LOG.info("Create New Season folder from directory called");
+                final String dir = args[1];
+                TvFileUtilities.createNewSeasonFolderFromDir(dir);
             default:
                 System.exit(0);
         }
