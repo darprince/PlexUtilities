@@ -171,21 +171,16 @@ public class TvFileUtilities {
                 }
                 final boolean success = seasonFolder.mkdir();
                 if (success) {
-                    LOG.info("New season folder created");
+                    LOG.info(seasonFolder.getName() + " folder created");
                 } else {
                     LOG.info("New season folder not created");
                 }
-
                 return;
             }
         }
     }
 
     public static void createNewSeasonFolderFromDir(String filepath) {
-        // final TvShow tvShow = TvUtilities.parseFileName(filepath);
-        // TvUtilities.setFormattedTvShowname(tvShow);
-        // final String showname = tvShow.getFormattedTvShowName();
-
         final File file = new File(filepath);
         if (file.exists()) {
             int season = 1;
@@ -239,5 +234,16 @@ public class TvFileUtilities {
         } else {
             return false;
         }
+    }
+
+    public static boolean seasonFolderExists(String filepath) {
+        // remove filename from filepath
+        final File file = new File(filepath);
+        final File directory = new File(file.getParent());
+
+        if (directory.exists()) {
+            return true;
+        }
+        return false;
     }
 }

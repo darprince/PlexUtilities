@@ -161,4 +161,12 @@ public class TvUtilitiesTest {
         // TODO: need to assert that the title was something before and after
         // change
     }
+
+    @Test
+    public void seasonFolderExists_Test() throws Exception {
+        final String filepath = "\\\\Desktop-plex\\Tv a-e\\Deadbeat\\Season 03\\Deadbeat - S03E01.mp4";
+
+        final boolean exists = TvFileUtilities.seasonFolderExists(filepath);
+        assertTrue(exists);
+    }
 }

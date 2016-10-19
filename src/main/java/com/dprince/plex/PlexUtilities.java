@@ -40,6 +40,11 @@ public class PlexUtilities {
                         tvShow.getNewFilepath());
                 LOG.info("File renamed: " + success);
 
+                while (!TvFileUtilities.seasonFolderExists(tvShow.getNewFilepath())) {
+                    // create Season folder
+                    TvFileUtilities.createNewSeasonFolder(tvShow.getNewFilepath());
+                }
+
                 tvShow.setOriginalFilepath(tvShow.getNewFilepath());
                 while (!(new File(tvShow.getNewFilepath()).exists())) {
                     LOG.info("File doesn't exist");
@@ -73,7 +78,5 @@ public class PlexUtilities {
             default:
                 System.exit(0);
         }
-
-        Thread.sleep(10000);
     }
 }
