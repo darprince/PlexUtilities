@@ -120,7 +120,7 @@ public class TvUtilities {
         tvShow.setOriginalFilepath(originalFilepath);
     }
 
-    public static void setFormattedTvShowname(TvShow tvShow) {
+    public static void setFormattedTvShowname(TvShow tvShow) throws IOException {
         final String[][] titles = TvFileUtilities.getTitlesArray();
 
         // match show to titles array
@@ -170,8 +170,8 @@ public class TvUtilities {
         }
 
         if (toReturn == null) {
-            System.out.println("TVShow name is null.");
-            System.exit(0);
+            TvFileUtilities.createShowFolder(tvShow);
+            return;
         } else {
             tvShow.setFormattedTvShowName(toReturn);
         }
@@ -248,6 +248,7 @@ public class TvUtilities {
             LOG.info("Editing metadata for mkv");
             TvFileUtilities.runMKVEditorForTvShow(tvShow);
         }
+        return;
     }
 
     public static boolean moveFile() {

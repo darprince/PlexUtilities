@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
+import com.dprince.plex.movie.MovieRenamer;
 import com.dprince.plex.tv.types.TvShow;
 import com.dprince.plex.tv.utilities.TvFileUtilities;
 import com.dprince.plex.tv.utilities.TvUtilities;
@@ -84,6 +85,16 @@ public class PlexUtilities {
                 LOG.info("Create New Season folder from directory called");
                 final String dir = args[1];
                 TvFileUtilities.createNewSeasonFolderFromDir(dir);
+                return;
+            case ("extractTvFiles"):
+                LOG.info("Extract TV Shows function called");
+                TvFileUtilities.extractTvFiles();
+                return;
+            case ("renameMovie"):
+                LOG.info("Rename movie function called");
+                final String movieFilename = args[1];
+                MovieRenamer.renameMovie(movieFilename);
+                return;
             default:
                 System.exit(0);
         }

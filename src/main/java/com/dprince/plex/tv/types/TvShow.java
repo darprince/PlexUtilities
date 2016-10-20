@@ -35,6 +35,10 @@ public class TvShow {
                 + formattedTvShowName + ", tvEpisodeTitle=" + tvEpisodeTitle + "]";
     }
 
+    public void setRawTvShowName(String rawShowname) {
+        this.rawTvShowName = rawShowname;
+    }
+
     public String getRawTvShowName() {
         return this.rawTvShowName;
     }

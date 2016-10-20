@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,8 @@ import com.dprince.logger.Logging;
 import com.dprince.plex.tv.types.TvShow;
 
 public class TvFileUtilities {
+
+    private static final String MKVPROPEDIT_LOCATION = "\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe";
 
     public TvFileUtilities() {
 
@@ -158,7 +161,7 @@ public class TvFileUtilities {
         return filename;
     }
 
-    public static void createNewSeasonFolder(String filepath) {
+    public static void createNewSeasonFolder(String filepath) throws IOException {
         final TvShow tvShow = TvUtilities.parseFileName(filepath);
         TvUtilities.setFormattedTvShowname(tvShow);
         final String showname = tvShow.getFormattedTvShowName();
@@ -205,9 +208,24 @@ public class TvFileUtilities {
         }
     }
 
+    public static void runMKVEditorForMovie(String filename) {
+        final String movieFilename = getFilenameFromPath(filename);
+        final String movieName = movieFilename.substring(0, movieFilename.lastIndexOf("."));
+
+        final String command = MKVPROPEDIT_LOCATION + " \"" + filename + "\" --set title=\""
+                + movieName + "\"";
+
+        LOG.info("Command " + command);
+
+        try {
+            Runtime.getRuntime().exec(command);
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     // TODO: Does setTvEpisodeTitleFromAPI return null???
-    public static void runMKVEditorForTvShow(TvShow tvShow) {
-        final String parserPath = "\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe";
+    public static void runMKVEditorForTvShow(TvShow tvShow) throws IOException {
 
         if (tvShow.getRawTvShowName() == null) {
             TvUtilities.setFormattedTvShowname(tvShow);
@@ -218,7 +236,7 @@ public class TvFileUtilities {
         if (title == null || title.equals("null")) {
             title = "";
         }
-        final String command = parserPath + " \"" + tvShow.getOriginalFilePath()
+        final String command = MKVPROPEDIT_LOCATION + " \"" + tvShow.getOriginalFilePath()
                 + "\" --set title=\"" + title + "\"";
 
         LOG.info("Command " + command);
@@ -261,6 +279,61 @@ public class TvFileUtilities {
         }
     }
 
+    public static void createShowFolder(TvShow tvShow) throws IOException {
+        final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this show to Plex?",
+                WordUtils.capitalize(tvShow.getRawTvShowName()));
+        String newSubFolderName = null;
+
+        // TODO: add numerical to regex
+        final String firstLetter = result.toString().toLowerCase().substring(0, 1);
+        if (firstLetter.matches("[a-e]")) {
+            newSubFolderName = "tv a-e\\";
+        } else if (firstLetter.matches("[f-l]")) {
+            newSubFolderName = "tv f-l\\";
+        } else if (firstLetter.matches("[m-s]")) {
+            newSubFolderName = "tv m-s\\";
+        } else if (firstLetter.matches("[t-z]")) {
+            newSubFolderName = "tv t-z\\";
+        }
+
+        final String resultString = result.toString();
+        final File folderToCreate = new File(PLEX_PREFIX + newSubFolderName + resultString);
+        final File seasonFolderToCreate = new File(folderToCreate.toString() + "\\Season 01");
+
+        // test if folder already exists
+        if (folderToCreate.exists()) {
+            return;
+        } else {
+            folderToCreate.mkdir();
+            seasonFolderToCreate.mkdir();
+            tvShow.setFormattedTvShowName(resultString);
+        }
+
+        // add to folders.txt
+        final File tvShowFoldersFile = new File(FOLDERS_FILE_LOCATION);
+        if (!tvShowFoldersFile.exists()) {
+            LOG.info("folders.txt does not exist");
+        }
+
+        final String toWrite = resultString + "^^^" + resultString.toLowerCase();
+        Files.write(Paths.get(FOLDERS_FILE_LOCATION), toWrite.getBytes(),
+                StandardOpenOption.APPEND);
+
+        // BufferedWriter outputWriter = null;
+        // try {
+        // outputWriter = new BufferedWriter(new FileWriter(tvShowFoldersFile));
+        //
+        // outputWriter.append(resultString + "^^^" +
+        // resultString.toLowerCase());
+        //
+        // outputWriter.flush();
+        // outputWriter.close();
+        // } catch (final IOException e) {
+        // LOG.info("Writing to folders file failed.");
+        // System.out.println(e.toString());
+        // }
+    }
+
     public static boolean seasonFolderExists(TvShow tvShow) {
         // remove filename from filepath
         final File file = new File(tvShow.getNewFilepath());
@@ -284,5 +357,30 @@ public class TvFileUtilities {
             }
         }
         return false;
+    }
+
+    /**
+     * Extracts all video files from Completed sub-directories to Completed that
+     * are smaller than 700 MB and not called rarbg.com.mp4
+     */
+    public static void extractTvFiles() {
+        final File folder = new File("\\\\Desktop-Downloa\\Completed");
+
+        for (final File showFolder : folder.listFiles()) {
+            if (showFolder.isDirectory()) {
+                for (final File showFile : showFolder.listFiles()) {
+                    if (getExtension(showFile.toString()).matches(".avi|.mp4|.mkv")
+                            && !showFile.getName().toString().toLowerCase().equals("rarbg.com.mp4")
+                            && showFile.length() < 700000000) {
+                        renameFile(showFile.toString(),
+                                folder.toString() + "\\" + showFile.getName());
+                    }
+                }
+            }
+        }
+    }
+
+    public static String getExtension(String filename) {
+        return filename.substring(filename.lastIndexOf("."), filename.length());
     }
 }

@@ -199,9 +199,30 @@ public class TvUtilitiesTest {
     }
 
     @Test
+    @Ignore
     public void showFolderExists_Test() throws Exception {
         TVSHOW_AHS.setNewFilepath(
                 "\\\\Desktop-plex\\Tv m-s\\new show name\\Season 02\\Orange is the New Black - S02E22.mp4");
-        // TvFileUtilities.showFolderExists(TVSHOW_AHS);
+        TvFileUtilities.showFolderExists(TVSHOW_AHS);
+    }
+
+    @Test
+    @Ignore
+    public void createShowFolder_Test() throws Exception {
+        TVSHOW_AHS.setRawTvShowName("billy show");
+        TvFileUtilities.createShowFolder(TVSHOW_AHS);
+    }
+
+    @Test
+    public void extractTvFiles_Test() throws Exception {
+        TvFileUtilities.extractTvFiles();
+    }
+
+    @Test
+    @Ignore
+    public void runMKVEditorForMovie_Test() throws Exception {
+        TvFileUtilities.runMKVEditorForMovie(
+                "\\\\Desktop-plex\\Tv m-s\\new show name\\Season 02\\Orange is the New Black - S02E22.mp4");
+
     }
 }
