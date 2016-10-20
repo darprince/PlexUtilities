@@ -10,6 +10,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
+import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
@@ -236,12 +240,33 @@ public class TvFileUtilities {
         }
     }
 
-    public static boolean seasonFolderExists(String filepath) {
-        // remove filename from filepath
-        final File file = new File(filepath);
-        final File directory = new File(file.getParent());
+    public static void showFolderExists(TvShow tvShow) {
+        final File file = new File(tvShow.getNewFilepath());
+        final File seasonFolder = new File(file.getParent());
+        final File showFolder = new File(seasonFolder.getParent());
 
-        if (directory.exists()) {
+        if (showFolder.exists()) {
+            return;
+        }
+
+        final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this show to Plex?",
+                WordUtils.capitalize(tvShow.getRawTvShowName()));
+
+        if (result != null) {
+            final File rootFolder = new File(showFolder.getParent());
+            final File newShowFolder = new File(rootFolder.toString() + "\\" + result.toString());
+            newShowFolder.mkdir();
+            final File newSeasonFolder = new File(newShowFolder.toString() + "\\Season 01");
+            newSeasonFolder.mkdir();
+        }
+    }
+
+    public static boolean seasonFolderExists(TvShow tvShow) {
+        // remove filename from filepath
+        final File file = new File(tvShow.getNewFilepath());
+        final File seasonFolder = new File(file.getParent());
+
+        if (seasonFolder.exists()) {
             return true;
         }
         return false;

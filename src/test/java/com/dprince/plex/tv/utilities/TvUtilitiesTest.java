@@ -164,9 +164,13 @@ public class TvUtilitiesTest {
 
     @Test
     public void seasonFolderExists_Test() throws Exception {
-        final String filepath = "\\\\Desktop-plex\\Tv a-e\\Deadbeat\\Season 03\\Deadbeat - S03E01.mp4";
+        assertTrue(TVSHOW_AHS.getTvSeasonNumber().equals("02"));
+        assertTrue(TVSHOW_AHS.getTvEpisodeNumber().equals("02"));
 
-        final boolean exists = TvFileUtilities.seasonFolderExists(filepath);
+        TVSHOW_AHS.setNewFilepath(
+                "\\\\Desktop-plex\\Tv m-s\\Orange Is The New Black\\Season 02\\Orange Is The New Black - S02E02.mp4");
+
+        final boolean exists = TvFileUtilities.seasonFolderExists(TVSHOW_AHS);
         assertTrue(exists);
     }
 
@@ -176,7 +180,7 @@ public class TvUtilitiesTest {
         assertTrue(TVSHOW_AHS.getTvEpisodeNumber().equals("02"));
 
         TVSHOW_AHS.setNewFilepath(
-                "\\\\Desktop-plex\\Tv m-s\\Orange Is The New Black\\Season 02\\Orange is the New Black - S02E02.mp4");
+                "\\\\Desktop-plex\\Tv m-s\\Orange Is The New Black\\Season 02\\Orange Is The New Black - S02E02.mp4");
 
         assertTrue(TvFileUtilities.episodeExists(TVSHOW_AHS));
     }
@@ -192,5 +196,12 @@ public class TvUtilitiesTest {
                 "\\\\Desktop-plex\\Tv m-s\\Orange Is The New Black\\Season 02\\Orange is the New Black - S02E22.mp4");
 
         assertFalse(TvFileUtilities.episodeExists(TVSHOW_AHS));
+    }
+
+    @Test
+    public void showFolderExists_Test() throws Exception {
+        TVSHOW_AHS.setNewFilepath(
+                "\\\\Desktop-plex\\Tv m-s\\new show name\\Season 02\\Orange is the New Black - S02E22.mp4");
+        // TvFileUtilities.showFolderExists(TVSHOW_AHS);
     }
 }

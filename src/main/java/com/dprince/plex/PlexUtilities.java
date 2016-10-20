@@ -3,6 +3,9 @@ package com.dprince.plex;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
@@ -36,7 +39,13 @@ public class PlexUtilities {
                 TvUtilities.setNewFilename(tvShow);
                 TvUtilities.setNewFilepath(tvShow);
 
-                while (!TvFileUtilities.seasonFolderExists(tvShow.getNewFilepath())) {
+                if (TvFileUtilities.episodeExists(tvShow)) {
+                    JOptionPane.showMessageDialog(new JFrame(),
+                            "Episode " + tvShow.getNewFilename() + " exists");
+                    System.exit(0);
+                }
+
+                while (!TvFileUtilities.seasonFolderExists(tvShow)) {
                     LOG.info("Creating new season folder");
                     TvFileUtilities.createNewSeasonFolder(tvShow.getNewFilepath());
                 }
