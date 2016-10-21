@@ -213,6 +213,8 @@ public class TvFileUtilities {
         final String movieName = movieFilename.substring(0, movieFilename.lastIndexOf("."));
 
         final String command = MKVPROPEDIT_LOCATION + " \"" + filename + "\" --set title=\""
+                + movieName
+                + "\" --edit track:a1 --set name=\"English\" --edit track:v1 --set name=\""
                 + movieName + "\"";
 
         LOG.info("Command " + command);

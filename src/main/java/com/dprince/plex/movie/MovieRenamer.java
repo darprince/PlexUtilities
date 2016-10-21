@@ -31,6 +31,8 @@ public class MovieRenamer {
         final String basePath = file.getParentFile().toString();
         System.out.println("Basepath: " + basePath);
 
+        String newMovieFilename = null;
+
         if (!file.isDirectory()) {
             final String extension = getExtension();
             renamedFile = getNewFilename(movieName, year, extension);
@@ -48,21 +50,21 @@ public class MovieRenamer {
                 final String movieFolder = movieFiles.getParentFile().toString();
                 System.out.println("\nfile: " + movieFiles.toString());
                 if (movieFiles.isFile()) {
-                    if (extensions.contains(getExtension(movieFiles.toString()))) {
+                    if (extensions.contains(getExtension(movieFiles.toString()))
+                            || movieFiles.getName().toString().equalsIgnoreCase("rarbg.com.mp4")) {
                         movieFiles.delete();
-                    }
-                    if (movieFiles.getName().toString().equalsIgnoreCase("rarbg.com.mp4")) {
-                        movieFiles.delete();
+                        break;
                     }
                     if (subExtensions.contains(getExtension(movieFiles.toString()))) {
                         renameFile(movieFiles.toString(),
                                 movieFiles.getParentFile().toString() + "\\" + renamedFile + ".eng."
                                         + getExtension(movieFiles.toString()));
                     } else {
+                        newMovieFilename = renamedFile + "." + getExtension(movieFiles.toString());
                         final String newFilepath = movieFiles.getParentFile().toString() + "\\"
-                                + renamedFile + "." + getExtension(movieFiles.toString());
+                                + newMovieFilename;
                         renameFile(movieFiles.toString(), newFilepath);
-                        setMetaData(newFilepath);
+
                     }
                 } else if (movieFiles.isDirectory()) {
                     final File[] listOfSubFiles = movieFiles.listFiles();
@@ -79,6 +81,10 @@ public class MovieRenamer {
         if (renameFile(fileName, basePath + "\\" + renamedFile) == false) {
             System.out.println("Renaming failed.");
         }
+
+        final String newMovieFilePath = basePath + "\\" + renamedFile + "\\" + newMovieFilename;
+        LOG.info("Filepath for metaEdit: " + newMovieFilePath);
+        setMetaData(newMovieFilePath);
     }
 
     private static void setMetaData(final String renamedFile) {
