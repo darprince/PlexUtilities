@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang3.text.WordUtils;
+import org.codehaus.plexus.util.FileUtils;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
@@ -364,8 +365,10 @@ public class TvFileUtilities {
     /**
      * Extracts all video files from Completed sub-directories to Completed that
      * are smaller than 700 MB and not called rarbg.com.mp4
+     * 
+     * @throws IOException
      */
-    public static void extractTvFiles() {
+    public static void extractTvFiles() throws IOException {
         final File folder = new File("\\\\Desktop-Downloa\\Completed");
 
         for (final File showFolder : folder.listFiles()) {
@@ -376,6 +379,8 @@ public class TvFileUtilities {
                             && showFile.length() < 700000000) {
                         renameFile(showFile.toString(),
                                 folder.toString() + "\\" + showFile.getName());
+                        final File parentDirectory = new File(showFile.getParent());
+                        FileUtils.deleteDirectory(parentDirectory);
                     }
                 }
             }
