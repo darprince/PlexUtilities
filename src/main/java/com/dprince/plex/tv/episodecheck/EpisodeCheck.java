@@ -1,4 +1,4 @@
-package episodecheck;
+package com.dprince.plex.tv.episodecheck;
 
 import java.io.File;
 

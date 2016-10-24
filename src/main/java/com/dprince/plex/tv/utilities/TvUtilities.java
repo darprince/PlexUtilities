@@ -50,18 +50,6 @@ public class TvUtilities {
 
             System.out.println("Parser: " + rawTvShowname);
             LOG.info("Parser: rawTvShowname = " + rawTvShowname);
-            // for (final AwkwardTvShows awkwardTvShows :
-            // AwkwardTvShows.values()) {
-            // if (show.toLowerCase().contains(awkwardTvShows.match)) {
-            // show = show.replaceAll(awkwardTvShows.match,
-            // awkwardTvShows.replacement);
-            // break;
-            // }
-            // }
-
-            // for (int i = 0; i <= matcher.groupCount(); i++) {
-            // System.out.println("GP" + i + ": " + matcher.group(i));
-            // }
 
             String tvSeasonNumber = "XX";
             String tvEpisodeNumber = "XX";
