@@ -58,7 +58,7 @@ public class TheTvDbLookup {
         final String queryString = SERIES_CONTEXT + showID + EPISODES_CONTEXT
                 + "/query?airedSeason=" + seasonNumber + "&airedEpisode=" + episodeNumber;
 
-        final JsonObject response = lookupAPI(queryString);
+        final JsonObject response = hitTvDbAPI(queryString);
 
         if (response == null) {
             return null;
@@ -79,7 +79,7 @@ public class TheTvDbLookup {
         final String showID = getShowID(showName);
         final String queryString = SERIES_CONTEXT + showID + EPISODES_CONTEXT;
 
-        JsonObject response = lookupAPI(queryString);
+        JsonObject response = hitTvDbAPI(queryString);
 
         LOG.info("Parsing response");
         JsonParser parser = new JsonParser();
@@ -116,7 +116,7 @@ public class TheTvDbLookup {
             if (currentPage <= lastPage) {
                 final String newQueryString = queryString + "?page=" + currentPage;
 
-                response = lookupAPI(newQueryString);
+                response = hitTvDbAPI(newQueryString);
 
                 if (response == null) {
                     return null;
@@ -139,10 +139,17 @@ public class TheTvDbLookup {
         return episodeList;
     }
 
+    /**
+     * attempts to get theTvDb showID corresponding to the showTitle given
+     *
+     * @param showTitle
+     *            The title of the show being queried
+     * @return theTvDb showId of the show being queried, null otherwise
+     */
     private static String getShowID(String showTitle) {
         final String queryString = SEARCH_SERIES_NAME + showTitle.replaceAll(" ", "%20");
 
-        final JsonObject response = lookupAPI(queryString);
+        final JsonObject response = hitTvDbAPI(queryString);
         if (response == null) {
             LOG.info("Show ID is null, returning, null...");
             return null;
@@ -159,9 +166,49 @@ public class TheTvDbLookup {
         return showID;
     }
 
-    private static JsonObject lookupAPI(final String queryString) {
+    /**
+     * Takes a url to theTvDb with parameters and attempts to receive a response
+     * from theTvDb
+     *
+     * @param queryString
+     *            a url with parameters
+     * @return a {@link JsonObject} with the results from theTvDb.
+     */
+    private static JsonObject hitTvDbAPI(final String queryString) {
         final String url = HOST + queryString;
-        LOG.info(url);
+        LOG.info("URL: {}", url);
+
+        final HttpsURLConnection con = createConnection(url);
+        if (con == null) {
+            LOG.info("Connection to TvDb failed.");
+            return null;
+        }
+
+        final StringBuffer response = getResponseFromTvDb(con);
+        if (response != null) {
+            LOG.info("Response received");
+
+            try {
+                final JsonParser parser = new JsonParser();
+                final JsonObject result = parser.parse(response.toString()).getAsJsonObject();
+                LOG.info("Returning response from TvDb");
+                return result;
+            } catch (final Exception e) {
+                LOG.info("Error parsing response, returning null");
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Creates a connection to the TVDB.
+     *
+     * @param url
+     *            the url including parameters to theTvDb
+     * @return a {@link HttpsURLConnection} to theTvDb, null if connection fails
+     */
+    private static HttpsURLConnection createConnection(final String url) {
         HttpsURLConnection con = null;
 
         try {
@@ -189,7 +236,17 @@ public class TheTvDbLookup {
         } catch (final IOException e) {
             e.printStackTrace();
         }
+        return con;
+    }
 
+    /**
+     * Takes the connection to theTvDb and tries to get a response from theTvDb
+     *
+     * @param con
+     *            a preconfigured {@link HttpsURLConnection} to theTvDb.
+     * @return the reponse given by theTvDb.
+     */
+    private static StringBuffer getResponseFromTvDb(HttpsURLConnection con) {
         StringBuffer response = null;
 
         try {
@@ -206,19 +263,7 @@ public class TheTvDbLookup {
             JOptionPane.showMessageDialog(new JFrame(), "Show not found at theTvDb");
             return null;
         }
-
-        LOG.info("Response received");
-
-        try {
-            final JsonParser parser = new JsonParser();
-            final JsonObject result = parser.parse(response.toString()).getAsJsonObject();
-            LOG.info("Returning result");
-            return result;
-        } catch (final Exception e) {
-            LOG.info("Error parsing response");
-        }
-        LOG.info("Returning null");
-        return null;
+        return response;
     }
 
     /**
