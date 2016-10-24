@@ -2,7 +2,7 @@ package com.dprince.plex.tv.api.thetvdb.debug;
 
 import java.util.List;
 
-import com.dprince.tv.types.Episode;
+import com.dprince.plex.tv.api.thetvdb.types.Episode;
 
 public class DebugOutputs {
 
@@ -10,7 +10,7 @@ public class DebugOutputs {
         int count = 0;
 
         for (int i = 1; i < 100; i++) {
-            for (Episode episode : episodeList) {
+            for (final Episode episode : episodeList) {
                 if (episode.getSeason() == i) {
                     if (count == 0) {
                         System.out.println("\nSeason: " + i);
