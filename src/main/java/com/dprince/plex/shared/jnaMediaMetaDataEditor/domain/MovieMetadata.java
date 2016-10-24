@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.inject.Singleton;
+
 import com.dprince.plex.shared.jnaMediaMetaDataEditor.jna.MediaInfo;
-import com.google.inject.Singleton;
 
 /**
  * Informations relatives to a movie file.

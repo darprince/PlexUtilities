@@ -2,6 +2,11 @@ package com.dprince.plex.tv.api.thetvdb.types;
 
 import com.google.auto.value.AutoValue;
 
+/**
+ * Episode Data object.
+ * 
+ * @author Darren
+ */
 @AutoValue
 public abstract class Episode {
     public static int season;

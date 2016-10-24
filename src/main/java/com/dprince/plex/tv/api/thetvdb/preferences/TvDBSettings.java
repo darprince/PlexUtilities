@@ -5,6 +5,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * Class holding ApiKey and current location to current Token.
+ *
+ * @author Darren
+ */
 public class TvDBSettings {
 
     private static final String TOKEN_FILE_NAME = "\\\\Desktop-downloa\\TVShowRenamer\\token.txt";
@@ -16,21 +21,26 @@ public class TvDBSettings {
         this.token = getToken();
     }
 
+    /**
+     * Retrieves the token from the text file.
+     *
+     * @return The token for theTvDb api
+     */
     public String getToken() {
-        File file = new File(TOKEN_FILE_NAME);
+        final File file = new File(TOKEN_FILE_NAME);
 
-        StringBuilder result = new StringBuilder("");
+        final StringBuilder result = new StringBuilder("");
 
         try (Scanner scanner = new Scanner(file)) {
 
             while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
+                final String line = scanner.nextLine();
                 result.append(line);
             }
 
             scanner.close();
 
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -41,14 +51,20 @@ public class TvDBSettings {
         return APIKEY;
     }
 
+    /**
+     * Overwrites expired token with current one
+     *
+     * @param tokenToSet
+     *            The newly received token
+     */
     public void setToken(String tokenToSet) {
-        File file = new File(TOKEN_FILE_NAME);
+        final File file = new File(TOKEN_FILE_NAME);
 
         try {
-            FileWriter fileWriter = new FileWriter(file, false);
+            final FileWriter fileWriter = new FileWriter(file, false);
             fileWriter.write(tokenToSet);
             fileWriter.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }

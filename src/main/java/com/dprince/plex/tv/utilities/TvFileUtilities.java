@@ -14,8 +14,8 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.text.WordUtils;
-import org.codehaus.plexus.util.FileUtils;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
@@ -86,7 +86,7 @@ public class TvFileUtilities {
 
     // TODO: also from old version
     public static String[][] setTitlesFromDirectories() {
-        final List<File> finalFileList = new ArrayList<File>();
+        final List<File> finalFileList = new ArrayList<>();
         try {
             LOG.info("Reading Downloads directories");
             File file = null;

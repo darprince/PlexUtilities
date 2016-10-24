@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
 import com.dprince.plex.shared.MetaDataFormatter;
+import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 import com.dprince.plex.tv.types.TvShow;
-import com.dprince.tv.source.TheTvDbLookup;
 
 public class TvUtilities {
 

@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>com.dprince.plex</groupId>
 	<artifactId>PlexUtilities</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-
 
 	<dependencies>
 		<dependency>
@@ -18,10 +18,32 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Annotations -->
 		<dependency>
-			<groupId>com.akathist.maven.plugins.launch4j</groupId>
-			<artifactId>launch4j-maven-plugin</artifactId>
-			<version>1.7.8</version>
+			<groupId>org.eclipse.jdt</groupId>
+			<artifactId>org.eclipse.jdt.annotation</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.5.1</version>
+		</dependency>
+
+		<!-- <dependency> <groupId>com.akathist.maven.plugins.launch4j</groupId> 
+			<artifactId>launch4j-maven-plugin</artifactId> <version>1.7.8</version> </dependency> -->
+
+		<!-- String Utils -->
+		<dependency>
+			<groupId>org.apache.directory.studio</groupId>
+			<artifactId>org.apache.commons.io</artifactId>
+			<version>2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -37,9 +59,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- <dependency> <groupId>com.googlecode.mp4parser</groupId> <artifactId>isoparser</artifactId> 
-			<version>1.1.17</version> </dependency> -->
-
+		<!-- Meta data parsing -->
+		<dependency>
+			<groupId>com.googlecode.mp4parser</groupId>
+			<artifactId>isoparser</artifactId>
+			<version>1.1.17</version>
+		</dependency>
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>

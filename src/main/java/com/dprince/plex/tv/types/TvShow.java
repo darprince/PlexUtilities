@@ -2,6 +2,11 @@ package com.dprince.plex.tv.types;
 
 import javax.inject.Singleton;
 
+/**
+ * Data object for TvShow
+ * 
+ * @author Darren
+ */
 @Singleton
 public class TvShow {
     String rawTvShowName;

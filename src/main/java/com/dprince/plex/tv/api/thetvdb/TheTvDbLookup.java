@@ -1,7 +1,6 @@
-package com.dprince.plex.tv.api.thetvdb.source;
+package com.dprince.plex.tv.api.thetvdb;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -12,74 +11,81 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
-import com.dprince.plex.tv.api.thetvdb.preferences.TvDBSettings;
+import com.dprince.plex.tv.api.thetvdb.auth.Authorization;
 import com.dprince.plex.tv.api.thetvdb.types.Episode;
+import com.dprince.plex.tv.api.thetvdb.types.EpisodeNameResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class TheTvDbLookup {
 
-    private static final String LOGIN = "https://api.thetvdb.com/login";
-    private static final String SEARCH_SERIES_NAME = "/search/series?name=";
+    private static final String FIELD_JSON_LAST = "last";
+    private static final String FIELD_JSON_LINKS = "links";
+    private static final String FIELD_JSON_DATA = "data";
+
+    private static final String FIELD_EPISODE_NAME = "episodeName";
+    private static final String FIELD_EPISODE_NUMBER = "airedEpisodeNumber";
+    private static final String FIELD_SEASON_NUMBER = "airedSeason";
+
     private final static String HOST = "https://api.thetvdb.com";
     private final static String SERIES_CONTEXT = "/series/";
     private final static String EPISODES_CONTEXT = "/episodes";
+    private static final String SEARCH_SERIES_NAME = "/search/series?name=";
     private final static String EPISODES_SEARCH_PREFIX = "/episodes/query?airedSeason=";
-
-    private static String apiKey;
-    private static String token;
-    private static TvDBSettings settings;
 
     private static final Logger LOG = Logging.getLogger(TheTvDbLookup.class);
 
     public static void main(String[] args) {
-        init();
-        System.out.println(getShowID("30 for 30"));
+        System.out.println(getEpisodeName("breaking bad", "02", "04"));
     }
 
-    public static void init() {
-        settings = new TvDBSettings();
-        token = settings.getToken();
-        apiKey = settings.getApiKey();
-    }
+    /**
+     * Top level method to return a tv shows episode name
+     *
+     * @param showTitle
+     *            The name of the show being queried.
+     * @param episodeNumber
+     * @param seasonNumber
+     * @return the name of the episode being queried, null otherwise.
+     */
+    @Nullable
+    public static String getEpisodeName(@NonNull String showTitle, @NonNull String episodeNumber,
+            @NonNull String seasonNumber) {
 
-    public static String getEpisodeName(String showName, String episodeNumber,
-            String seasonNumber) {
-        init();
-        final String showID = getShowID(showName);
+        final String showID = getShowID(showTitle);
         if (showID == null) {
             return null;
         }
 
-        final String queryString = SERIES_CONTEXT + showID + EPISODES_CONTEXT
-                + "/query?airedSeason=" + seasonNumber + "&airedEpisode=" + episodeNumber;
+        final String queryString = SERIES_CONTEXT + showID + EPISODES_SEARCH_PREFIX + seasonNumber
+                + "&airedEpisode=" + episodeNumber;
 
-        final JsonObject response = hitTvDbAPI(queryString);
+        final String response = hitTvDbAPI(queryString);
 
-        if (response == null) {
+        final ObjectMapper mapper = new ObjectMapper();
+        EpisodeNameResponse episodeNameResponse = null;
+        try {
+            episodeNameResponse = mapper.readValue(response, EpisodeNameResponse.class);
+        } catch (final IOException e) {
+            LOG.error("Failed to create EpisodeNameResponse object,", e);
             return null;
         }
 
-        final JsonParser parser = new JsonParser();
-        final JsonObject result = parser.parse(response.toString()).getAsJsonObject();
-
-        // get episode
-        final JsonArray jsonArrayData = result.getAsJsonArray("data");
-        final JsonObject jsonObject = jsonArrayData.get(0).getAsJsonObject();
-        final String episodeName = jsonObject.get("episodeName").getAsString();
-
-        return episodeName;
+        return episodeNameResponse.getData().get(0).getEpisodeName();
     }
 
     public static List<Episode> getAllEpisodesForShow(String showName) {
         final String showID = getShowID(showName);
         final String queryString = SERIES_CONTEXT + showID + EPISODES_CONTEXT;
 
-        JsonObject response = hitTvDbAPI(queryString);
+        String response = hitTvDbAPI(queryString);
 
         LOG.info("Parsing response");
         JsonParser parser = new JsonParser();
@@ -87,11 +93,11 @@ public class TheTvDbLookup {
 
         // get total number of pages
         int currentPage = 1;
-        final int lastPage = Integer
-                .parseInt(result.getAsJsonObject("links").get("last").getAsString());
+        final int lastPage = Integer.parseInt(
+                result.getAsJsonObject(FIELD_JSON_LINKS).get(FIELD_JSON_LAST).getAsString());
 
         // get episodes
-        JsonArray jsonArrayData = result.getAsJsonArray("data");
+        JsonArray jsonArrayData = result.getAsJsonArray(FIELD_JSON_DATA);
 
         final List<Episode> episodeList = new ArrayList<>();
         int arraySize = jsonArrayData.size();
@@ -99,11 +105,11 @@ public class TheTvDbLookup {
         while (arraySize > 0) {
             for (int i = 0; i < jsonArrayData.size(); i++) {
                 final JsonObject jsonObject = jsonArrayData.get(i).getAsJsonObject();
-                final int airedSeason = jsonObject.get("airedSeason").getAsInt();
-                final int airedEpisodeNumber = jsonObject.get("airedEpisodeNumber").getAsInt();
+                final int airedSeason = jsonObject.get(FIELD_SEASON_NUMBER).getAsInt();
+                final int airedEpisodeNumber = jsonObject.get(FIELD_EPISODE_NUMBER).getAsInt();
                 // final String firstAired =
                 // jsonObject.get("firstAired").getAsString();
-                final String episodeName = jsonObject.get("episodeName").getAsString();
+                final String episodeName = jsonObject.get(FIELD_EPISODE_NAME).getAsString();
 
                 if (airedSeason > 0 && airedEpisodeNumber > 0) {
                     final Episode episode = Episode.builder().setEpisode(airedEpisodeNumber)
@@ -126,7 +132,7 @@ public class TheTvDbLookup {
                 result = parser.parse(response.toString()).getAsJsonObject();
 
                 // get episodes
-                jsonArrayData = result.getAsJsonArray("data");
+                jsonArrayData = result.getAsJsonArray(FIELD_JSON_DATA);
                 arraySize = jsonArrayData.size();
             } else {
                 arraySize = 0;
@@ -146,19 +152,19 @@ public class TheTvDbLookup {
      *            The title of the show being queried
      * @return theTvDb showId of the show being queried, null otherwise
      */
-    private static String getShowID(String showTitle) {
+    private static String getShowID(@NonNull String showTitle) {
         final String queryString = SEARCH_SERIES_NAME + showTitle.replaceAll(" ", "%20");
 
-        final JsonObject response = hitTvDbAPI(queryString);
+        final String response = hitTvDbAPI(queryString);
         if (response == null) {
-            LOG.info("Show ID is null, returning, null...");
+            LOG.info("Show ID is null, returning null...");
             return null;
         }
 
         final JsonParser parser = new JsonParser();
-        final JsonObject result = parser.parse(response.toString()).getAsJsonObject();
+        final JsonObject result = parser.parse(response).getAsJsonObject();
 
-        final JsonArray jsonArrayData = result.getAsJsonArray("data");
+        final JsonArray jsonArrayData = result.getAsJsonArray(FIELD_JSON_DATA);
 
         final JsonObject jsonFirstElement = jsonArrayData.get(0).getAsJsonObject();
         final String showID = jsonFirstElement.get("id").getAsString();
@@ -172,9 +178,9 @@ public class TheTvDbLookup {
      *
      * @param queryString
      *            a url with parameters
-     * @return a {@link JsonObject} with the results from theTvDb.
+     * @return results from theTvDb.
      */
-    private static JsonObject hitTvDbAPI(final String queryString) {
+    private static String hitTvDbAPI(@NonNull final String queryString) {
         final String url = HOST + queryString;
         LOG.info("URL: {}", url);
 
@@ -184,21 +190,7 @@ public class TheTvDbLookup {
             return null;
         }
 
-        final StringBuffer response = getResponseFromTvDb(con);
-        if (response != null) {
-            LOG.info("Response received");
-
-            try {
-                final JsonParser parser = new JsonParser();
-                final JsonObject result = parser.parse(response.toString()).getAsJsonObject();
-                LOG.info("Returning response from TvDb");
-                return result;
-            } catch (final Exception e) {
-                LOG.info("Error parsing response, returning null");
-                return null;
-            }
-        }
-        return null;
+        return getResponseFromTvDb(con);
     }
 
     /**
@@ -208,7 +200,7 @@ public class TheTvDbLookup {
      *            the url including parameters to theTvDb
      * @return a {@link HttpsURLConnection} to theTvDb, null if connection fails
      */
-    private static HttpsURLConnection createConnection(final String url) {
+    private static HttpsURLConnection createConnection(@NonNull final String url) {
         HttpsURLConnection con = null;
 
         try {
@@ -217,7 +209,7 @@ public class TheTvDbLookup {
             con.setRequestMethod("GET");
             con.setRequestProperty("User-Agent", "Mozilla/5.0");
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-            con.setRequestProperty("Authorization", "Bearer " + token);
+            con.setRequestProperty("Authorization", "Bearer " + Authorization.getTokenFromFile());
             final int responseCode = con.getResponseCode();
 
             if (responseCode == 401) {
@@ -226,16 +218,17 @@ public class TheTvDbLookup {
                 con.setRequestMethod("GET");
                 con.setRequestProperty("User-Agent", "Mozilla/5.0");
                 con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-                final String newToken = getRequestToken();
+                final String newToken = Authorization.getRequestTokenFromTVDB();
                 con.setRequestProperty("Authorization", "Bearer " + newToken);
             } else if (responseCode == 404) {
                 JOptionPane.showMessageDialog(new JFrame(), "Response code 404 from theTvDb");
                 return null;
             }
-            LOG.info("Response code: " + responseCode);
+            LOG.info("Response code: " + con.getResponseCode());
         } catch (final IOException e) {
             e.printStackTrace();
         }
+
         return con;
     }
 
@@ -244,9 +237,9 @@ public class TheTvDbLookup {
      *
      * @param con
      *            a preconfigured {@link HttpsURLConnection} to theTvDb.
-     * @return the reponse given by theTvDb.
+     * @return the response given by theTvDb.
      */
-    private static StringBuffer getResponseFromTvDb(HttpsURLConnection con) {
+    private static String getResponseFromTvDb(@NonNull HttpsURLConnection con) {
         StringBuffer response = null;
 
         try {
@@ -263,72 +256,7 @@ public class TheTvDbLookup {
             JOptionPane.showMessageDialog(new JFrame(), "Show not found at theTvDb");
             return null;
         }
-        return response;
-    }
 
-    /**
-     * @return a request token from thetvdb.
-     */
-    private static String getRequestToken() {
-        final String url = LOGIN;
-        URL obj;
-        HttpsURLConnection con = null;
-        try {
-            obj = new URL(url);
-            con = (HttpsURLConnection) obj.openConnection();
-            con.setRequestMethod("POST");
-            con.setRequestProperty("User-Agent", "Mozilla/5.0");
-            con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-            con.setRequestProperty("Content-Type", "application/json");
-        } catch (final IOException e2) {
-            e2.printStackTrace();
-        }
-
-        final String urlParameters = apiKey;
-
-        // Send post request
-        con.setDoOutput(true);
-
-        try {
-            final DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-            wr.writeBytes(urlParameters);
-            wr.flush();
-            wr.close();
-            final int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'POST' request to URL : " + url);
-            System.out.println("Post parameters : " + urlParameters);
-            System.out.println("Response Code : " + responseCode);
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
-
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
-        String inputLine;
-        final StringBuffer response = new StringBuffer();
-
-        try {
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
-
-        // print result
-        System.out.println(response.toString());
-
-        final JsonParser parser = new JsonParser();
-        final JsonObject result = parser.parse(response.toString()).getAsJsonObject();
-
-        final String token = result.get("token").getAsString();
-        LOG.info("Setting new token");
-        settings.setToken(token);
-        return token;
+        return response.toString();
     }
 }
