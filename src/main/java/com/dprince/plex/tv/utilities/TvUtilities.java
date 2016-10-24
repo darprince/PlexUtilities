@@ -196,7 +196,7 @@ public class TvUtilities {
         LOG.info("Setting new filename");
         String title = "";
         if (tvShow.getTvEpisodeTitle() != null) {
-            title = " - " + tvShow.getTvEpisodeTitle().replaceAll("[^A-Za-z0-9'_ ]", ",");
+            title = " - " + tvShow.getTvEpisodeTitle().replaceAll("[^A-Za-z0-9()'_ ]", ",");
         }
         if (tvShow.getYear() == null) {
             final String newFilename = tvShow.getFormattedTvShowName() + " - S"

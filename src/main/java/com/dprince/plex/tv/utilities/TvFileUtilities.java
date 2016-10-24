@@ -279,7 +279,11 @@ public class TvFileUtilities {
             newShowFolder.mkdir();
             final File newSeasonFolder = new File(newShowFolder.toString() + "\\Season 01");
             newSeasonFolder.mkdir();
+
+            TvFileUtilities.deleteFoldersFile();
+            TvFileUtilities.createFoldersFile();
         }
+
     }
 
     public static void createShowFolder(TvShow tvShow) throws IOException {
