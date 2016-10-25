@@ -162,7 +162,8 @@ public class TvUtilities {
         }
 
         if (toReturn == null) {
-            TvFileUtilities.createShowFolder(tvShow);
+            final String showName = TvFileUtilities.createShowFolder(tvShow);
+            tvShow.setFormattedTvShowName(showName);
             return;
         } else {
             tvShow.setFormattedTvShowName(toReturn);
@@ -246,7 +247,7 @@ public class TvUtilities {
                 LOG.info("New meta = "
                         + MetaDataFormatter.getTitleFromMetaData(tvShow.getOriginalFilePath()));
             } else {
-                LOG.info("Show title is null, not setting.");
+                MetaDataFormatter.writeRandomMetadata(tvShow.getOriginalFilePath(), "");
             }
         } else if (extension.toLowerCase().matches(".mkv")) {
             LOG.info("Editing metadata for mkv");

@@ -12,7 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -232,32 +231,35 @@ public class TvFileUtilities {
         }
     }
 
-    public static void showFolderExists(TvShow tvShow) {
-        final File file = new File(tvShow.getNewFilepath());
-        final File seasonFolder = new File(file.getParent());
-        final File showFolder = new File(seasonFolder.getParent());
+    // public static void showFolderExists(TvShow tvShow) {
+    // final File file = new File(tvShow.getNewFilepath());
+    // final File seasonFolder = new File(file.getParent());
+    // final File showFolder = new File(seasonFolder.getParent());
+    //
+    // if (showFolder.exists()) {
+    // return;
+    // }
+    //
+    // final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this
+    // show to Plex?",
+    // WordUtils.capitalize(tvShow.getRawTvShowName()));
+    //
+    // if (result != null) {
+    // final File rootFolder = new File(showFolder.getParent());
+    // final File newShowFolder = new File(rootFolder.toString() + "\\" +
+    // result.toString());
+    // newShowFolder.mkdir();
+    // final File newSeasonFolder = new File(newShowFolder.toString() +
+    // "\\Season 01");
+    // newSeasonFolder.mkdir();
+    //
+    // TvFileUtilities.deleteFoldersFile();
+    // TvFileUtilities.createFoldersFile();
+    // }
+    //
+    // }
 
-        if (showFolder.exists()) {
-            return;
-        }
-
-        final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this show to Plex?",
-                WordUtils.capitalize(tvShow.getRawTvShowName()));
-
-        if (result != null) {
-            final File rootFolder = new File(showFolder.getParent());
-            final File newShowFolder = new File(rootFolder.toString() + "\\" + result.toString());
-            newShowFolder.mkdir();
-            final File newSeasonFolder = new File(newShowFolder.toString() + "\\Season 01");
-            newSeasonFolder.mkdir();
-
-            TvFileUtilities.deleteFoldersFile();
-            TvFileUtilities.createFoldersFile();
-        }
-
-    }
-
-    public static void createShowFolder(TvShow tvShow) throws IOException {
+    public static String createShowFolder(TvShow tvShow) throws IOException {
         final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this show to Plex?",
                 WordUtils.capitalize(tvShow.getRawTvShowName()));
         String newSubFolderName = null;
@@ -280,36 +282,17 @@ public class TvFileUtilities {
 
         // test if folder already exists
         if (folderToCreate.exists()) {
-            return;
+            return null;
         } else {
             folderToCreate.mkdir();
             seasonFolderToCreate.mkdir();
             tvShow.setFormattedTvShowName(resultString);
         }
 
-        // add to folders.txt
-        final File tvShowFoldersFile = new File(FOLDERS_FILE_LOCATION);
-        if (!tvShowFoldersFile.exists()) {
-            LOG.info("folders.txt does not exist");
-        }
+        TvFileUtilities.deleteFoldersFile();
+        TvFileUtilities.createFoldersFile();
 
-        final String toWrite = resultString + "^^^" + resultString.toLowerCase();
-        Files.write(Paths.get(FOLDERS_FILE_LOCATION), toWrite.getBytes(),
-                StandardOpenOption.APPEND);
-
-        // BufferedWriter outputWriter = null;
-        // try {
-        // outputWriter = new BufferedWriter(new FileWriter(tvShowFoldersFile));
-        //
-        // outputWriter.append(resultString + "^^^" +
-        // resultString.toLowerCase());
-        //
-        // outputWriter.flush();
-        // outputWriter.close();
-        // } catch (final IOException e) {
-        // LOG.info("Writing to folders file failed.");
-        // System.out.println(e.toString());
-        // }
+        return resultString;
     }
 
     public static boolean seasonFolderExists(TvShow tvShow) {
