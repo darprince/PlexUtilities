@@ -22,8 +22,6 @@ public class MovieRenamer {
     private static final List<String> EXTENSIONS = Arrays.asList("nfo", "txt", "jpg");
     private static final List<String> SUB_EXTENSIONS = Arrays.asList("srt", "sub", "idx");
 
-    static String fileName = null;
-
     public static void renameMovie(String filename) {
         final String movieName = getMovieName(filename);
         final String year = getYear(filename);
