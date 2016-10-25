@@ -1,5 +1,9 @@
 package com.dprince.plex.tv.utilities;
 
+import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
+import static com.dprince.plex.settings.PlexSettings.DOWNLOADS_PREFIX;
+import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
+import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -11,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.dprince.plex.movie.utilities.MovieUtilities;
 import com.dprince.plex.tv.types.TvShow;
 
 public class TvUtilitiesTest {
@@ -71,7 +76,7 @@ public class TvUtilitiesTest {
 
     @Test
     public void parseFormattedFilename_Test() throws Exception {
-        final String filepath = "C:\\directory\\The Big Bang Theory - S03E04.mkv";
+        final String filepath = "C:\\fakefile\\The Big Bang Theory - S03E04.mkv";
         final TvShow tvShow = TvUtilities.parseFileName(filepath);
 
         assertEquals("TvShowName", "The Big Bang Theory", tvShow.getFormattedTvShowName());
@@ -122,26 +127,24 @@ public class TvUtilitiesTest {
         TvUtilities.setNewFilename(tvShow);
         TvUtilities.setNewFilepath(tvShow);
         assertEquals("New Filepath",
-                "//DESKTOP-PLEX/tv m-s/Orange Is The New Black/Season 01/Orange Is The New Black - S01E06 - WAC Pack.avi",
+                PLEX_PREFIX
+                        + "tv m-s/Orange Is The New Black/Season 01/Orange Is The New Black - S01E06 - WAC Pack.avi",
                 tvShow.getNewFilepath());
     }
 
     @Test
     public void testTvDirectories() throws Exception {
-        final String[] directories = TvFileUtilities.DESKTOP_SHARED_DIRECTORIES;
-        final String plexPrefix = "\\\\Desktop-plex\\";
-
-        for (final String dir : directories) {
-            final File file = new File(plexPrefix + dir);
+        for (final String dir : DESKTOP_SHARED_DIRECTORIES) {
+            final File file = new File(PLEX_PREFIX + dir);
             assertTrue(file.exists());
         }
     }
 
     @Test
     public void createNewSeasonFolder_Test() throws Exception {
-        final String folderLocation = "\\\\Desktop-downloa\\TVShowRenamer\\TestFolder.204.kljf.avi";
+        final String folderLocation = DOWNLOADS_PREFIX + "TVShowRenamer/TestFolder.204.kljf.avi";
         TvFileUtilities.createNewSeasonFolder(folderLocation);
-        final File file = new File("\\\\Desktop-plex\\Tv a-e\\TestFolder\\Season 02");
+        final File file = new File(PLEX_PREFIX + "Tv a-e/TestFolder/Season 02");
         assertTrue(file.exists());
         file.delete();
         assertFalse(file.exists());
@@ -150,11 +153,11 @@ public class TvUtilitiesTest {
     @Test
     @Ignore
     public void runMKVEditorForTvShow_Test() throws Exception {
-        final String filepath = "\\\\Desktop-plex\\Tv a-e\\Deadbeat\\Season 03\\Deadbeat - S03E01.mp4";
+        final String filepath = PLEX_PREFIX + "Tv a-e/Deadbeat/Season 03/Deadbeat - S03E01.mp4";
         File file = new File(filepath);
         // assertTrue(file.exists());
         final TvShow tvShow = TvUtilities.parseFileName(filepath);
-        file = new File("\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe");
+        file = new File(MKVPROPEDIT_LOCATION);
         assertTrue(file.exists());
 
         TvUtilities.editMetaData(tvShow);
@@ -214,6 +217,7 @@ public class TvUtilitiesTest {
     }
 
     @Test
+    @Ignore
     public void extractTvFiles_Test() throws Exception {
         TvFileUtilities.extractTvFiles();
     }
@@ -221,7 +225,7 @@ public class TvUtilitiesTest {
     @Test
     @Ignore
     public void runMKVEditorForMovie_Test() throws Exception {
-        TvFileUtilities.runMKVEditorForMovie(
+        MovieUtilities.runMKVEditorForMovie(
                 "\\\\Desktop-plex\\Tv m-s\\new show name\\Season 02\\Orange is the New Black - S02E22.mp4");
 
     }

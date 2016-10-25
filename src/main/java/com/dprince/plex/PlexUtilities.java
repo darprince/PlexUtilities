@@ -63,18 +63,14 @@ public class PlexUtilities {
 
                 TvUtilities.editMetaData(tvShow);
                 return;
-            case ("moveFile"):
-                LOG.info("Move File function called");
-                return;
             case ("refreshTitlesFile"):
                 LOG.info("Refresh folders file function called");
                 TvFileUtilities.deleteFoldersFile();
                 TvFileUtilities.createFoldersFile();
                 return;
-            case ("metaDataEdit"):
+            case ("TvMetaDataEdit"):
                 LOG.info("MetaDataEdit function called");
-                final String editFilepath = args[1];
-                final TvShow metaDataEditTvShow = TvUtilities.parseFileName(editFilepath);
+                final TvShow metaDataEditTvShow = TvUtilities.parseFileName(args[1]);
                 TvUtilities.editMetaData(metaDataEditTvShow);
                 return;
             case ("newSeasonFolder"):

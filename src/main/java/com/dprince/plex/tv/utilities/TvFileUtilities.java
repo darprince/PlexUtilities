@@ -28,6 +28,8 @@ import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.tv.types.TvShow;
 
 public class TvFileUtilities {
+    private static final String RARBG_MP4 = "rarbg.com.mp4";
+    private static final String RARBG_AVI = "rarbg.com.avi";
     private static final Logger LOG = Logging.getLogger(TvFileUtilities.class);
 
     public TvFileUtilities() {
@@ -207,7 +209,7 @@ public class TvFileUtilities {
     // TODO: Does setTvEpisodeTitleFromAPI return null???
     public static void runMKVEditorForTvShow(TvShow tvShow) throws IOException {
 
-        if (tvShow.getRawTvShowName() == null) {
+        if (tvShow.getRawTvShowName() != null) {
             TvUtilities.setFormattedTvShowname(tvShow);
             TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
         }
@@ -351,7 +353,8 @@ public class TvFileUtilities {
             if (showFolder.isDirectory()) {
                 for (final File showFile : showFolder.listFiles()) {
                     if (getExtension(showFile.toString()).matches(".avi|.mp4|.mkv")
-                            && !showFile.getName().toString().toLowerCase().equals("rarbg.com.mp4")
+                            && !showFile.getName().toString().toLowerCase().equals(RARBG_MP4)
+                            && !showFile.getName().toString().toLowerCase().equals(RARBG_AVI)
                             && showFile.length() < 700000000) {
                         CommonUtilities.renameFile(showFile.toString(),
                                 folder.toString() + "\\" + showFile.getName());

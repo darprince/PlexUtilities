@@ -20,6 +20,7 @@ public class TvUtilities {
 
     private static final Logger LOG = Logging.getLogger(TvUtilities.class);
 
+    private static final String TWO_DECIMALS = "%02d";
     private static final String REGEX = "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})\\.).*(.mkv|.mp4|.avi|.mpg){1}";
     private static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[ -]{3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(.mkv|.mp4|.avi|.mpg){1}";
 
@@ -57,17 +58,17 @@ public class TvUtilities {
             String tvSeasonNumber = "XX";
             String tvEpisodeNumber = "XX";
             if (matcher.group(3) != null) {
-                tvSeasonNumber = String.format("%02d", Integer.parseInt(matcher.group(3)));
-                tvEpisodeNumber = String.format("%02d", Integer.parseInt(matcher.group(4)));
+                tvSeasonNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(3)));
+                tvEpisodeNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(4)));
             } else if (matcher.group(5) != null) {
-                tvSeasonNumber = String.format("%02d", Integer.parseInt(matcher.group(5)));
-                tvEpisodeNumber = String.format("%02d", Integer.parseInt(matcher.group(6)));
+                tvSeasonNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(5)));
+                tvEpisodeNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(6)));
             } else if (matcher.group(8) != null) {
-                tvSeasonNumber = String.format("%02d", Integer.parseInt(matcher.group(8)));
-                tvEpisodeNumber = String.format("%02d", Integer.parseInt(matcher.group(9)));
+                tvSeasonNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(8)));
+                tvEpisodeNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(9)));
             } else {
                 tvSeasonNumber = "01";
-                tvEpisodeNumber = String.format("%02d", Integer.parseInt(matcher.group(7)));
+                tvEpisodeNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(7)));
             }
             final String extension = matcher.group(10);
 
@@ -227,12 +228,26 @@ public class TvUtilities {
 
         if (extension.toLowerCase().matches(".mp4")) {
             LOG.info("Editing metadata for mp4");
-            LOG.info("Initial meta = "
-                    + MetaDataFormatter.getTitleFromMetaData(tvShow.getOriginalFilePath()));
-            MetaDataFormatter.writeRandomMetadata(tvShow.getOriginalFilePath(),
-                    tvShow.getTvEpisodeTitle());
-            LOG.info("New meta = "
-                    + MetaDataFormatter.getTitleFromMetaData(tvShow.getOriginalFilePath()));
+
+            if (tvShow.getRawTvShowName() != null) {
+                LOG.info("Raw show name is null, attempting to set...");
+                TvUtilities.setFormattedTvShowname(tvShow);
+                TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
+            } else {
+                LOG.info("Raw show name is null");
+            }
+
+            final String currentMetaData = MetaDataFormatter
+                    .getTitleFromMetaData(tvShow.getOriginalFilePath());
+            LOG.info("Initial meta = " + currentMetaData);
+            if (tvShow.getTvEpisodeTitle() != null) {
+                MetaDataFormatter.writeRandomMetadata(tvShow.getOriginalFilePath(),
+                        tvShow.getTvEpisodeTitle());
+                LOG.info("New meta = "
+                        + MetaDataFormatter.getTitleFromMetaData(tvShow.getOriginalFilePath()));
+            } else {
+                LOG.info("Show title is null, not setting.");
+            }
         } else if (extension.toLowerCase().matches(".mkv")) {
             LOG.info("Editing metadata for mkv");
             TvFileUtilities.runMKVEditorForTvShow(tvShow);

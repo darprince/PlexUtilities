@@ -10,6 +10,8 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.util.List;
 
+import org.slf4j.Logger;
+
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.Box;
 import com.coremedia.iso.boxes.ChunkOffsetBox;
@@ -20,6 +22,7 @@ import com.coremedia.iso.boxes.MetaBox;
 import com.coremedia.iso.boxes.MovieBox;
 import com.coremedia.iso.boxes.UserDataBox;
 import com.coremedia.iso.boxes.apple.AppleItemListBox;
+import com.dprince.logger.Logging;
 import com.googlecode.mp4parser.boxes.apple.AppleCommentBox;
 import com.googlecode.mp4parser.boxes.apple.AppleNameBox;
 import com.googlecode.mp4parser.util.Path;
@@ -28,23 +31,17 @@ import com.googlecode.mp4parser.util.Path;
  * @author Darren
  */
 public class MetaDataFormatter {
+
+    private static final Logger LOG = Logging.getLogger(MetaDataFormatter.class);
+
     public static void main(String[] args) throws IOException {
         final String filePath = args[0];
 
         writeRandomMetadata(filePath, "");
     }
 
-    private static String getTitleAndYear(String filePath) {
-        filePath = filePath.substring(filePath.lastIndexOf("/"), filePath.length());
-
-        if (filePath.contains("{")) {
-            filePath = filePath.replaceAll("{", "(").replaceAll("}", ")");
-            return filePath;
-        }
-        return "";
-    }
-
     public static void writeRandomMetadata(String videoFilePath, String title) throws IOException {
+        LOG.info("Writing metaData to file ({})", title);
         final File videoFile = new File(videoFilePath);
         if (!videoFile.exists()) {
             throw new FileNotFoundException("File " + videoFilePath + " not exists");
@@ -69,6 +66,7 @@ public class MetaDataFormatter {
         final boolean correctOffset = needsOffsetCorrection(isoFile);
 
         final long sizeBefore = moov.getSize();
+        LOG.info("Size before: {}", sizeBefore);
         long offset = 0;
         for (final Box box : isoFile.getBoxes()) {
             if ("moov".equals(box.getType())) {
@@ -113,6 +111,7 @@ public class MetaDataFormatter {
         setCommentMetaData(title, ilst);
 
         long sizeAfter = moov.getSize();
+        LOG.info("Size after: {}", sizeAfter);
         long diff = sizeAfter - sizeBefore;
         // This is the difference of before/after
 
@@ -171,13 +170,10 @@ public class MetaDataFormatter {
 
         final boolean correctOffset = needsOffsetCorrection(isoFile);
 
-        final long sizeBefore = moov.getSize();
-        long offset = 0;
         for (final Box box : isoFile.getBoxes()) {
             if ("moov".equals(box.getType())) {
                 break;
             }
-            offset += box.getSize();
         }
 
         // Create structure or just navigate to Apple List Box.
