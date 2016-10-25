@@ -1,5 +1,8 @@
 package com.dprince.plex.tv.utilities;
 
+import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
+import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -203,13 +206,11 @@ public class TvUtilities {
 
     public static void setNewFilepath(TvShow tvShow) {
         LOG.info("Setting new filepath");
-        final String DESKTOP_PLEX = "//DESKTOP-PLEX/";
-        final String[] DesktopPlexLocation = TvFileUtilities.DESKTOP_SHARED_DIRECTORIES;
 
         File queriedDrive = null;
         String queryString = null;
-        for (final String sharedDrive : DesktopPlexLocation) {
-            queryString = DESKTOP_PLEX + sharedDrive + "/" + tvShow.getFormattedTvShowName();
+        for (final String sharedDrive : DESKTOP_SHARED_DIRECTORIES) {
+            queryString = PLEX_PREFIX + sharedDrive + "/" + tvShow.getFormattedTvShowName();
             queriedDrive = new File(queryString);
             if (queriedDrive.exists()) {
                 break;

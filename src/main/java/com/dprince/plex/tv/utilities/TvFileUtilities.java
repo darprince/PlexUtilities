@@ -1,5 +1,10 @@
 package com.dprince.plex.tv.utilities;
 
+import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
+import static com.dprince.plex.settings.PlexSettings.FOLDERS_FILE_LOCATION;
+import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
+import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,24 +24,14 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
+import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.tv.types.TvShow;
 
 public class TvFileUtilities {
-
-    private static final String MKVPROPEDIT_LOCATION = "\\\\Desktop-downloa\\TVShowRenamer\\mkvpropedit.exe";
+    private static final Logger LOG = Logging.getLogger(TvFileUtilities.class);
 
     public TvFileUtilities() {
-
     }
-
-    private static final String FOLDERS_FILE_LOCATION = "\\\\DESKTOP-DOWNLOA\\TVShowRenamer\\folders.txt";
-
-    public static final String DESKTOP_SHARED_DIRECTORIES[] = {
-            "tv a-e", "tv f-l", "tv m-s", "tv t-z", "Kids Tv"
-    };
-    private static final String PLEX_PREFIX = "\\\\Desktop-plex\\";
-
-    private static final Logger LOG = Logging.getLogger(TvFileUtilities.class);
 
     // TODO: This is from the old version, should be updated
     public static void createFoldersFile() {
@@ -149,7 +144,7 @@ public class TvFileUtilities {
         return titles;
     }
 
-    static String getFilenameFromPath(String originalFilepath) {
+    public static String getFilenameFromPath(String originalFilepath) {
         String filename;
         if (originalFilepath.contains("/")) {
             filename = originalFilepath.substring(originalFilepath.lastIndexOf("/") + 1,
@@ -209,24 +204,6 @@ public class TvFileUtilities {
         }
     }
 
-    public static void runMKVEditorForMovie(String filename) {
-        final String movieFilename = getFilenameFromPath(filename);
-        final String movieName = movieFilename.substring(0, movieFilename.lastIndexOf("."));
-
-        final String command = MKVPROPEDIT_LOCATION + " \"" + filename + "\" --set title=\""
-                + movieName
-                + "\" --edit track:a1 --set name=\"English\" --edit track:v1 --set name=\""
-                + movieName + "\"";
-
-        LOG.info("Command " + command);
-
-        try {
-            Runtime.getRuntime().exec(command);
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     // TODO: Does setTvEpisodeTitleFromAPI return null???
     public static void runMKVEditorForTvShow(TvShow tvShow) throws IOException {
 
@@ -240,7 +217,9 @@ public class TvFileUtilities {
             title = "";
         }
         final String command = MKVPROPEDIT_LOCATION + " \"" + tvShow.getOriginalFilePath()
-                + "\" --set title=\"" + title + "\"";
+                + "\" --set title=\"" + title
+                + "\" --edit track:a1 --set name=\"English\" --edit track:v1 --set name=\""
+                + tvShow.getFormattedTvShowName() + "\"";
 
         LOG.info("Command " + command);
 
@@ -248,16 +227,6 @@ public class TvFileUtilities {
             Runtime.getRuntime().exec(command);
         } catch (final Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    public static boolean renameFile(String originalFilename, String newFileName) {
-        final File oldName = new File(originalFilename);
-        final File newName = new File(newFileName);
-        if (oldName.renameTo(newName)) {
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -384,7 +353,7 @@ public class TvFileUtilities {
                     if (getExtension(showFile.toString()).matches(".avi|.mp4|.mkv")
                             && !showFile.getName().toString().toLowerCase().equals("rarbg.com.mp4")
                             && showFile.length() < 700000000) {
-                        renameFile(showFile.toString(),
+                        CommonUtilities.renameFile(showFile.toString(),
                                 folder.toString() + "\\" + showFile.getName());
                         final File parentDirectory = new File(showFile.getParent());
                         FileUtils.deleteDirectory(parentDirectory);

@@ -27,7 +27,9 @@ public class Authorization {
     private static final String LOGIN = "https://api.thetvdb.com/login";
 
     /**
-     * @return a request token from thetvdb.
+     * Uses the apiKey to request a refreshed token
+     * 
+     * @return a new request token from thetvdb using apikey.
      */
     public static String getRequestTokenFromTVDB() {
         LOG.info("Getting Token from server");

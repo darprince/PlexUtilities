@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
+import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.MovieRenamer;
 import com.dprince.plex.tv.types.TvShow;
 import com.dprince.plex.tv.utilities.TvFileUtilities;
@@ -51,7 +52,7 @@ public class PlexUtilities {
                     TvFileUtilities.createNewSeasonFolder(tvShow.getNewFilepath());
                 }
 
-                final boolean success = TvFileUtilities.renameFile(tvShow.getOriginalFilePath(),
+                final boolean success = CommonUtilities.renameFile(tvShow.getOriginalFilePath(),
                         tvShow.getNewFilepath());
                 LOG.info("File renamed: " + success);
 
