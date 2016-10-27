@@ -1,6 +1,5 @@
 package com.dprince.plex;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JFrame;
@@ -33,35 +32,31 @@ public class PlexUtilities {
         switch (function) {
             case ("tvShowRename"):
                 LOG.info("Renaming function called");
-                final String renameOriginalFilepath = args[1];
+                final TvShow tvShow = TvUtilities.parseFileName(args[1]);
 
-                final TvShow tvShow = TvUtilities.parseFileName(renameOriginalFilepath);
-                TvUtilities.formatRawTvShowName(tvShow.getRawTvShowName());
-                TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
-                TvUtilities.setNewFilename(tvShow);
-                TvUtilities.setNewFilepath(tvShow);
-
-                if (TvFileUtilities.episodeExists(tvShow)) {
+                if (TvFileUtilities.episodeExists(tvShow.getOriginalFilepath(),
+                        tvShow.getSeasonNumber(), tvShow.getEpisodeNumber())) {
+                    // TODO: change to pop up with delete file option
                     JOptionPane.showMessageDialog(new JFrame(),
-                            "Episode " + tvShow.getNewFilename() + " exists");
+                            "Episode " + tvShow.getFormattedFileName() + " exists");
                     System.exit(0);
                 }
 
                 while (!TvFileUtilities.seasonFolderExists(tvShow)) {
                     LOG.info("Creating new season folder");
-                    TvFileUtilities.createNewSeasonFolder(tvShow.getNewFilepath());
+                    TvFileUtilities.createNewSeasonFolder(tvShow.getDestinationFilepath());
                 }
 
-                final boolean success = CommonUtilities.renameFile(tvShow.getOriginalFilePath(),
-                        tvShow.getNewFilepath());
+                final boolean success = CommonUtilities.renameFile(tvShow.getOriginalFilepath(),
+                        tvShow.getDestinationFilepath());
                 LOG.info("File renamed: " + success);
 
-                tvShow.setOriginalFilepath(tvShow.getNewFilepath());
-                while (!(new File(tvShow.getNewFilepath()).exists())) {
-                    LOG.info(tvShow.getNewFilepath() + " doesn't exist");
-                }
+                // tvShow.setOriginalFilepath(tvShow.getNewFilepath());
+                // while (!(new File(tvShow.getNewFilepath()).exists())) {
+                // LOG.info(tvShow.getNewFilepath() + " doesn't exist");
+                // }
 
-                TvUtilities.editMetaData(tvShow);
+                TvUtilities.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
                 return;
             case ("refreshTitlesFile"):
                 LOG.info("Refresh folders file function called");
@@ -71,11 +66,10 @@ public class PlexUtilities {
             case ("TvMetaDataEdit"):
                 LOG.info("TvMetaDataEdit function called");
                 final TvShow metaDataEditTvShow = TvUtilities.parseFileName(args[1]);
-                TvUtilities.editMetaData(metaDataEditTvShow);
-                TvUtilities.setNewFilename(metaDataEditTvShow);
-                TvUtilities.setNewFilepath(metaDataEditTvShow);
-                CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilePath(),
-                        metaDataEditTvShow.getNewFilepath());
+                TvUtilities.editMetaData(metaDataEditTvShow.getOriginalFilepath(),
+                        metaDataEditTvShow.getEpisodeTitle());
+                CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilepath(),
+                        metaDataEditTvShow.getDestinationFilepath());
                 return;
             case ("newSeasonFolder"):
                 LOG.info("Create New Season folder called");

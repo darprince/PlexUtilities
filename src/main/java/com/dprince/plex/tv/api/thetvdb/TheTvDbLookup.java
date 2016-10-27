@@ -1,5 +1,9 @@
 package com.dprince.plex.tv.api.thetvdb;
 
+import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
+import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -124,11 +128,51 @@ public class TheTvDbLookup {
         String showID = null;
         try {
             final ShowIdResponse showIdResponse = mapper.readValue(response, ShowIdResponse.class);
-            showID = showIdResponse.getData().get(0).getID();
+            showID = showIdResponse.getData().get(0).getShowID();
         } catch (final IOException e) {
             LOG.error("Failed to map ShowIdResponse", e);
         }
 
         return showID;
+    }
+
+    /**
+     * Queries the TvDB for the specified Tv Show and returns all data
+     *
+     * @param showTitle
+     *            The title of the show being queried
+     * @return theTvDb {@link ShowIdResponse} of the show being queried, null
+     *         otherwise
+     */
+    public static ShowIdResponse getShowIdResponse(@NonNull String showTitle) {
+        final ObjectMapper mapper = new ObjectMapper();
+        String queryString = null;
+        try {
+            queryString = SEARCH_SERIES_NAME + URLEncoder.encode(showTitle, "UTF-8");
+        } catch (final UnsupportedEncodingException e1) {
+            LOG.error("Failed to encode URL", e1);
+        }
+
+        final String response = ApiCalls.hitTvDbAPI(queryString);
+        try {
+            return mapper.readValue(response, ShowIdResponse.class);
+        } catch (final IOException e) {
+            LOG.error("Failed to map ShowIdResponse", e);
+            return null;
+        }
+    }
+
+    public static void getShowData() {
+        for (final String rootDirectory : DESKTOP_SHARED_DIRECTORIES) {
+            final File directory = new File(PLEX_PREFIX + rootDirectory);
+            for (final File showFolder : directory.listFiles()) {
+                final ShowIdResponse showIdResponse = getShowIdResponse(showFolder.getName());
+                if (showIdResponse == null) {
+                    break;
+                } else {
+                    final String showID = showIdResponse.getData().get(0).getShowID();
+                }
+            }
+        }
     }
 }

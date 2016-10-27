@@ -24,7 +24,7 @@ public abstract class ShowIdData {
     public abstract String getFirstAired();
 
     @JsonProperty(FIELD_ID)
-    public abstract String getID();
+    public abstract String getShowID();
 
     @JsonProperty(FIELD_OVERVIEW)
     public abstract String getOverview();
@@ -50,7 +50,7 @@ public abstract class ShowIdData {
         public abstract Builder setFirstAired(final String firstAired);
 
         @JsonProperty(FIELD_ID)
-        public abstract Builder setID(final String id);
+        public abstract Builder setShowID(final String id);
 
         @JsonProperty(FIELD_OVERVIEW)
         public abstract Builder setOverview(final String overview);
