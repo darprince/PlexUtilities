@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.shared.MetaDataFormatter;
-import com.dprince.plex.tv.types.TvShow;
 
 public class TvFileUtilities {
     private static final String RARBG_MP4 = "rarbg.com.mp4";
@@ -299,16 +298,16 @@ public class TvFileUtilities {
         return resultString;
     }
 
-    public static boolean seasonFolderExists(TvShow tvShow) {
-        // remove filename from filepath
-        final File file = new File(tvShow.getNewFilepath());
-        final File seasonFolder = new File(file.getParent());
-
-        if (seasonFolder.exists()) {
-            return true;
-        }
-        return false;
-    }
+    // public static boolean seasonFolderExists(TvShow tvShow) {
+    // // remove filename from filepath
+    // final File file = new File(tvShow.getNewFilepath());
+    // final File seasonFolder = new File(file.getParent());
+    //
+    // if (seasonFolder.exists()) {
+    // return true;
+    // }
+    // return false;
+    // }
 
     /**
      * Takes a filepath, seasonNumber, episodeNumber and determines if that
@@ -348,7 +347,7 @@ public class TvFileUtilities {
         for (final File showFolder : folder.listFiles()) {
             if (showFolder.isDirectory()) {
                 for (final File showFile : showFolder.listFiles()) {
-                    if (getExtension(showFile.toString()).matches(".avi|.mp4|.mkv")
+                    if (CommonUtilities.getExtension(showFile.toString()).matches(".avi|.mp4|.mkv")
                             && !showFile.getName().toString().toLowerCase().equals(RARBG_MP4)
                             && !showFile.getName().toString().toLowerCase().equals(RARBG_AVI)
                             && showFile.length() < 700000000) {

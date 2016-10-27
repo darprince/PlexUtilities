@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.utilities.MovieUtilities;
-import com.dprince.plex.tv.utilities.TvFileUtilities;
 
 public class MovieRenamer {
     private static final String PARSER_LOCATION = "\\\\Desktop-downloa\\TVShowRenamer\\parser.jar";
@@ -82,7 +81,7 @@ public class MovieRenamer {
 
     private static void setMetaData(final String renamedFile) {
         LOG.info("setMetaData called with filename: " + renamedFile);
-        final String extension = TvFileUtilities.getExtension(renamedFile);
+        final String extension = CommonUtilities.getExtension(renamedFile);
         LOG.info("Extension: " + extension);
         if (extension.matches(".mp4")) {
             LOG.info("Setting metadata from mp4");

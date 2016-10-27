@@ -42,10 +42,10 @@ public class PlexUtilities {
                     System.exit(0);
                 }
 
-                while (!TvFileUtilities.seasonFolderExists(tvShow)) {
-                    LOG.info("Creating new season folder");
-                    TvFileUtilities.createNewSeasonFolder(tvShow.getDestinationFilepath());
-                }
+                // while (!TvFileUtilities.seasonFolderExists(tvShow)) {
+                // LOG.info("Creating new season folder");
+                // TvFileUtilities.createNewSeasonFolder(tvShow.getDestinationFilepath());
+                // }
 
                 final boolean success = CommonUtilities.renameFile(tvShow.getOriginalFilepath(),
                         tvShow.getDestinationFilepath());
