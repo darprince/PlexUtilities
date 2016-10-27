@@ -42,8 +42,8 @@ public class TheTvDbLookup {
     private final static String EPISODES_SEARCH_PREFIX = "/episodes/query?airedSeason=";
 
     public static void main(String[] args) {
-        final String showID = getShowID("breaking bad");
-        getEpisodesSummary(showID);
+        // final String showID = getShowID("breaking bad");
+        getShowData();
         // System.out.println(getEpisodeName("breaking bad", "02", "04"));
     }
 
@@ -198,6 +198,9 @@ public class TheTvDbLookup {
             final File directory = new File(PLEX_PREFIX + rootDirectory);
             final List<SeasonData> seasonDataList = new ArrayList<>();
             for (final File showFolder : directory.listFiles()) {
+                if (showFolder.getName().startsWith("$")) {
+                    break;
+                }
                 final ShowIdResponse showIdResponse = getShowIdResponse(showFolder.getName());
                 if (showIdResponse == null) {
                     break;
