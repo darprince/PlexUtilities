@@ -1,12 +1,18 @@
 package com.dprince.plex.tv.api.thetvdb.types;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 
+/**
+ * @author Darren
+ */
 @AutoValue
 @JsonDeserialize(builder = AutoValue_EpisodeData.Builder.class)
+@NonNullByDefault
 public abstract class EpisodeData {
     public static final String ABSOLUTE_NUMBER = "absoluteNumber";
     public static final String AIRED_EPISODE_NUMBER = "airedEpisodeNumber";
@@ -46,9 +52,6 @@ public abstract class EpisodeData {
 
     @JsonProperty(ID)
     public abstract int getID();
-
-    // @JsonProperty(LANGUAGE)
-    // public abstract Language getLanguage();
 
     @JsonProperty(OVERVIEW)
     public abstract String getOverview();
@@ -90,9 +93,6 @@ public abstract class EpisodeData {
 
         @JsonProperty(ID)
         public abstract Builder setID(final int id);
-
-        // @JsonProperty(LANGUAGE)
-        // public abstract Builder setLanguage(final Language language);
 
         @JsonProperty(OVERVIEW)
         public abstract Builder setOverview(final String overview);

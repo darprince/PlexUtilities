@@ -2,118 +2,94 @@ package com.dprince.plex.tv.types;
 
 import javax.inject.Singleton;
 
+import org.eclipse.jdt.annotation.Nullable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.auto.value.AutoValue;
+
 /**
  * Data object for TvShow
- * 
+ *
  * @author Darren
  */
 @Singleton
-public class TvShow {
-    String rawTvShowName;
-    String originalFilepath;
-    String year;
-    String tvEpisodeNumber;
-    String tvSeasonNumber;
-    String extension;
+@AutoValue
+@JsonDeserialize(builder = AutoValue_TvShow.Builder.class)
+public abstract class TvShow {
+    public static final String RAW_SHOW_NAME = "rawShowName";
+    public static final String ORIGINAL_FILEPATH = "originalFilepath";
+    public static final String EPISODE_NUMBER = "episodeNumber";
+    public static final String SEASON_NUMBER = "seasonNumber";
+    public static final String EXTENSION = "extension";
 
-    String formattedTvShowName;
-    String tvEpisodeTitle;
-    String newFilename;
-    String newFilepath;
+    public static final String FORMATTED_SHOW_NAME = "formattedShowName";
+    public static final String EPISODE_TITLE = "episodeTitle";
+    public static final String FORMATTED_FILE_NAME = "formattedFileName";
+    public static final String DESTINATION_FILEPATH = "destinationFilepath";
 
-    public TvShow(String rawTvShowName, String originalFilepath, String year,
-            String tvEpisodeNumber, String tvSeasonNumber, String extension) {
-        this.rawTvShowName = rawTvShowName;
-        this.originalFilepath = originalFilepath;
-        this.year = year;
-        this.tvEpisodeNumber = tvEpisodeNumber;
-        this.tvSeasonNumber = tvSeasonNumber;
-        this.extension = extension;
+    @JsonProperty(RAW_SHOW_NAME)
+    public abstract String getRawShowName();
+
+    @JsonProperty(ORIGINAL_FILEPATH)
+    public abstract String getOriginalFilepath();
+
+    @JsonProperty(SEASON_NUMBER)
+    public abstract String getSeasonNumber();
+
+    @JsonProperty(EPISODE_NUMBER)
+    public abstract String getEpisodeNumber();
+
+    @JsonProperty(EXTENSION)
+    public abstract String getExtension();
+
+    @JsonProperty(FORMATTED_SHOW_NAME)
+    public abstract String getFormattedShowName();
+
+    @Nullable
+    @JsonProperty(EPISODE_TITLE)
+    public abstract String getEpisodeTitle();
+
+    @JsonProperty(FORMATTED_FILE_NAME)
+    public abstract String getFormattedFileName();
+
+    @JsonProperty(DESTINATION_FILEPATH)
+    public abstract String getDestinationFilepath();
+
+    public static Builder builder() {
+        return new AutoValue_TvShow.Builder();
     }
 
-    @Override
-    public String toString() {
-        return "TvShow [rawTvShowName=" + rawTvShowName + ", year=" + year + ", tvEpisodeNumber="
-                + tvEpisodeNumber + ", tvSeasonNumber=" + tvSeasonNumber + ", extension="
-                + extension + ", newFilename=" + newFilename + ", originalFilepath="
-                + originalFilepath + ", newFilepath=" + newFilepath + ", formattedTvShowName="
-                + formattedTvShowName + ", tvEpisodeTitle=" + tvEpisodeTitle + "]";
-    }
+    @AutoValue.Builder
+    public static abstract class Builder {
+        public abstract TvShow build();
 
-    public void setRawTvShowName(String rawShowname) {
-        this.rawTvShowName = rawShowname;
-    }
+        @JsonProperty(RAW_SHOW_NAME)
+        public abstract Builder setRawShowName(final String rawShowName);
 
-    public String getRawTvShowName() {
-        return this.rawTvShowName;
-    }
+        @JsonProperty(ORIGINAL_FILEPATH)
+        public abstract Builder setOriginalFilepath(final String originalFilepath);
 
-    public void setYear(String year) {
-        this.year = year;
-    }
+        @JsonProperty(SEASON_NUMBER)
+        public abstract Builder setSeasonNumber(final String seasonNumber);
 
-    public String getYear() {
-        return this.year;
-    }
+        @JsonProperty(EPISODE_NUMBER)
+        public abstract Builder setEpisodeNumber(final String episodeNumber);
 
-    public void setTvEpisodeNumber(String tvEpisodeNumber) {
-        this.tvEpisodeNumber = tvEpisodeNumber;
-    }
+        @JsonProperty(EXTENSION)
+        public abstract Builder setExtension(final String extension);
 
-    public String getTvEpisodeNumber() {
-        return this.tvEpisodeNumber;
-    }
+        @JsonProperty(FORMATTED_SHOW_NAME)
+        public abstract Builder setFormattedShowName(final String formattedShowName);
 
-    public void setTvSeasonNumber(String tvSeasonNumber) {
-        this.tvSeasonNumber = tvSeasonNumber;
-    }
+        @Nullable
+        @JsonProperty(EPISODE_TITLE)
+        public abstract Builder setEpisodeTitle(final String episodeTitle);
 
-    public String getTvSeasonNumber() {
-        return this.tvSeasonNumber;
-    }
+        @JsonProperty(FORMATTED_FILE_NAME)
+        public abstract Builder setFormattedFileName(final String formattedFileName);
 
-    public String getExtension() {
-        return this.extension;
+        @JsonProperty(DESTINATION_FILEPATH)
+        public abstract Builder setDestinationFilepath(final String destinationFilepath);
     }
-
-    public void setOriginalFilepath(String originalFilepath) {
-        this.originalFilepath = originalFilepath;
-    }
-
-    public String getOriginalFilePath() {
-        return this.originalFilepath;
-    }
-
-    public void setNewFilepath(String newFilepath) {
-        this.newFilepath = newFilepath;
-    }
-
-    public String getNewFilepath() {
-        return this.newFilepath;
-    }
-
-    public void setFormattedTvShowName(String formattedTvShowName) {
-        this.formattedTvShowName = formattedTvShowName;
-    }
-
-    public String getFormattedTvShowName() {
-        return this.formattedTvShowName;
-    }
-
-    public void setNewFilename(String newFilename) {
-        this.newFilename = newFilename;
-    }
-
-    public String getNewFilename() {
-        return this.newFilename;
-    }
-
-    public void setTvEpisodeTitle(String tvEpisodeTitle) {
-        this.tvEpisodeTitle = tvEpisodeTitle;
-    }
-
-    public String getTvEpisodeTitle() {
-        return this.tvEpisodeTitle;
-    }
-
 }

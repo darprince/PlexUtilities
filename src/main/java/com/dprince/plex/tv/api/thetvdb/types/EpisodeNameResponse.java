@@ -9,6 +9,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 
+/**
+ * @author Darren
+ */
 @AutoValue
 @NonNullByDefault
 @JsonDeserialize(builder = AutoValue_EpisodeNameResponse.Builder.class)

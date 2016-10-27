@@ -63,7 +63,7 @@ public class TvUtilitiesTest {
         for (final String filepath : RAW_FILENAMES_WITH_YEAR) {
             final TvShow tvShow = TvUtilities.parseFileName(filepath);
             assertNotNull(tvShow);
-            TvUtilities.setFormattedTvShowname(tvShow);
+            TvUtilities.formatRawTvShowName(tvShow.getRawTvShowName());
             TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
             assertEquals("Tv Raw Showname ", "American Gothic", tvShow.getRawTvShowName());
             assertEquals("Episode Number ", "09", tvShow.getTvEpisodeNumber());
@@ -92,7 +92,7 @@ public class TvUtilitiesTest {
     @Test
     public void setFormattedTvShowName_Test() throws Exception {
         final TvShow tvShow = TVSHOW_AHS;
-        TvUtilities.setFormattedTvShowname(tvShow);
+        TvUtilities.formatRawTvShowName(tvShow.getRawTvShowName());
         assertEquals("Formatted TvShowname", tvShow.getFormattedTvShowName(),
                 "Orange Is The New Black");
     }
@@ -100,7 +100,7 @@ public class TvUtilitiesTest {
     @Test
     public void getTvEpisodeTitleFromAPI_Test() throws Exception {
         final TvShow tvShow = TVSHOW_AHS;
-        TvUtilities.setFormattedTvShowname(tvShow);
+        TvUtilities.formatRawTvShowName(tvShow.getRawTvShowName());
         tvShow.setFormattedTvShowName("Orange Is The New Black");
         TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
         assertEquals("TvEpisodeTitle", "Looks Blue, Tastes Red", tvShow.getTvEpisodeTitle());
@@ -109,7 +109,7 @@ public class TvUtilitiesTest {
     @Test
     public void setNewFilename_Test() throws Exception {
         final TvShow tvShow = TVSHOW_AHS;
-        TvUtilities.setFormattedTvShowname(tvShow);
+        TvUtilities.formatRawTvShowName(tvShow.getRawTvShowName());
         tvShow.setFormattedTvShowName("Orange Is The New Black");
         TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
         TvUtilities.setNewFilename(tvShow);
@@ -205,7 +205,7 @@ public class TvUtilitiesTest {
     @Ignore
     public void createShowFolder_Test() throws Exception {
         TVSHOW_AHS.setRawTvShowName("billy show");
-        TvFileUtilities.createShowFolder(TVSHOW_AHS);
+        // TvFileUtilities.createShowFolder(TVSHOW_AHS);
     }
 
     @Test

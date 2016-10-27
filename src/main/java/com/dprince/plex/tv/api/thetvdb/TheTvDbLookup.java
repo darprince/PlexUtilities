@@ -1,262 +1,134 @@
 package com.dprince.plex.tv.api.thetvdb;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
-import com.dprince.plex.tv.api.thetvdb.auth.Authorization;
-import com.dprince.plex.tv.api.thetvdb.types.Episode;
+import com.dprince.plex.tv.api.thetvdb.types.EpisodeData;
 import com.dprince.plex.tv.api.thetvdb.types.EpisodeNameResponse;
+import com.dprince.plex.tv.api.thetvdb.types.ShowIdResponse;
+import com.dprince.plex.tv.api.thetvdb.utilities.ApiCalls;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
+/**
+ * Methods for retrieving data from the TvDB.
+ *
+ * @author Darren
+ */
 public class TheTvDbLookup {
 
-    private static final String FIELD_JSON_LAST = "last";
-    private static final String FIELD_JSON_LINKS = "links";
-    private static final String FIELD_JSON_DATA = "data";
+    private static final Logger LOG = Logging.getLogger(TheTvDbLookup.class);
 
-    private static final String FIELD_EPISODE_NAME = "episodeName";
-    private static final String FIELD_EPISODE_NUMBER = "airedEpisodeNumber";
-    private static final String FIELD_SEASON_NUMBER = "airedSeason";
-
-    private final static String HOST = "https://api.thetvdb.com";
     private final static String SERIES_CONTEXT = "/series/";
     private final static String EPISODES_CONTEXT = "/episodes";
     private static final String SEARCH_SERIES_NAME = "/search/series?name=";
     private final static String EPISODES_SEARCH_PREFIX = "/episodes/query?airedSeason=";
 
-    private static final Logger LOG = Logging.getLogger(TheTvDbLookup.class);
-
     public static void main(String[] args) {
-        System.out.println(getEpisodeName("breaking bad", "02", "04"));
+        System.out.println(getShowID("breaking bad"));
+        // System.out.println(getEpisodeName("breaking bad", "02", "04"));
     }
 
     /**
-     * Top level method to return a tv shows episode name
+     * Queries the TvDB for the show corresponding to the showID, episodeNumber
+     * and seasonNumber and returns the episodeName
      *
-     * @param showTitle
-     *            The name of the show being queried.
+     * @param showID
+     *            The TvDB ID corresponding to the show being queried.
      * @param episodeNumber
      * @param seasonNumber
      * @return the name of the episode being queried, null otherwise.
      */
     @Nullable
-    public static String getEpisodeName(@NonNull String showTitle, @NonNull String episodeNumber,
-            @NonNull String seasonNumber) {
-
-        final String showID = getShowID(showTitle);
-        if (showID == null) {
-            return null;
-        }
+    public static String getEpisodeTitle(@NonNull String showID, @NonNull String seasonNumber,
+            @NonNull String episodeNumber) {
+        final ObjectMapper mapper = new ObjectMapper();
 
         final String queryString = SERIES_CONTEXT + showID + EPISODES_SEARCH_PREFIX + seasonNumber
                 + "&airedEpisode=" + episodeNumber;
 
-        final String response = hitTvDbAPI(queryString);
-
-        final ObjectMapper mapper = new ObjectMapper();
-        EpisodeNameResponse episodeNameResponse = null;
+        final String response = ApiCalls.hitTvDbAPI(queryString);
+        String episodeName = null;
         try {
-            episodeNameResponse = mapper.readValue(response, EpisodeNameResponse.class);
+            final EpisodeNameResponse episodeNameResponse = mapper.readValue(response,
+                    EpisodeNameResponse.class);
+            episodeName = episodeNameResponse.getData().get(0).getEpisodeName();
         } catch (final IOException e) {
             LOG.error("Failed to create EpisodeNameResponse object,", e);
             return null;
         }
 
-        return episodeNameResponse.getData().get(0).getEpisodeName();
+        return episodeName;
     }
 
-    public static List<Episode> getAllEpisodesForShow(String showName) {
-        final String showID = getShowID(showName);
-        final String queryString = SERIES_CONTEXT + showID + EPISODES_CONTEXT;
+    /**
+     * Queries the TvDB for the show corresponding to the showID and returns a
+     * List<{@link EpisodeData}>
+     *
+     * @param showID
+     *            The TvDB ID for a show.
+     * @return a List<{@link EpisodeData}> of all episodes for the showID.
+     */
+    public static List<EpisodeData> getAllEpisodesForShow(@NonNull String showID) {
+        final String initialQueryString = SERIES_CONTEXT + showID + EPISODES_CONTEXT;
 
-        String response = hitTvDbAPI(queryString);
-
-        LOG.info("Parsing response");
-        JsonParser parser = new JsonParser();
-        JsonObject result = parser.parse(response.toString()).getAsJsonObject();
-
-        // get total number of pages
         int currentPage = 1;
-        final int lastPage = Integer.parseInt(
-                result.getAsJsonObject(FIELD_JSON_LINKS).get(FIELD_JSON_LAST).getAsString());
+        int lastPage = 2;
+        final ObjectMapper mapper = new ObjectMapper();
+        String newQueryString = initialQueryString;
+        final List<EpisodeData> episodeList = new ArrayList<EpisodeData>();
 
-        // get episodes
-        JsonArray jsonArrayData = result.getAsJsonArray(FIELD_JSON_DATA);
+        while (currentPage <= lastPage) {
+            final String response = ApiCalls.hitTvDbAPI(newQueryString);
 
-        final List<Episode> episodeList = new ArrayList<>();
-        int arraySize = jsonArrayData.size();
-        LOG.info("Array size: " + arraySize);
-        while (arraySize > 0) {
-            for (int i = 0; i < jsonArrayData.size(); i++) {
-                final JsonObject jsonObject = jsonArrayData.get(i).getAsJsonObject();
-                final int airedSeason = jsonObject.get(FIELD_SEASON_NUMBER).getAsInt();
-                final int airedEpisodeNumber = jsonObject.get(FIELD_EPISODE_NUMBER).getAsInt();
-                // final String firstAired =
-                // jsonObject.get("firstAired").getAsString();
-                final String episodeName = jsonObject.get(FIELD_EPISODE_NAME).getAsString();
+            try {
+                final EpisodeNameResponse episodeNameResponse = mapper.readValue(response,
+                        EpisodeNameResponse.class);
+                episodeList.addAll(episodeNameResponse.getData());
 
-                if (airedSeason > 0 && airedEpisodeNumber > 0) {
-                    final Episode episode = Episode.builder().setEpisode(airedEpisodeNumber)
-                            .setSeason(airedSeason).setTitle(episodeName).build();
-                    episodeList.add(episode);
-                }
+                currentPage++;
+                lastPage = episodeNameResponse.getLinks().getLast();
+                newQueryString = initialQueryString + "?page=" + currentPage;
+            } catch (final IOException e) {
+                LOG.error("Failed to map EpisodeNameResponse", e);
             }
-
-            currentPage++;
-            if (currentPage <= lastPage) {
-                final String newQueryString = queryString + "?page=" + currentPage;
-
-                response = hitTvDbAPI(newQueryString);
-
-                if (response == null) {
-                    return null;
-                }
-
-                parser = new JsonParser();
-                result = parser.parse(response.toString()).getAsJsonObject();
-
-                // get episodes
-                jsonArrayData = result.getAsJsonArray(FIELD_JSON_DATA);
-                arraySize = jsonArrayData.size();
-            } else {
-                arraySize = 0;
-            }
-
         }
-
-        LOG.info("Returning episode list");
 
         return episodeList;
     }
 
     /**
-     * attempts to get theTvDb showID corresponding to the showTitle given
+     * Queries the TvDB for the specified Tv Show and returns its showID
      *
      * @param showTitle
      *            The title of the show being queried
-     * @return theTvDb showId of the show being queried, null otherwise
+     * @return theTvDb showID of the show being queried, null otherwise
      */
-    private static String getShowID(@NonNull String showTitle) {
-        final String queryString = SEARCH_SERIES_NAME + showTitle.replaceAll(" ", "%20");
-
-        final String response = hitTvDbAPI(queryString);
-        if (response == null) {
-            LOG.info("Show ID is null, returning null...");
-            return null;
+    public static String getShowID(@NonNull String showTitle) {
+        final ObjectMapper mapper = new ObjectMapper();
+        String queryString = null;
+        try {
+            queryString = SEARCH_SERIES_NAME + URLEncoder.encode(showTitle, "UTF-8");
+        } catch (final UnsupportedEncodingException e1) {
+            LOG.error("Failed to encode URL", e1);
         }
 
-        final JsonParser parser = new JsonParser();
-        final JsonObject result = parser.parse(response).getAsJsonObject();
-
-        final JsonArray jsonArrayData = result.getAsJsonArray(FIELD_JSON_DATA);
-
-        final JsonObject jsonFirstElement = jsonArrayData.get(0).getAsJsonObject();
-        final String showID = jsonFirstElement.get("id").getAsString();
+        final String response = ApiCalls.hitTvDbAPI(queryString);
+        String showID = null;
+        try {
+            final ShowIdResponse showIdResponse = mapper.readValue(response, ShowIdResponse.class);
+            showID = showIdResponse.getData().get(0).getID();
+        } catch (final IOException e) {
+            LOG.error("Failed to map ShowIdResponse", e);
+        }
 
         return showID;
-    }
-
-    /**
-     * Takes a url to theTvDb with parameters and attempts to receive a response
-     * from theTvDb
-     *
-     * @param queryString
-     *            a url with parameters
-     * @return results from theTvDb.
-     */
-    private static String hitTvDbAPI(@NonNull final String queryString) {
-        final String url = HOST + queryString;
-        LOG.info("URL: {}", url);
-
-        final HttpsURLConnection con = createConnection(url);
-        if (con == null) {
-            LOG.info("Connection to TvDb failed.");
-            return null;
-        }
-
-        return getResponseFromTvDb(con);
-    }
-
-    /**
-     * Creates a connection to the TVDB.
-     *
-     * @param url
-     *            the url including parameters to theTvDb
-     * @return a {@link HttpsURLConnection} to theTvDb, null if connection fails
-     */
-    private static HttpsURLConnection createConnection(@NonNull final String url) {
-        HttpsURLConnection con = null;
-
-        try {
-            final URL obj = new URL(url);
-            con = (HttpsURLConnection) obj.openConnection();
-            con.setRequestMethod("GET");
-            con.setRequestProperty("User-Agent", "Mozilla/5.0");
-            con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-            con.setRequestProperty("Authorization", "Bearer " + Authorization.getTokenFromFile());
-            final int responseCode = con.getResponseCode();
-
-            if (responseCode == 401) {
-                LOG.info("Getting Token from server");
-                con = (HttpsURLConnection) obj.openConnection();
-                con.setRequestMethod("GET");
-                con.setRequestProperty("User-Agent", "Mozilla/5.0");
-                con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-                final String newToken = Authorization.getRequestTokenFromTVDB();
-                con.setRequestProperty("Authorization", "Bearer " + newToken);
-            } else if (responseCode == 404) {
-                JOptionPane.showMessageDialog(new JFrame(), "Response code 404 from theTvDb");
-                return null;
-            }
-            LOG.info("Response code: " + con.getResponseCode());
-        } catch (final IOException e) {
-            e.printStackTrace();
-        }
-
-        return con;
-    }
-
-    /**
-     * Takes the connection to theTvDb and tries to get a response from theTvDb
-     *
-     * @param con
-     *            a preconfigured {@link HttpsURLConnection} to theTvDb.
-     * @return the response given by theTvDb.
-     */
-    private static String getResponseFromTvDb(@NonNull HttpsURLConnection con) {
-        StringBuffer response = null;
-
-        try {
-            final BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            response = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-        } catch (final IOException e) {
-            JOptionPane.showMessageDialog(new JFrame(), "Show not found at theTvDb");
-            return null;
-        }
-
-        return response.toString();
     }
 }

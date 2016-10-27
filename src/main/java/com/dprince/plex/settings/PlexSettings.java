@@ -10,4 +10,5 @@ public class PlexSettings {
 
     public static final String PLEX_PREFIX = "//Desktop-plex/";
     public static final String DOWNLOADS_PREFIX = "//Desktop-downloa/";
+    public static final String DOWNLOADS_DIRECTORY = "//Desktop-Downloa/Completed";
 }

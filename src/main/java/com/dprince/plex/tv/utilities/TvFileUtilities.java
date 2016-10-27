@@ -1,6 +1,7 @@
 package com.dprince.plex.tv.utilities;
 
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
+import static com.dprince.plex.settings.PlexSettings.DOWNLOADS_DIRECTORY;
 import static com.dprince.plex.settings.PlexSettings.FOLDERS_FILE_LOCATION;
 import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
@@ -20,19 +21,18 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.text.WordUtils;
+import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
+import com.dprince.plex.shared.MetaDataFormatter;
 import com.dprince.plex.tv.types.TvShow;
 
 public class TvFileUtilities {
     private static final String RARBG_MP4 = "rarbg.com.mp4";
     private static final String RARBG_AVI = "rarbg.com.avi";
     private static final Logger LOG = Logging.getLogger(TvFileUtilities.class);
-
-    public TvFileUtilities() {
-    }
 
     // TODO: This is from the old version, should be updated
     public static void createFoldersFile() {
@@ -73,6 +73,9 @@ public class TvFileUtilities {
         }
     }
 
+    /**
+     * Deletes the folder that holds all the show names.
+     */
     public static void deleteFoldersFile() {
         final File tvShowFoldersFile = new File(FOLDERS_FILE_LOCATION);
         if (tvShowFoldersFile.exists()) {
@@ -145,26 +148,16 @@ public class TvFileUtilities {
         return titles;
     }
 
-    public static String getFilenameFromPath(String originalFilepath) {
-        String filename;
-        if (originalFilepath.contains("/")) {
-            filename = originalFilepath.substring(originalFilepath.lastIndexOf("/") + 1,
-                    originalFilepath.length());
-        } else {
-            filename = originalFilepath.substring(originalFilepath.lastIndexOf("\\") + 1,
-                    originalFilepath.length());
-        }
-        System.out.println("Filename from function: " + filename);
-        return filename;
-    }
-
-    public static void createNewSeasonFolder(String filepath) throws IOException {
-        final TvShow tvShow = TvUtilities.parseFileName(filepath);
-        TvUtilities.setFormattedTvShowname(tvShow);
-        final String showname = tvShow.getFormattedTvShowName();
+    /**
+     * Creates the next season folder that does not exist for a show.
+     *
+     * @param formattedShowName
+     * @return true if folder is created, false otherwise.
+     */
+    public static boolean createNewSeasonFolder(String formattedShowName) {
 
         for (final String dir : DESKTOP_SHARED_DIRECTORIES) {
-            final File file = new File(PLEX_PREFIX + dir + "\\" + showname);
+            final File file = new File(PLEX_PREFIX + dir + "\\" + formattedShowName);
             if (file.exists()) {
                 int season = 1;
                 final String seasonFolderPrefix = file.getPath() + "\\Season 0";
@@ -173,18 +166,19 @@ public class TvFileUtilities {
                     season++;
                     seasonFolder = new File(seasonFolderPrefix + season);
                 }
-                final boolean success = seasonFolder.mkdir();
-                if (success) {
-                    LOG.info(seasonFolder.getName() + " folder created");
-                } else {
-                    LOG.info("New season folder not created");
-                }
-                return;
+                return seasonFolder.mkdir();
             }
         }
+        return false;
     }
 
-    public static void createNewSeasonFolderFromDir(String filepath) {
+    /**
+     * Creates a new season folder in the current folder.
+     *
+     * @param filepath
+     * @return true if folder is created, false otherwise.
+     */
+    public static boolean createNewSeasonFolderFromDir(String filepath) {
         final File file = new File(filepath);
         if (file.exists()) {
             int season = 1;
@@ -194,40 +188,51 @@ public class TvFileUtilities {
                 season++;
                 seasonFolder = new File(seasonFolderPrefix + season);
             }
-            final boolean success = seasonFolder.mkdir();
-            if (success) {
-                LOG.info("New season folder created");
-            } else {
-                LOG.info("New season folder not created");
-            }
-
-            return;
+            return seasonFolder.mkdir();
         }
+        return false;
     }
 
-    // TODO: Does setTvEpisodeTitleFromAPI return null???
-    public static void runMKVEditorForTvShow(TvShow tvShow) throws IOException {
+    /**
+     * Edits the meta data of a mkv file.
+     *
+     * @param filepath
+     * @param episodeTitle
+     */
+    public static void runMKVEditorForTvShow(@NonNull final String filepath, String episodeTitle) {
 
-        if (tvShow.getRawTvShowName() != null) {
-            TvUtilities.setFormattedTvShowname(tvShow);
-            TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
+        if (episodeTitle == null || episodeTitle.equals("null")) {
+            episodeTitle = "";
         }
 
-        String title = tvShow.getTvEpisodeTitle();
-        if (title == null || title.equals("null")) {
-            title = "";
-        }
-        final String command = MKVPROPEDIT_LOCATION + " \"" + tvShow.getOriginalFilePath()
-                + "\" --set title=\"" + title
-                + "\" --edit track:a1 --set name=\"English\" --edit track:v1 --set name=\""
-                + tvShow.getFormattedTvShowName() + "\"";
+        final String command = MKVPROPEDIT_LOCATION + " \"" + filepath + "\" --set title=\""
+                + episodeTitle
+                + "\" --edit track:a1 --set name=\"\" --edit track:v1 --set name=\"\"";
 
-        LOG.info("Command " + command);
+        LOG.info("Mkv metadata edit command: " + command);
 
         try {
             Runtime.getRuntime().exec(command);
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOG.error("Failed to edit mkv metadata", e);
+        }
+    }
+
+    /**
+     * Edits the metadata of a MP4 file.
+     *
+     * @param filepath
+     * @param episodeTitle
+     */
+    public static void runMP4EditorForTvShow(String filepath, String episodeTitle) {
+        try {
+            if (episodeTitle != null) {
+                MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
+            } else {
+                MetaDataFormatter.writeRandomMetadata(filepath, "");
+            }
+        } catch (final IOException e) {
+            LOG.error("Failed to call MetaDataFormatter", e);
         }
     }
 
@@ -259,9 +264,9 @@ public class TvFileUtilities {
     //
     // }
 
-    public static String createShowFolder(TvShow tvShow) throws IOException {
+    public static String createShowFolder(String rawTvShowName) throws IOException {
         final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this show to Plex?",
-                WordUtils.capitalize(tvShow.getRawTvShowName()));
+                WordUtils.capitalize(rawTvShowName));
         String newSubFolderName = null;
 
         // TODO: add numerical to regex
@@ -286,7 +291,6 @@ public class TvFileUtilities {
         } else {
             folderToCreate.mkdir();
             seasonFolderToCreate.mkdir();
-            tvShow.setFormattedTvShowName(resultString);
         }
 
         TvFileUtilities.deleteFoldersFile();
@@ -306,13 +310,22 @@ public class TvFileUtilities {
         return false;
     }
 
-    public static boolean episodeExists(TvShow tvShow) {
-        final File file = new File(tvShow.getNewFilepath());
+    /**
+     * Takes a filepath, seasonNumber, episodeNumber and determines if that
+     * episode already exisits.
+     *
+     * @param filepath
+     * @param seasonNumber
+     * @param episodeNumber
+     * @return true if episode exisits, false otherwise.
+     */
+    public static boolean episodeExists(@NonNull final String filepath,
+            @NonNull final String seasonNumber, @NonNull final String episodeNumber) {
+        final File file = new File(filepath);
         final File folder = new File(file.getParent());
 
         if (folder.exists()) {
-            final String seasonEpisode = "S" + tvShow.getTvSeasonNumber() + "E"
-                    + tvShow.getTvEpisodeNumber();
+            final String seasonEpisode = "S" + seasonNumber + "E" + episodeNumber;
 
             for (final File episode : folder.listFiles()) {
                 if (episode.toString().contains(seasonEpisode)) {
@@ -325,12 +338,12 @@ public class TvFileUtilities {
 
     /**
      * Extracts all video files from Completed sub-directories to Completed that
-     * are smaller than 700 MB and not called rarbg.com.mp4
+     * are smaller than 700 MB and not called rarbg.com.mp4 or rarbg.com.avi
      *
      * @throws IOException
      */
     public static void extractTvFiles() throws IOException {
-        final File folder = new File("\\\\Desktop-Downloa\\Completed");
+        final File folder = new File(DOWNLOADS_DIRECTORY);
 
         for (final File showFolder : folder.listFiles()) {
             if (showFolder.isDirectory()) {
@@ -347,9 +360,5 @@ public class TvFileUtilities {
                 }
             }
         }
-    }
-
-    public static String getExtension(String filename) {
-        return filename.substring(filename.lastIndexOf("."), filename.length());
     }
 }

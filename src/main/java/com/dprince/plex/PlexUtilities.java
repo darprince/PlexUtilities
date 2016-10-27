@@ -36,7 +36,7 @@ public class PlexUtilities {
                 final String renameOriginalFilepath = args[1];
 
                 final TvShow tvShow = TvUtilities.parseFileName(renameOriginalFilepath);
-                TvUtilities.setFormattedTvShowname(tvShow);
+                TvUtilities.formatRawTvShowName(tvShow.getRawTvShowName());
                 TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
                 TvUtilities.setNewFilename(tvShow);
                 TvUtilities.setNewFilepath(tvShow);
@@ -69,14 +69,18 @@ public class PlexUtilities {
                 TvFileUtilities.createFoldersFile();
                 return;
             case ("TvMetaDataEdit"):
-                LOG.info("MetaDataEdit function called");
+                LOG.info("TvMetaDataEdit function called");
                 final TvShow metaDataEditTvShow = TvUtilities.parseFileName(args[1]);
                 TvUtilities.editMetaData(metaDataEditTvShow);
+                TvUtilities.setNewFilename(metaDataEditTvShow);
+                TvUtilities.setNewFilepath(metaDataEditTvShow);
+                CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilePath(),
+                        metaDataEditTvShow.getNewFilepath());
                 return;
             case ("newSeasonFolder"):
                 LOG.info("Create New Season folder called");
-                final String seasonOriginalFilepath = args[1];
-                TvFileUtilities.createNewSeasonFolder(seasonOriginalFilepath);
+                final TvShow tvShowForSeasonFolder = TvUtilities.parseFileName(args[1]);
+                TvFileUtilities.createNewSeasonFolder(tvShowForSeasonFolder.getFormattedShowName());
                 return;
             case ("newFolderFromDir"):
                 LOG.info("Create New Season folder from directory called");
