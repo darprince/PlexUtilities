@@ -2,7 +2,7 @@ package com.dprince.plex.tv.api.thetvdb.debug;
 
 import java.util.List;
 
-import com.dprince.plex.tv.api.thetvdb.types.Episode;
+import com.dprince.plex.tv.api.thetvdb.types.episode.Episode;
 
 public class DebugOutputs {
 

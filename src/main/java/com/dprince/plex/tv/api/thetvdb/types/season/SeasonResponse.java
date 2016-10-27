@@ -1,6 +1,4 @@
-package com.dprince.plex.tv.api.thetvdb.types;
-
-import java.util.List;
+package com.dprince.plex.tv.api.thetvdb.types.season;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
@@ -13,15 +11,16 @@ import com.google.auto.value.AutoValue;
  * @author Darren
  */
 @AutoValue
-@JsonDeserialize(builder = AutoValue_ShowIdResponse.Builder.class)
+@JsonDeserialize(builder = AutoValue_SeasonResponse.Builder.class)
 @NonNullByDefault
-public abstract class ShowIdResponse {
+public abstract class SeasonResponse {
     public static final String FIELD_DATA = "data";
 
-    public abstract List<ShowIdData> getData();
+    @JsonProperty(FIELD_DATA)
+    public abstract SeasonResponseData getSeasonResponseData();
 
     public static Builder builder() {
-        final Builder builder = new AutoValue_ShowIdResponse.Builder();
+        final Builder builder = new AutoValue_SeasonResponse.Builder();
         return builder;
     }
 
@@ -29,9 +28,9 @@ public abstract class ShowIdResponse {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static abstract class Builder {
 
-        public abstract ShowIdResponse build();
+        public abstract SeasonResponse build();
 
         @JsonProperty(FIELD_DATA)
-        public abstract Builder setData(final List<ShowIdData> showIdData);
+        public abstract Builder setSeasonResponseData(final SeasonResponseData seasonResponseData);
     }
 }

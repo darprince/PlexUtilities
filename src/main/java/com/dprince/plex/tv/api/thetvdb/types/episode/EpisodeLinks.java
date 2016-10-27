@@ -1,4 +1,4 @@
-package com.dprince.plex.tv.api.thetvdb.types;
+package com.dprince.plex.tv.api.thetvdb.types.episode;
 
 import org.eclipse.jdt.annotation.Nullable;
 

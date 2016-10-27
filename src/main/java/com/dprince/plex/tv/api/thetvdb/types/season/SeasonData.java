@@ -1,0 +1,42 @@
+package com.dprince.plex.tv.api.thetvdb.types.season;
+
+import java.util.List;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
+import com.dprince.plex.tv.api.thetvdb.types.episode.EpisodeData;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.auto.value.AutoValue;
+
+/**
+ * @author Darren
+ */
+@AutoValue
+@JsonDeserialize(builder = AutoValue_SeasonData.Builder.class)
+@NonNullByDefault
+public abstract class SeasonData {
+    public abstract int getSeasonNumber();
+
+    public abstract int getTotalEpisodes();
+
+    public abstract List<EpisodeData> getEpisodeList();
+
+    public static Builder builder() {
+        final Builder builder = new AutoValue_SeasonData.Builder();
+        return builder;
+    }
+
+    @AutoValue.Builder
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static abstract class Builder {
+
+        public abstract SeasonData build();
+
+        public abstract Builder setSeasonNumber(final int seasonNumber);
+
+        public abstract Builder setTotalEpisodes(final int totalEpisodes);
+
+        public abstract Builder setEpisodeList(final List<EpisodeData> episodeDataList);
+    }
+}

@@ -1,4 +1,4 @@
-package com.dprince.plex.tv.api.thetvdb.types;
+package com.dprince.plex.tv.api.thetvdb.types.episode;
 
 import java.util.List;
 
@@ -15,15 +15,13 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 @NonNullByDefault
 @JsonDeserialize(builder = AutoValue_EpisodeNameResponse.Builder.class)
-public abstract class EpisodeNameResponse implements TvDbResponse {
+public abstract class EpisodeNameResponse {
     public static final String LINKS = "links";
     public static final String DATA = "data";
 
-    @Override
     @JsonProperty(LINKS)
     public abstract EpisodeLinks getLinks();
 
-    @Override
     @JsonProperty(DATA)
     public abstract List<EpisodeData> getData();
 

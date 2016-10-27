@@ -1,10 +1,10 @@
-package com.dprince.plex.tv.api.thetvdb.types;
+package com.dprince.plex.tv.api.thetvdb.types.episode;
 
 import com.google.auto.value.AutoValue;
 
 /**
  * Episode Data object.
- * 
+ *
  * @author Darren
  */
 @AutoValue

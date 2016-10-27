@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
 import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
-import com.dprince.plex.tv.api.thetvdb.types.EpisodeData;
+import com.dprince.plex.tv.api.thetvdb.types.episode.EpisodeData;
 
 public class EpisodeCheck {
 

@@ -1,4 +1,4 @@
-package com.dprince.plex.tv.api.thetvdb.types;
+package com.dprince.plex.tv.api.thetvdb.types.show;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
@@ -11,9 +11,9 @@ import com.google.auto.value.AutoValue;
  * @author Darren
  */
 @AutoValue
-@JsonDeserialize(builder = AutoValue_ShowIdData.Builder.class)
+@JsonDeserialize(builder = AutoValue_ShowData.Builder.class)
 @NonNullByDefault
-public abstract class ShowIdData {
+public abstract class ShowData {
     public static final String FIELD_FIRST_AIRED = "firstAired";
     public static final String FIELD_ID = "id";
     public static final String FIELD_OVERVIEW = "overview";
@@ -36,7 +36,7 @@ public abstract class ShowIdData {
     public abstract String getStatus();
 
     public static Builder builder() {
-        final Builder builder = new AutoValue_ShowIdData.Builder();
+        final Builder builder = new AutoValue_ShowData.Builder();
         return builder;
     }
 
@@ -44,7 +44,7 @@ public abstract class ShowIdData {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static abstract class Builder {
 
-        public abstract ShowIdData build();
+        public abstract ShowData build();
 
         @JsonProperty(FIELD_FIRST_AIRED)
         public abstract Builder setFirstAired(final String firstAired);
