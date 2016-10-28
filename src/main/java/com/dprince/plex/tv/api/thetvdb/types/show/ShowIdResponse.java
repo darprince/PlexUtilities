@@ -18,6 +18,7 @@ import com.google.auto.value.AutoValue;
 public abstract class ShowIdResponse {
     public static final String FIELD_DATA = "data";
 
+    @JsonProperty(FIELD_DATA)
     public abstract List<ShowData> getData();
 
     public static Builder builder() {

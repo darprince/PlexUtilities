@@ -1,12 +1,20 @@
 package com.dprince.plex.tv.utilities;
 
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
+import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -14,16 +22,21 @@ import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
+import com.dprince.plex.settings.PlexSettings;
 import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
+import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData;
 import com.dprince.plex.tv.types.TvShow;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TvUtilities {
+
+    private static final String VIDEO_EXTENSIONS = "avi|mp4|mkv";
 
     private static final Logger LOG = Logging.getLogger(TvUtilities.class);
 
     private static final String TWO_DECIMALS = "%02d";
-    private static final String REGEX = "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})\\.).*(.mkv|.mp4|.avi|.mpg){1}";
-    private static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[ -]{3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(.mkv|.mp4|.avi|.mpg){1}";
+    private static final String REGEX = "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})\\.).*(mkv|mp4|avi|mpg){1}";
+    private static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[ -]{3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(mkv|mp4|avi|mpg){1}";
 
     /**
      * Takes the show's filepath and determines the rawTvShowName, seasonNumber,
@@ -72,22 +85,26 @@ public class TvUtilities {
                     Integer.parseInt(matcherFormatted.group(3)));
             extension = matcherFormatted.group(4);
         } else {
-            LOG.error("Failed to parse filename");
+            LOG.error("Failed to parse filename {}", originalFilepath);
+            LOG.error("Exiting");
             System.exit(0);
         }
 
         final String formattedShowName = formatRawShowName(rawShowName);
-        final String episodeTitle = getTvEpisodeTitleFromAPI(formattedShowName, seasonNumber,
+        final String episodeTitle = getEpisodeTitleFromTvDB(formattedShowName, seasonNumber,
                 episodeNumber);
         final String formattedFileName = buildFileName(formattedShowName, seasonNumber,
                 episodeNumber, episodeTitle, extension);
-        final String destinationFilepath = buildNewFilepath(formattedFileName, seasonNumber);
+        final String destinationFilepath = buildDestinationFilepath(formattedShowName,
+                formattedFileName, seasonNumber);
 
         final TvShow tvShow = TvShow.builder().setDestinationFilepath(destinationFilepath)
                 .setEpisodeNumber(episodeNumber).setEpisodeTitle(episodeTitle)
                 .setExtension(extension).setFormattedFileName(formattedFileName)
                 .setFormattedShowName(formattedShowName).setOriginalFilepath(originalFilepath)
                 .setRawShowName(rawShowName).setSeasonNumber(seasonNumber).build();
+
+        LOG.info(tvShow.toString());
 
         return tvShow;
     }
@@ -103,7 +120,7 @@ public class TvUtilities {
      * @return A properly formatted FileName.
      */
     @NonNullByDefault
-    private static String buildFileName(@NonNull final String formattedShowName,
+    public static String buildFileName(@NonNull final String formattedShowName,
             @NonNull final String seasonNumber, @NonNull final String episodeNumber,
             @NonNull final String episodeTitle, @NonNull final String extension) {
 
@@ -112,6 +129,17 @@ public class TvUtilities {
     }
 
     private static String formatRawShowName(String rawTvShowName) {
+
+        for (final String sharedDirectory : DESKTOP_SHARED_DIRECTORIES) {
+            final File[] listFiles = new File(PLEX_PREFIX + sharedDirectory).listFiles();
+            for (final File showFolder : listFiles) {
+                if (rawTvShowName.equalsIgnoreCase(showFolder.getName())) {
+                    LOG.info("Matched folderName");
+                    return showFolder.getName();
+                }
+            }
+        }
+
         final String[][] titles = TvFileUtilities.getTitlesArray();
 
         String[] titleFromFileArray = null;
@@ -179,9 +207,10 @@ public class TvUtilities {
      * @param episodeNumber
      * @return The episodes title.
      */
-    public static String getTvEpisodeTitleFromAPI(String formattedShowName, String seasonNumber,
+    public static String getEpisodeTitleFromTvDB(String formattedShowName, String seasonNumber,
             String episodeNumber) {
-        final String episodeTitle = TheTvDbLookup.getEpisodeTitle(formattedShowName, seasonNumber,
+        final String showID = getShowIDFromJson(formattedShowName);
+        final String episodeTitle = TheTvDbLookup.getEpisodeTitle(showID, seasonNumber,
                 episodeNumber);
         return episodeTitle;
     }
@@ -194,20 +223,57 @@ public class TvUtilities {
      * @return a properly built filepath on the plex server.
      */
     @NonNullByDefault
-    public static String buildNewFilepath(@NonNull final String formattedFileName,
-            @NonNull final String seasonNumber) {
+    public static String buildDestinationFilepath(@NonNull final String formattedShowName,
+            @NonNull final String formattedFileName, @NonNull final String seasonNumber) {
 
+        final String showDriveLocation = getShowDriveLocation(formattedShowName);
+
+        return PLEX_PREFIX + showDriveLocation + "/" + formattedShowName + "/Season " + seasonNumber
+                + "/" + formattedFileName;
+    }
+
+    /**
+     * Determines the drive that the show is located on.
+     *
+     * @param formattedShowName
+     * @return The name of the drive that the show is located on.
+     */
+    public static String getShowDriveLocation(@NonNull final String formattedShowName) {
         File queriedDrive = null;
         String queryString = null;
         for (final String sharedDrive : DESKTOP_SHARED_DIRECTORIES) {
-            queryString = PLEX_PREFIX + sharedDrive + "/" + formattedFileName;
+            queryString = PLEX_PREFIX + sharedDrive + "/" + formattedShowName;
             queriedDrive = new File(queryString);
             if (queriedDrive.exists()) {
-                break;
+                return sharedDrive;
             }
         }
+        return null;
+    }
 
-        return queryString + "/Season " + seasonNumber + "/" + formattedFileName;
+    /**
+     * Searches for the shows root folder and reads the json file to return the
+     * show's TvDB ID.
+     *
+     * @param formattedShowName
+     * @return The show's TvDB ID.
+     */
+    public static String getShowIDFromJson(@NonNull final String formattedShowName) {
+        final String showDriveLocation = getShowDriveLocation(formattedShowName);
+        final String showDataFile = PlexSettings.PLEX_PREFIX + "/" + showDriveLocation + "/"
+                + formattedShowName + "/showData.json";
+
+        String showID = null;
+        try {
+            final String jsonFileData = new String(Files.readAllBytes(Paths.get(showDataFile)));
+            final ObjectMapper mapper = new ObjectMapper();
+            final ShowFolderData showFolderData = mapper.readValue(jsonFileData,
+                    ShowFolderData.class);
+            showID = showFolderData.getShowData().getId();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+        return showID;
     }
 
     /**
@@ -230,7 +296,108 @@ public class TvUtilities {
         return;
     }
 
-    public static boolean moveFile() {
+    /**
+     * Moves TvEpisode file to appropriate folder, if season folder does not
+     * exist, the season folder and all season folders below it will be created.
+     *
+     * @param tvShow
+     * @return true if file is moved, false otherwise.
+     */
+    public static boolean moveEpisodeFile(@NonNull final TvShow tvShow) {
+        if (TvFileUtilities.episodeExists(tvShow.getDestinationFilepath(), tvShow.getSeasonNumber(),
+                tvShow.getEpisodeNumber())) {
+            // TODO: change to pop up with delete file option
+            JOptionPane.showMessageDialog(new JFrame(),
+                    "Episode " + tvShow.getFormattedFileName() + " exists");
+            System.exit(0);
+        }
+
+        while (!TvFileUtilities.seasonFolderExists(tvShow.getDestinationFilepath())) {
+            LOG.info("Creating new season folder");
+            TvFileUtilities.createNewSeasonFolder(tvShow.getFormattedShowName());
+        }
+
+        final boolean success = CommonUtilities.renameFile(tvShow.getOriginalFilepath(),
+                tvShow.getDestinationFilepath());
+        LOG.info("File renamed: " + success);
+
+        if (success) {
+            return true;
+        }
+
         return false;
+    }
+
+    /**
+     * Scans a directory for all video files and attempts to parse them and move
+     * them. Once all video files are processed, the files parent folder will be
+     * attempted to be deleted.
+     *
+     * @param directory
+     */
+    public static void batchMoveEpisodes(@NonNull final String directory) {
+        final Set<File> foldersToDelete = new HashSet<File>();
+
+        for (final File showFolder : new File(directory).listFiles()) {
+            LOG.info("Folder {} has {} files", new File(directory).getName(),
+                    new File(directory).listFiles().length);
+            if (showFolder.isDirectory()) {
+                LOG.info("Recursively calling method on {}", showFolder.getName());
+                batchMoveEpisodes(showFolder.toString());
+            } else {
+                LOG.info("BatchRename file {}", showFolder.getName());
+                final File showFile = showFolder;
+                if (CommonUtilities.getExtension(showFile.getName()).matches(VIDEO_EXTENSIONS)
+                        && !showFile.getName().toString().matches(FILES_TO_IGNORE)
+                        && showFile.length() < 700000000) {
+                    final TvShow tvShow = TvUtilities.parseFileName(showFile.toString());
+                    if (moveEpisodeFile(tvShow)) {
+                        LOG.info("Moved {} to {}", tvShow.getOriginalFilepath(),
+                                tvShow.getDestinationFilepath());
+                        foldersToDelete.add(showFolder);
+                    } else {
+                        LOG.error("Failed to move {} to {}", tvShow.getOriginalFilepath(),
+                                tvShow.getDestinationFilepath());
+                        System.exit(0);
+                    }
+                    editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
+                }
+            }
+        }
+        deleteEmptyShowFolders(foldersToDelete);
+        System.exit(0);
+    }
+
+    /**
+     * Takes a list of folders and attempts to delete them, if the folder
+     * contains a video file that is not rarbg.com, then the folder will be
+     * deleted
+     *
+     * @param foldersToDelete
+     */
+    public static void deleteEmptyShowFolders(final Set<File> foldersToDelete) {
+        boolean deleteFolder = true;
+        for (final File folder : foldersToDelete) {
+            for (final File file : folder.listFiles()) {
+                if (CommonUtilities.getExtension(file.toString()).matches(VIDEO_EXTENSIONS)) {
+                    final boolean matches = file.getName().toLowerCase().matches(FILES_TO_IGNORE);
+                    if (!matches) {
+                        LOG.info("Not deleting folder {}, contains {}", folder.getName(),
+                                file.getName());
+                        deleteFolder = false;
+                    }
+                }
+            }
+            if (deleteFolder) {
+                // try {
+                LOG.info("Folder would be deleted");
+                // FileUtils.deleteDirectory(folder);
+                // } catch (final IOException e) {
+                // LOG.error("Failed to delete folder {}", folder.toString(),
+                // e);
+                // }
+            }
+            deleteFolder = true;
+        }
     }
 }

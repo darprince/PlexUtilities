@@ -1,6 +1,7 @@
 package com.dprince.plex.tv.api.thetvdb.types.show;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,11 +25,13 @@ public abstract class ShowData {
     public abstract String getFirstAired();
 
     @JsonProperty(FIELD_ID)
-    public abstract String getShowID();
+    public abstract String getId();
 
+    @Nullable
     @JsonProperty(FIELD_OVERVIEW)
     public abstract String getOverview();
 
+    @Nullable
     @JsonProperty(FIELD_SERIES_NAME)
     public abstract String getSeriesName();
 
@@ -50,13 +53,13 @@ public abstract class ShowData {
         public abstract Builder setFirstAired(final String firstAired);
 
         @JsonProperty(FIELD_ID)
-        public abstract Builder setShowID(final String id);
+        public abstract Builder setId(final String id);
 
         @JsonProperty(FIELD_OVERVIEW)
-        public abstract Builder setOverview(final String overview);
+        public abstract Builder setOverview(@Nullable final String overview);
 
         @JsonProperty(FIELD_SERIES_NAME)
-        public abstract Builder setSeriesName(final String seriesName);
+        public abstract Builder setSeriesName(@Nullable final String seriesName);
 
         @JsonProperty(FILED_STATUS)
         public abstract Builder setStatus(final String status);

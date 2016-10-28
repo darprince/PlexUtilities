@@ -154,19 +154,18 @@ public class TvFileUtilities {
      * @return true if folder is created, false otherwise.
      */
     public static boolean createNewSeasonFolder(String formattedShowName) {
+        final String showDriveLocation = TvUtilities.getShowDriveLocation(formattedShowName);
 
-        for (final String dir : DESKTOP_SHARED_DIRECTORIES) {
-            final File file = new File(PLEX_PREFIX + dir + "\\" + formattedShowName);
-            if (file.exists()) {
-                int season = 1;
-                final String seasonFolderPrefix = file.getPath() + "\\Season 0";
-                File seasonFolder = new File(seasonFolderPrefix + season);
-                while (seasonFolder.exists()) {
-                    season++;
-                    seasonFolder = new File(seasonFolderPrefix + season);
-                }
-                return seasonFolder.mkdir();
+        final File file = new File(PLEX_PREFIX + showDriveLocation + "/" + formattedShowName);
+        if (file.exists()) {
+            int season = 1;
+            final String seasonFolderPrefix = file.getPath() + "\\Season 0";
+            File seasonFolder = new File(seasonFolderPrefix + season);
+            while (seasonFolder.exists()) {
+                season++;
+                seasonFolder = new File(seasonFolderPrefix + season);
             }
+            return seasonFolder.mkdir();
         }
         return false;
     }
@@ -298,16 +297,21 @@ public class TvFileUtilities {
         return resultString;
     }
 
-    // public static boolean seasonFolderExists(TvShow tvShow) {
-    // // remove filename from filepath
-    // final File file = new File(tvShow.getNewFilepath());
-    // final File seasonFolder = new File(file.getParent());
-    //
-    // if (seasonFolder.exists()) {
-    // return true;
-    // }
-    // return false;
-    // }
+    /**
+     * Determines if the season folder for the file exists.
+     *
+     * @param filepath
+     * @return true if season folder exists, false otherwise.
+     */
+    public static boolean seasonFolderExists(String filepath) {
+        final File file = new File(filepath);
+        final File seasonFolder = new File(file.getParent());
+
+        if (seasonFolder.exists()) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Takes a filepath, seasonNumber, episodeNumber and determines if that

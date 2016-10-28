@@ -1,6 +1,7 @@
 package com.dprince.plex.tv.api.thetvdb.types.episode;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,8 +27,9 @@ public abstract class EpisodeData {
     public static final String LANGUAGE = "language";
     public static final String OVERVIEW = "overview";
 
+    @Nullable
     @JsonProperty(ABSOLUTE_NUMBER)
-    public abstract int getAbsoluteNumber();
+    public abstract Integer getAbsoluteNumber();
 
     @JsonProperty(AIRED_EPISODE_NUMBER)
     public abstract int getAiredEpisodeNumber();
@@ -35,24 +37,31 @@ public abstract class EpisodeData {
     @JsonProperty(AIRED_SEASON)
     public abstract int getAiredSeason();
 
+    @Nullable
     @JsonProperty(AIRED_SEASON_ID)
-    public abstract int getAiredSeasonID();
+    public abstract Integer getAiredSeasonID();
 
+    @Nullable
     @JsonProperty(DVD_EPISODE_NUMBER)
-    public abstract int getDvdEpisodeNumber();
+    public abstract Integer getDvdEpisodeNumber();
 
+    @Nullable
     @JsonProperty(DVD_SEASON)
-    public abstract int getDvdSeason();
+    public abstract Integer getDvdSeason();
 
+    @Nullable
     @JsonProperty(EPISODE_NAME)
     public abstract String getEpisodeName();
 
+    @Nullable
     @JsonProperty(FIRST_AIRED)
     public abstract String getFirstAired();
 
+    @Nullable
     @JsonProperty(ID)
-    public abstract int getID();
+    public abstract Integer getID();
 
+    @Nullable
     @JsonProperty(OVERVIEW)
     public abstract String getOverview();
 
@@ -68,7 +77,7 @@ public abstract class EpisodeData {
         public abstract EpisodeData build();
 
         @JsonProperty(ABSOLUTE_NUMBER)
-        public abstract Builder setAbsoluteNumber(final int absoluteNumber);
+        public abstract Builder setAbsoluteNumber(@Nullable final Integer absoluteNumber);
 
         @JsonProperty(AIRED_EPISODE_NUMBER)
         public abstract Builder setAiredEpisodeNumber(final int airedEpisodeNumber);
@@ -77,24 +86,24 @@ public abstract class EpisodeData {
         public abstract Builder setAiredSeason(final int airedSeason);
 
         @JsonProperty(AIRED_SEASON_ID)
-        public abstract Builder setAiredSeasonID(final int airedSeasonID);
+        public abstract Builder setAiredSeasonID(@Nullable final Integer airedSeasonID);
 
         @JsonProperty(DVD_EPISODE_NUMBER)
-        public abstract Builder setDvdEpisodeNumber(final int dvdEpisodeNumber);
+        public abstract Builder setDvdEpisodeNumber(@Nullable final Integer dvdEpisodeNumber);
 
         @JsonProperty(DVD_SEASON)
-        public abstract Builder setDvdSeason(final int dvdSeason);
+        public abstract Builder setDvdSeason(@Nullable final Integer dvdSeason);
 
         @JsonProperty(EPISODE_NAME)
-        public abstract Builder setEpisodeName(final String episodeName);
+        public abstract Builder setEpisodeName(@Nullable final String episodeName);
 
         @JsonProperty(FIRST_AIRED)
-        public abstract Builder setFirstAired(final String firstAired);
+        public abstract Builder setFirstAired(@Nullable final String firstAired);
 
         @JsonProperty(ID)
-        public abstract Builder setID(final int id);
+        public abstract Builder setID(@Nullable final Integer id);
 
         @JsonProperty(OVERVIEW)
-        public abstract Builder setOverview(final String overview);
+        public abstract Builder setOverview(@Nullable final String overview);
     }
 }

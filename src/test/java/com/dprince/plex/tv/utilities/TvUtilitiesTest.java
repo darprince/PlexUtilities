@@ -1,21 +1,16 @@
 package com.dprince.plex.tv.utilities;
 
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
-import static com.dprince.plex.settings.PlexSettings.DOWNLOADS_PREFIX;
-import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
+import static com.dprince.plex.settings.PlexSettings.DOWNLOADS_DIRECTORY;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.dprince.plex.movie.utilities.MovieUtilities;
+import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.tv.types.TvShow;
 
 public class TvUtilitiesTest {
@@ -35,190 +30,109 @@ public class TvUtilitiesTest {
             "C://Documents and Settings/Users/Darren/american.gothic.2016.part.9.WEB-DL.XviD-FUM[ettv].mpg",
     };
 
-    private static final String FILEPATH_AG = "C://Documents and Settings/Users/Darren/american.gothic.2016.1x06.WEB-DL.XviD-FUM[ettv].avi";
-    private static final String FILEPATH_OITNB = "C://Documents and Settings/Users/Darren/orange.is.the.new.black.1x06.WEB-DL.XviD-FUM[ettv].avi";
-
-    private static final TvShow TVSHOW_AHS = new TvShow("orange is the new black", FILEPATH_OITNB,
-            null, "02", "02", ".avi");
-
-    @BeforeClass
-    public static void createFoldersFileIfNotThere() {
-        TvFileUtilities.createFoldersFile();
-    }
-
     @Test
     public void parseFileName_Test() throws Exception {
         for (final String filepath : RAW_FILENAMES) {
             final TvShow tvShow = TvUtilities.parseFileName(filepath);
             assertNotNull(tvShow);
-            assertEquals("Tv Raw Showname ", "Orange Is The New Black", tvShow.getRawTvShowName());
-            assertEquals("Episode Number ", "09", tvShow.getTvEpisodeNumber());
-            assertEquals("Episode Season ", "01", tvShow.getTvSeasonNumber());
-            assertNotNull(tvShow.getExtension());
+            assertEquals("Tv Raw Showname ", "orange is the new black", tvShow.getRawShowName());
+            assertEquals("Episode Number ", "09", tvShow.getEpisodeNumber());
+            assertEquals("Episode Season ", "01", tvShow.getSeasonNumber());
+            assertEquals("Extension ", CommonUtilities.getExtension(filepath),
+                    tvShow.getExtension());
         }
     }
 
     @Test
+    @Ignore
     public void parseFileNameWithYear_Test() throws Exception {
         for (final String filepath : RAW_FILENAMES_WITH_YEAR) {
             final TvShow tvShow = TvUtilities.parseFileName(filepath);
             assertNotNull(tvShow);
-            TvUtilities.formatRawTvShowName(tvShow.getRawTvShowName());
-            TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
-            assertEquals("Tv Raw Showname ", "American Gothic", tvShow.getRawTvShowName());
-            assertEquals("Episode Number ", "09", tvShow.getTvEpisodeNumber());
-            assertEquals("Episode Season ", "01", tvShow.getTvSeasonNumber());
-            assertEquals("Year ", "2016", tvShow.getYear());
-            assertEquals("TvEpisodeTitle", "The Oxbow", tvShow.getTvEpisodeTitle());
-            assertNotNull(tvShow.getExtension());
+            assertEquals("Tv Raw Showname ", "american gothic", tvShow.getRawShowName());
+            assertEquals("Episode Number ", "09", tvShow.getEpisodeNumber());
+            assertEquals("Episode Season ", "01", tvShow.getSeasonNumber());
+            assertEquals("TvEpisodeTitle", "The Oxbow", tvShow.getEpisodeTitle());
+            assertEquals("Extension ", CommonUtilities.getExtension(filepath),
+                    tvShow.getExtension());
         }
     }
 
     @Test
-    public void parseFormattedFilename_Test() throws Exception {
-        final String filepath = "C:\\fakefile\\The Big Bang Theory - S03E04.mkv";
-        final TvShow tvShow = TvUtilities.parseFileName(filepath);
-
-        assertEquals("TvShowName", "The Big Bang Theory", tvShow.getFormattedTvShowName());
+    public void buildNewFileName_Test() throws Exception {
+        final String buildFileName = TvUtilities.buildFileName("Doctor Who", "02", "03",
+                "Episode Title", "avi");
+        assertEquals("Build fileName", "Doctor Who - S02E03 - Episode Title.avi", buildFileName);
     }
 
     @Test
-    public void setOriginalFilepath_Test() throws Exception {
-        final TvShow tvShow = TVSHOW_AHS;
-        tvShow.setOriginalFilepath(FILEPATH_OITNB);
-        assertEquals("Original filepath", tvShow.getOriginalFilePath(), FILEPATH_OITNB);
+    @Ignore
+    public void formatRawShowName() throws Exception {
+
     }
 
     @Test
-    public void setFormattedTvShowName_Test() throws Exception {
-        final TvShow tvShow = TVSHOW_AHS;
-        TvUtilities.formatRawTvShowName(tvShow.getRawTvShowName());
-        assertEquals("Formatted TvShowname", tvShow.getFormattedTvShowName(),
-                "Orange Is The New Black");
+    public void getEpisodeTitleFromTvDB() throws Exception {
+        final String episodeTitle = TvUtilities.getEpisodeTitleFromTvDB("Orange Is The New Black",
+                "02", "03");
+        assertEquals("Episode Title", "Hugs Can Be Deceiving", episodeTitle);
     }
 
     @Test
-    public void getTvEpisodeTitleFromAPI_Test() throws Exception {
-        final TvShow tvShow = TVSHOW_AHS;
-        TvUtilities.formatRawTvShowName(tvShow.getRawTvShowName());
-        tvShow.setFormattedTvShowName("Orange Is The New Black");
-        TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
-        assertEquals("TvEpisodeTitle", "Looks Blue, Tastes Red", tvShow.getTvEpisodeTitle());
+    public void buildDestinationFilepath_Test() throws Exception {
+        final String destinationFilepath = TvUtilities.buildDestinationFilepath("Doctor Who",
+                "Doctor Who - S01E01 - An Unearthly Child 1.avi", "02");
+        assertEquals("Build destinationFilepath",
+                "//Desktop-plex/tv a-e/Doctor Who/Season 02/Doctor Who - S01E01 - An Unearthly Child 1.avi",
+                destinationFilepath);
     }
 
     @Test
-    public void setNewFilename_Test() throws Exception {
-        final TvShow tvShow = TVSHOW_AHS;
-        TvUtilities.formatRawTvShowName(tvShow.getRawTvShowName());
-        tvShow.setFormattedTvShowName("Orange Is The New Black");
-        TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
-        TvUtilities.setNewFilename(tvShow);
-        assertEquals("New Filename",
-                "Orange Is The New Black - S02E02 - Looks Blue, Tastes Red.avi",
-                tvShow.getNewFilename());
+    public void getShowDriveLocation_Test() throws Exception {
+        final String[] formattedFileNames = {
+                "Breaking Bad", "Grandfathered", "Manhattan Love Story", "The Walking Dead"
+        };
+
+        for (int i = 0; i < formattedFileNames.length; i++) {
+            assertEquals(formattedFileNames[i] + " Drive Location", DESKTOP_SHARED_DIRECTORIES[i],
+                    TvUtilities.getShowDriveLocation(formattedFileNames[i]));
+        }
     }
 
     @Test
-    public void setNewFilepath_Test() throws Exception {
-        final TvShow tvShow = new TvShow("orange.is.the.new.black", FILEPATH_OITNB, null, "06",
-                "01", ".avi");
-        tvShow.setFormattedTvShowName("Orange Is The New Black");
-        TvUtilities.setTvEpisodeTitleFromAPI(tvShow);
-        TvUtilities.setNewFilename(tvShow);
-        TvUtilities.setNewFilepath(tvShow);
-        assertEquals("New Filepath",
+    public void getShowIDFromJson() throws Exception {
+        String showIDFromJson = TvUtilities.getShowIDFromJson("Fuller House");
+        assertEquals("Show ID", "301236", showIDFromJson);
+
+        showIDFromJson = TvUtilities.getShowIDFromJson("Happy Days");
+        assertEquals("Show ID", "74475", showIDFromJson);
+
+        showIDFromJson = TvUtilities.getShowIDFromJson("800 Words");
+        assertEquals("Show ID", "300667", showIDFromJson);
+    }
+
+    @Test
+    public void editMetaData_Test() throws Exception {
+
+    }
+
+    @Test
+    public void moveEpisodeFile_Test() throws Exception {
+
+    }
+
+    @Test
+    public void batchMoveEpisodes_Test() throws Exception {
+        TvUtilities.batchMoveEpisodes(DOWNLOADS_DIRECTORY + "/Season 03");
+    }
+
+    // TODO: move to other test folder
+    @Test
+    public void episodeExists_Test() throws Exception {
+        final boolean episodeExists = TvFileUtilities.episodeExists(
                 PLEX_PREFIX
-                        + "tv m-s/Orange Is The New Black/Season 01/Orange Is The New Black - S01E06 - WAC Pack.avi",
-                tvShow.getNewFilepath());
-    }
-
-    @Test
-    public void testTvDirectories() throws Exception {
-        for (final String dir : DESKTOP_SHARED_DIRECTORIES) {
-            final File file = new File(PLEX_PREFIX + dir);
-            assertTrue(file.exists());
-        }
-    }
-
-    @Test
-    public void createNewSeasonFolder_Test() throws Exception {
-        final String folderLocation = DOWNLOADS_PREFIX + "TVShowRenamer/TestFolder.204.kljf.avi";
-        TvFileUtilities.createNewSeasonFolder(folderLocation);
-        final File file = new File(PLEX_PREFIX + "Tv a-e/TestFolder/Season 02");
-        assertTrue(file.exists());
-        file.delete();
-        assertFalse(file.exists());
-    }
-
-    @Test
-    @Ignore
-    public void runMKVEditorForTvShow_Test() throws Exception {
-        final String filepath = PLEX_PREFIX + "Tv a-e/Deadbeat/Season 03/Deadbeat - S03E01.mp4";
-        File file = new File(filepath);
-        // assertTrue(file.exists());
-        final TvShow tvShow = TvUtilities.parseFileName(filepath);
-        file = new File(MKVPROPEDIT_LOCATION);
-        assertTrue(file.exists());
-
-        TvUtilities.editMetaData(tvShow);
-        // TODO: need to assert that the title was something before and after
-        // change
-    }
-
-    @Test
-    public void seasonFolderExists_Test() throws Exception {
-        assertTrue(TVSHOW_AHS.getTvSeasonNumber().equals("02"));
-        assertTrue(TVSHOW_AHS.getTvEpisodeNumber().equals("02"));
-
-        TVSHOW_AHS.setNewFilepath(
-                "\\\\Desktop-plex\\Tv m-s\\Orange Is The New Black\\Season 02\\Orange Is The New Black - S02E02.mp4");
-
-        final boolean exists = TvFileUtilities.seasonFolderExists(TVSHOW_AHS);
-        assertTrue(exists);
-    }
-
-    @Test
-    public void episodeExistsTrue_Test() throws Exception {
-        assertTrue(TVSHOW_AHS.getTvSeasonNumber().equals("02"));
-        assertTrue(TVSHOW_AHS.getTvEpisodeNumber().equals("02"));
-
-        TVSHOW_AHS.setNewFilepath(
-                "\\\\Desktop-plex\\Tv m-s\\Orange Is The New Black\\Season 02\\Orange Is The New Black - S02E02.mp4");
-
-        assertTrue(TvFileUtilities.episodeExists(TVSHOW_AHS));
-    }
-
-    @Test
-    public void episodeExistsFalse_Test() throws Exception {
-        TVSHOW_AHS.setTvEpisodeNumber("22");
-
-        assertTrue(TVSHOW_AHS.getTvSeasonNumber().equals("02"));
-        assertTrue(TVSHOW_AHS.getTvEpisodeNumber().equals("22"));
-
-        TVSHOW_AHS.setNewFilepath(
-                "\\\\Desktop-plex\\Tv m-s\\Orange Is The New Black\\Season 02\\Orange is the New Black - S02E22.mp4");
-
-        assertFalse(TvFileUtilities.episodeExists(TVSHOW_AHS));
-    }
-
-    @Test
-    @Ignore
-    public void createShowFolder_Test() throws Exception {
-        TVSHOW_AHS.setRawTvShowName("billy show");
-        // TvFileUtilities.createShowFolder(TVSHOW_AHS);
-    }
-
-    @Test
-    @Ignore
-    public void extractTvFiles_Test() throws Exception {
-        TvFileUtilities.extractTvFiles();
-    }
-
-    @Test
-    @Ignore
-    public void runMKVEditorForMovie_Test() throws Exception {
-        MovieUtilities.runMKVEditorForMovie(
-                "\\\\Desktop-plex\\Tv m-s\\new show name\\Season 02\\Orange is the New Black - S02E22.mp4");
-
+                        + "/tv m-s/Orange Is The New Black/Season 02/Orange Is The New Black - S02E03.avi",
+                "02", "03");
+        assertTrue(episodeExists);
     }
 }

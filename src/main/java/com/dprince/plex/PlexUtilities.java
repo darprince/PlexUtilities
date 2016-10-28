@@ -2,9 +2,6 @@ package com.dprince.plex;
 
 import java.io.IOException;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
@@ -33,30 +30,11 @@ public class PlexUtilities {
             case ("tvShowRename"):
                 LOG.info("Renaming function called");
                 final TvShow tvShow = TvUtilities.parseFileName(args[1]);
-
-                if (TvFileUtilities.episodeExists(tvShow.getOriginalFilepath(),
-                        tvShow.getSeasonNumber(), tvShow.getEpisodeNumber())) {
-                    // TODO: change to pop up with delete file option
-                    JOptionPane.showMessageDialog(new JFrame(),
-                            "Episode " + tvShow.getFormattedFileName() + " exists");
-                    System.exit(0);
-                }
-
-                // while (!TvFileUtilities.seasonFolderExists(tvShow)) {
-                // LOG.info("Creating new season folder");
-                // TvFileUtilities.createNewSeasonFolder(tvShow.getDestinationFilepath());
-                // }
-
-                final boolean success = CommonUtilities.renameFile(tvShow.getOriginalFilepath(),
-                        tvShow.getDestinationFilepath());
-                LOG.info("File renamed: " + success);
-
-                // tvShow.setOriginalFilepath(tvShow.getNewFilepath());
-                // while (!(new File(tvShow.getNewFilepath()).exists())) {
-                // LOG.info(tvShow.getNewFilepath() + " doesn't exist");
-                // }
-
+                TvUtilities.moveEpisodeFile(tvShow);
                 TvUtilities.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
+                return;
+            case ("batchRenameAndMove"):
+                TvUtilities.batchMoveEpisodes(args[1]);
                 return;
             case ("refreshTitlesFile"):
                 LOG.info("Refresh folders file function called");

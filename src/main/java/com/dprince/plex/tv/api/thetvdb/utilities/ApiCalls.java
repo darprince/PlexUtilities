@@ -11,6 +11,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
+import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 import com.dprince.plex.tv.api.thetvdb.auth.Authorization;
 
 /**
@@ -32,7 +33,7 @@ public class ApiCalls {
      *            a URL with parameters
      * @return results from theTvDb.
      */
-    public static String hitTvDbAPI(@NonNull final String queryString) {
+    public static String hitTvDbAPI(@NonNull final String queryString, final String subject) {
         final String url = HOST + queryString;
 
         final HttpsURLConnection con = createConnection(url);
@@ -41,7 +42,8 @@ public class ApiCalls {
             return null;
         }
 
-        return getResponseFromTvDb(con);
+        final String response = getResponseFromTvDb(con, subject);
+        return response;
     }
 
     /**
@@ -53,20 +55,40 @@ public class ApiCalls {
      */
     private static HttpsURLConnection createConnection(@NonNull final String url) {
         HttpsURLConnection con = null;
+        int attemptNumber = 1;
 
-        try {
-            final URL obj = new URL(url);
-            con = setHttpHeaders(con, obj, Authorization.getTokenFromFile());
+        while (attemptNumber < 4) {
+            try {
+                final URL obj = new URL(url);
+                con = setHttpHeaders(con, obj, Authorization.getTokenFromFile());
+                final int connectionCode = con.getResponseCode();
 
-            if (con.getResponseCode() == 401) {
-                LOG.info("Refreshing Token from server");
-                con = setHttpHeaders(con, obj, Authorization.getRequestTokenFromTVDB());
+                if (connectionCode == 401) {
+                    LOG.info("Connection code {}, Refreshing Token from server", connectionCode);
+                    con = setHttpHeaders(con, obj, Authorization.getRequestTokenFromTVDB());
+                } else if (connectionCode == 200) {
+                    LOG.info("Connection code {}", connectionCode);
+                    return con;
+                } else {
+                    LOG.error("Connection code {}, retrying attempt number {}", connectionCode,
+                            attemptNumber);
+                }
+            } catch (final IOException e) {
+                LOG.error(
+                        "Failed to create a connection to the TvDB, retrying attempt number {} {}",
+                        attemptNumber, e.getMessage());
+                try {
+                    Thread.sleep(1000);
+                } catch (final InterruptedException e1) {
+                    LOG.error("Thread sleep failed", e1);
+                }
             }
-        } catch (final IOException e) {
-            LOG.error("Failed to create a connection to the TvDB", e);
-            return null;
+            attemptNumber++;
         }
-
+        if (con == null) {
+            LOG.error("Failed to create a connection to the TvDB, Exiting.");
+            System.exit(0);
+        }
         return con;
     }
 
@@ -94,29 +116,45 @@ public class ApiCalls {
     }
 
     /**
-     * Takes the connection to theTvDb and tries to get a response from theTvDb
+     * Takes the connection to theTvDb and attempts to get a response from
+     * theTvDb. Connection will attempt 3 tries before returning null.
      *
      * @param con
      *            a preconfigured {@link HttpsURLConnection} to theTvDb.
      * @return the response given by theTvDb.
      */
-    private static String getResponseFromTvDb(@NonNull HttpsURLConnection con) {
+    private static String getResponseFromTvDb(@NonNull final HttpsURLConnection con,
+            final String subject) {
         StringBuffer response = null;
+        int attemptNumber = 1;
 
-        try {
-            final BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            response = new StringBuffer();
+        while (attemptNumber < 4) {
+            try {
+                final BufferedReader in = new BufferedReader(
+                        new InputStreamReader(con.getInputStream()));
+                String inputLine;
+                response = new StringBuffer();
 
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                return response.toString();
+            } catch (final IOException e) {
+                LOG.error("Failed to receive response from the TvDB, retrying attempt number {} {}",
+                        attemptNumber, e.getMessage());
+                try {
+                    Thread.sleep(1000);
+                } catch (final InterruptedException e1) {
+                    LOG.error("Thread sleep failed", e1);
+                }
             }
-            in.close();
-        } catch (final IOException e) {
-            LOG.error("Failed to receive response from TvDB", e);
+            attemptNumber++;
         }
 
-        return response.toString();
+        TheTvDbLookup.failedShowList.add(subject);
+        LOG.error("Failed to receive response from TvDB for {}", subject);
+        return null;
     }
 }
