@@ -52,7 +52,7 @@ public class PlexUtilities {
             case ("newSeasonFolder"):
                 LOG.info("Create New Season folder called");
                 final TvShow tvShowForSeasonFolder = TvUtilities.parseFileName(args[1]);
-                TvFileUtilities.createNewSeasonFolder(tvShowForSeasonFolder.getFormattedShowName());
+                TvFileUtilities.createNewSeasonFolder(tvShowForSeasonFolder);
                 return;
             case ("newFolderFromDir"):
                 LOG.info("Create New Season folder from directory called");

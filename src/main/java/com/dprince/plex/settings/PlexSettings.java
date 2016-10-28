@@ -13,4 +13,6 @@ public class PlexSettings {
     public static final String DOWNLOADS_DIRECTORY = "//Desktop-Downloa/Completed";
 
     public static final String FILES_TO_IGNORE = "rarbg.com.mp4|rarbg.com.avi";
+
+    public static final String VIDEO_EXTENSIONS = "avi|mp4|mkv";
 }

@@ -2,10 +2,16 @@ package com.dprince.plex.tv.utilities;
 
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
 import static com.dprince.plex.settings.PlexSettings.DOWNLOADS_DIRECTORY;
+import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
+import static com.dprince.plex.settings.PlexSettings.VIDEO_EXTENSIONS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.util.Set;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -123,7 +129,8 @@ public class TvUtilitiesTest {
 
     @Test
     public void batchMoveEpisodes_Test() throws Exception {
-        TvUtilities.batchMoveEpisodes(DOWNLOADS_DIRECTORY + "/Season 03");
+        final Set<File> batchMoveEpisodes = TvUtilities.batchMoveEpisodes(DOWNLOADS_DIRECTORY);
+        TvUtilities.deleteEmptyShowFolders(batchMoveEpisodes);
     }
 
     // TODO: move to other test folder
@@ -134,5 +141,29 @@ public class TvUtilitiesTest {
                         + "/tv m-s/Orange Is The New Black/Season 02/Orange Is The New Black - S02E03.avi",
                 "02", "03");
         assertTrue(episodeExists);
+    }
+
+    @Test
+    public void ignoreEpisode_Test() throws Exception {
+        final String name1 = "doctor.who.2005.s04e13.internal.bdrip.x264-archivist.mkv";
+        final String name2 = "RARBG.com.avi";
+
+        assertFalse(name1.toLowerCase().matches(FILES_TO_IGNORE));
+        assertTrue(name2.toLowerCase().matches(FILES_TO_IGNORE));
+    }
+
+    @Test
+    public void matchExtension_Test() throws Exception {
+        final String name1 = "doctor.who.2005.s04e13.internal.bdrip.x264-archivist.mkv";
+        final String name2 = "RARBG.com.avi";
+        final String name3 = "doctor.who.2005.s04e13.internal.bdrip.x264-archivist.mp4";
+        final String name4 = "Doctor.Who.2005.S04.BDRip.x264-MIXED.nfo";
+        final String name5 = "doctor.who.2005.s04e13.internal.bdrip.x264-archivist.txt";
+
+        assertTrue(CommonUtilities.getExtension(name1).matches(VIDEO_EXTENSIONS));
+        assertTrue(CommonUtilities.getExtension(name1).matches(VIDEO_EXTENSIONS));
+        assertTrue(CommonUtilities.getExtension(name3).matches(VIDEO_EXTENSIONS));
+        assertFalse(CommonUtilities.getExtension(name4).matches(VIDEO_EXTENSIONS));
+        assertFalse(CommonUtilities.getExtension(name5).matches(VIDEO_EXTENSIONS));
     }
 }

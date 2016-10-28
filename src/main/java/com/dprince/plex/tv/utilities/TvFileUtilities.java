@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.shared.MetaDataFormatter;
+import com.dprince.plex.tv.types.TvShow;
 
 public class TvFileUtilities {
     private static final String RARBG_MP4 = "rarbg.com.mp4";
@@ -153,19 +154,29 @@ public class TvFileUtilities {
      * @param formattedShowName
      * @return true if folder is created, false otherwise.
      */
-    public static boolean createNewSeasonFolder(String formattedShowName) {
+    public static boolean createNewSeasonFolder(@NonNull final TvShow tvShow) {
+        LOG.info("Create season folder called");
+        final String formattedShowName = tvShow.getFormattedShowName();
         final String showDriveLocation = TvUtilities.getShowDriveLocation(formattedShowName);
 
         final File file = new File(PLEX_PREFIX + showDriveLocation + "/" + formattedShowName);
+
         if (file.exists()) {
-            int season = 1;
-            final String seasonFolderPrefix = file.getPath() + "\\Season 0";
-            File seasonFolder = new File(seasonFolderPrefix + season);
-            while (seasonFolder.exists()) {
-                season++;
-                seasonFolder = new File(seasonFolderPrefix + season);
+            if (tvShow.getSeasonNumber().equals("00")) {
+                final File specialsFolder = new File(file.getPath() + "\\Specials");
+                LOG.info("Creating \"Specials\" folder");
+                return specialsFolder.mkdir();
+            } else {
+                int season = 1;
+                final String seasonFolderPrefix = file.getPath() + "\\Season 0";
+                File seasonFolder = new File(seasonFolderPrefix + season);
+                while (seasonFolder.exists()) {
+                    season++;
+                    seasonFolder = new File(seasonFolderPrefix + season);
+                }
+                LOG.info("Creating \"Season 0{}\"  folder", season);
+                return seasonFolder.mkdir();
             }
-            return seasonFolder.mkdir();
         }
         return false;
     }
