@@ -51,7 +51,8 @@ public class TheTvDbLookup {
 
     public static void main(String[] args) {
         // final String showID = getShowID("breaking bad");
-        getShowData();
+        // getShowData();
+        getShowIdResponse("Breaking Bad");
         // System.out.println(getEpisodeName("breaking bad", "02", "04"));
     }
 
@@ -178,6 +179,8 @@ public class TheTvDbLookup {
         }
 
         final String response = ApiCalls.hitTvDbAPI(queryString, "ShowTitle: " + showTitle);
+        System.out.println("Response " + response);
+        System.exit(0);
         if (response != null) {
             try {
                 return mapper.readValue(response, ShowIdResponse.class);
@@ -222,56 +225,55 @@ public class TheTvDbLookup {
         for (final String rootDirectory : DESKTOP_SHARED_DIRECTORIES) {
             final File directory = new File(PLEX_PREFIX + rootDirectory);
             final List<SeasonData> seasonDataList = new ArrayList<>();
+
             for (final File showFolder : directory.listFiles()) {
-                if (!showFolder.getName().startsWith("$")
-                        && !showFolder.getName().equals("System Volume Information")) {
-                    final File showFolderFile = new File(showFolder + "/" + FILE_OUTPUT_NAME);
-                    if (!showFolderFile.exists()) {
-                        LOG.info("Processing {}", showFolder.getName());
-                        final ShowIdResponse showIdResponse = getShowIdResponse(
-                                showFolder.getName());
-                        if (showIdResponse != null) {
-                            final ShowData showData = showIdResponse.getData().get(0);
-                            LOG.info("Show data: {}", showData.toString());
-                            final String showID = showData.getId();
+                if (CommonUtilities.isSystemFolder(showFolder)) {
+                    continue;
+                }
+                final File showFolderJSONFile = new File(showFolder + "/" + FILE_OUTPUT_NAME);
+                if (!showFolderJSONFile.exists()) {
+                    LOG.info("Processing {}", showFolder.getName());
+                    final ShowIdResponse showIdResponse = getShowIdResponse(showFolder.getName());
+                    if (showIdResponse != null) {
+                        final ShowData showData = showIdResponse.getData().get(0);
+                        LOG.info("Show data: {}", showData.toString());
+                        final String showID = showData.getId();
 
-                            final List<String> seasons = getSeasonResponseData(showID)
-                                    .getAiredSeasons();
-                            final List<EpisodeData> allEpisodesForShow = getAllEpisodesForShow(
-                                    showID);
+                        final List<String> seasons = getSeasonResponseData(showID)
+                                .getAiredSeasons();
+                        final List<EpisodeData> allEpisodesForShow = getAllEpisodesForShow(showID);
 
-                            if (allEpisodesForShow == null) {
-                                LOG.error("Failed to get episode list");
-                                failedShowList.add(showFolder.getName());
-                                continue;
-                            }
-
-                            for (final String season : seasons) {
-                                final List<EpisodeData> episodeDataList = new ArrayList<>();
-                                int totalEpisodesCount = 0;
-                                for (final EpisodeData episodeData : allEpisodesForShow) {
-                                    if (season
-                                            .equals(String.valueOf(episodeData.getAiredSeason()))) {
-                                        episodeDataList.add(episodeData);
-                                        totalEpisodesCount++;
-                                    }
-                                }
-                                final SeasonData seasonData = SeasonData.builder()
-                                        .setEpisodeList(episodeDataList)
-                                        .setSeasonNumber(Integer.parseInt(season))
-                                        .setTotalEpisodes(totalEpisodesCount).build();
-                                seasonDataList.add(seasonData);
-                            }
-                            final ShowFolderData showFolderData = ShowFolderData.builder()
-                                    .setSeasonData(seasonDataList).setShowData(showData).build();
-                            writeShowDataToFile(showFolder, showFolderData);
+                        if (allEpisodesForShow == null) {
+                            LOG.error("Failed to get episode list");
+                            failedShowList.add(showFolder.getName());
+                            continue;
                         }
+
+                        for (final String season : seasons) {
+                            final List<EpisodeData> episodeDataList = new ArrayList<>();
+                            int totalEpisodesCount = 0;
+                            for (final EpisodeData episodeData : allEpisodesForShow) {
+                                if (season.equals(String.valueOf(episodeData.getAiredSeason()))) {
+                                    episodeDataList.add(episodeData);
+                                    totalEpisodesCount++;
+                                }
+                            }
+                            final SeasonData seasonData = SeasonData.builder()
+                                    .setEpisodeList(episodeDataList)
+                                    .setSeasonNumber(Integer.parseInt(season))
+                                    .setTotalEpisodes(totalEpisodesCount).build();
+                            seasonDataList.add(seasonData);
+                        }
+                        final ShowFolderData showFolderData = ShowFolderData.builder()
+                                .setSeasonData(seasonDataList).setShowData(showData).build();
+                        writeShowDataToFile(showFolder, showFolderData);
                     }
                 }
             }
         }
         CommonUtilities.writeListToFile(failedShowList,
                 "//Desktop-downloa/Completed/FailedShowRetrieval.txt");
+
     }
 
     /**

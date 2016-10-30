@@ -1,5 +1,7 @@
 package com.dprince.plex.common;
 
+import static com.dprince.plex.settings.PlexSettings.TWO_DECIMALS;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
+import com.dprince.plex.tv.api.thetvdb.types.episode.EpisodeData;
 
 public class CommonUtilities {
 
@@ -134,5 +137,78 @@ public class CommonUtilities {
         } catch (final IOException e) {
             LOG.error("Failed to write list to file", e);
         }
+    }
+
+    /**
+     * Creates a new FileWriter
+     *
+     * @param filepath
+     * @return a new {@link FileWriter}
+     */
+    public static FileWriter getFileWriter(@NonNull final String filepath) {
+        final File fileToWriteTo = new File(filepath);
+        if (fileToWriteTo.exists()) {
+            fileToWriteTo.delete();
+            try {
+                fileToWriteTo.createNewFile();
+            } catch (final IOException e) {
+                LOG.error("Failed to create new file", e);
+            }
+        }
+
+        try {
+            return new FileWriter(filepath);
+        } catch (final IOException e) {
+            LOG.error("Failed to create new FileWriter, Exiting", e);
+        }
+        System.exit(0);
+        return null;
+    }
+
+    /**
+     * Formats a numerical String to two characters with a leading zero if
+     * needed.
+     *
+     * @param value
+     * @return A numerical String formatted with a leading zero.
+     */
+    public static String padString(@NonNull final String value) {
+        return String.format(TWO_DECIMALS, Integer.parseInt(value));
+    }
+
+    /**
+     * Formats an int to two characters with a leading zero if needed.
+     *
+     * @param value
+     * @return A numerical String formatted with a leading zero.
+     */
+    public static String padInt(@NonNull final int value) {
+        return String.format(TWO_DECIMALS, value);
+    }
+
+    /**
+     * Determines if the folder should be treated as a show folder or not
+     *
+     * @param folder
+     * @return true if folder is to be ignore, false otherwise.
+     */
+    public static boolean isSystemFolder(@NonNull final File folder) {
+        if (folder.getName().startsWith("$")
+                || folder.getName().equals("System Volume Information")) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Builds a season number and episode number string, ie. S01E04
+     *
+     * @param episodeData
+     * @param showFolder
+     * @return A formatted String of season number and episode number
+     */
+    public static String buildEpisodeSeasonAndNumber(@NonNull final EpisodeData episodeData) {
+        return "S" + CommonUtilities.padInt(episodeData.getAiredSeason()) + "E"
+                + CommonUtilities.padInt(episodeData.getAiredEpisodeNumber());
     }
 }

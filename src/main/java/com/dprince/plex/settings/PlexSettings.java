@@ -15,4 +15,6 @@ public class PlexSettings {
     public static final String FILES_TO_IGNORE = "rarbg.com.mp4|rarbg.com.avi";
 
     public static final String VIDEO_EXTENSIONS = "avi|mp4|mkv";
+
+    public static final String TWO_DECIMALS = "%02d";
 }

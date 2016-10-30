@@ -33,7 +33,6 @@ public class TvUtilities {
 
     private static final Logger LOG = Logging.getLogger(TvUtilities.class);
 
-    private static final String TWO_DECIMALS = "%02d";
     private static final String REGEX = "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})\\.).*(mkv|mp4|avi|mpg){1}";
     private static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[ -]{3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(mkv|mp4|avi|mpg){1}";
 
@@ -63,25 +62,24 @@ public class TvUtilities {
             rawShowName = matcher.group(1).replaceAll("\\.", " ").toLowerCase().trim();
 
             if (matcher.group(3) != null) {
-                seasonNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(3)));
-                episodeNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(4)));
+                seasonNumber = CommonUtilities.padString(matcher.group(3));
+                episodeNumber = CommonUtilities.padString(matcher.group(4));
             } else if (matcher.group(5) != null) {
-                seasonNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(5)));
-                episodeNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(6)));
+                seasonNumber = CommonUtilities.padString(matcher.group(5));
+                episodeNumber = CommonUtilities.padString(matcher.group(6));
             } else if (matcher.group(8) != null) {
-                seasonNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(8)));
-                episodeNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(9)));
+                seasonNumber = CommonUtilities.padString(matcher.group(8));
+                episodeNumber = CommonUtilities.padString(matcher.group(9));
             } else {
                 seasonNumber = "01";
-                episodeNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcher.group(7)));
+                episodeNumber = CommonUtilities.padString(matcher.group(7));
             }
             extension = matcher.group(10);
 
         } else if (matcherFormatted.find()) {
             rawShowName = matcherFormatted.group(1);
-            seasonNumber = String.format(TWO_DECIMALS, Integer.parseInt(matcherFormatted.group(2)));
-            episodeNumber = String.format(TWO_DECIMALS,
-                    Integer.parseInt(matcherFormatted.group(3)));
+            seasonNumber = CommonUtilities.padString(matcherFormatted.group(2));
+            episodeNumber = CommonUtilities.padString(matcherFormatted.group(3));
             extension = matcherFormatted.group(4);
         } else {
             LOG.error("Failed to parse filename {}", originalFilepath);
@@ -118,7 +116,9 @@ public class TvUtilities {
      *
      * @param formattedShowName
      * @param seasonNumber
+     *            assumed to be zero padded
      * @param episodeNumber
+     *            assumed to be zero padded
      * @param episodeTitle
      * @param extension
      * @return A properly formatted FileName.
@@ -260,32 +260,42 @@ public class TvUtilities {
     }
 
     /**
-     * Searches for the shows root folder and reads the json file to return the
-     * show's TvDB ID.
+     * Reads the showID from a ShowFolderData object.
      *
      * @param formattedShowName
      * @return The show's TvDB ID.
      */
     public static String getShowIDFromJson(@NonNull final String formattedShowName) {
+
+        final String showID = getShowFolderData(formattedShowName).getShowData().getId();
+        if (showID == null) {
+            LOG.info("Failed to read showID from ShowFolderData");
+            return TheTvDbLookup.getShowID(formattedShowName);
+        }
+        return showID;
+    }
+
+    /**
+     * Reads in a shows folder data and returns a ShowFolderData object.
+     *
+     * @param formattedShowName
+     * @return a{@link ShowFolderData} object.
+     */
+    public static ShowFolderData getShowFolderData(@NonNull final String formattedShowName) {
         final String showDriveLocation = getShowDriveLocation(formattedShowName);
         final String showDataFile = PlexSettings.PLEX_PREFIX + "/" + showDriveLocation + "/"
                 + formattedShowName + "/showData.json";
 
         if (new File(showDataFile).exists()) {
-            String showID = null;
             try {
                 final String jsonFileData = new String(Files.readAllBytes(Paths.get(showDataFile)));
                 final ObjectMapper mapper = new ObjectMapper();
-                final ShowFolderData showFolderData = mapper.readValue(jsonFileData,
-                        ShowFolderData.class);
-                showID = showFolderData.getShowData().getId();
+                return mapper.readValue(jsonFileData, ShowFolderData.class);
             } catch (final IOException e) {
-                e.printStackTrace();
+                LOG.info("Failed to read showFolderData", e);
             }
-            return showID;
-        } else {
-            return TheTvDbLookup.getShowID(formattedShowName);
         }
+        return null;
     }
 
     /**
