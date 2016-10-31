@@ -2,9 +2,11 @@ package com.dprince.plex.tv.utilities;
 
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
 import static com.dprince.plex.settings.PlexSettings.DOWNLOADS_DIRECTORY;
+import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
 import static com.dprince.plex.settings.PlexSettings.FOLDERS_FILE_LOCATION;
 import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
+import static com.dprince.plex.settings.PlexSettings.VIDEO_EXTENSIONS;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -19,7 +21,6 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
@@ -28,10 +29,9 @@ import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.shared.MetaDataFormatter;
 import com.dprince.plex.tv.types.TvShow;
+import com.sun.jna.platform.FileUtils;
 
 public class TvFileUtilities {
-    private static final String RARBG_MP4 = "rarbg.com.mp4";
-    private static final String RARBG_AVI = "rarbg.com.avi";
     private static final Logger LOG = Logging.getLogger(TvFileUtilities.class);
 
     // TODO: This is from the old version, should be updated
@@ -357,21 +357,38 @@ public class TvFileUtilities {
      * @throws IOException
      */
     public static void extractTvFiles() throws IOException {
+        final String RECYCLE_BIN = "C:\\$Recycle.Bin/";
         final File folder = new File(DOWNLOADS_DIRECTORY);
 
         for (final File showFolder : folder.listFiles()) {
             if (showFolder.isDirectory()) {
                 for (final File showFile : showFolder.listFiles()) {
-                    if (CommonUtilities.getExtension(showFile.toString()).matches(".avi|.mp4|.mkv")
-                            && !showFile.getName().toString().toLowerCase().equals(RARBG_MP4)
-                            && !showFile.getName().toString().toLowerCase().equals(RARBG_AVI)
+                    if (CommonUtilities.getExtension(showFile.getName()).matches(VIDEO_EXTENSIONS)
+                            && !showFile.getName().toLowerCase().matches(FILES_TO_IGNORE)
                             && showFile.length() < 700000000) {
+                        LOG.info("Moving: " + showFile.getName());
                         CommonUtilities.renameFile(showFile.toString(),
                                 folder.toString() + "\\" + showFile.getName());
-                        final File parentDirectory = new File(showFile.getParent());
-                        FileUtils.deleteDirectory(parentDirectory);
+                    } else {
+                        LOG.info("Not moving: " + showFile.getName());
                     }
                 }
+
+                final FileUtils fileUtils = FileUtils.getInstance();
+                if (fileUtils.hasTrash()) {
+                    try {
+                        fileUtils.moveToTrash(new File[] {
+                                showFolder
+                        });
+                    } catch (final IOException e) {
+                        LOG.warn(String.format("Failed to move file to trash.", e));
+                    }
+                }
+                // LOG.info("Renamed: {}",
+                // CommonUtilities.renameFile(showFolder.toString(),
+                // RECYCLE_BIN + showFolder.getName()));
+                System.exit(0);
+                // FileUtils.deleteDirectory(showFolder);
             }
         }
     }
