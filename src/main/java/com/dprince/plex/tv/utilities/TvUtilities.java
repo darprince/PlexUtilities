@@ -14,9 +14,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
@@ -58,7 +55,7 @@ public class TvUtilities {
         final Matcher matcherFormatted = patternFormatted.matcher(filename);
 
         if (matcher.find()) {
-            LOG.info("Matcher found for {}", filename);
+            LOG.info("Matcher[1] found for {}", filename);
             rawShowName = matcher.group(1).replaceAll("\\.", " ").toLowerCase().trim();
 
             if (matcher.group(3) != null) {
@@ -77,6 +74,7 @@ public class TvUtilities {
             extension = matcher.group(10);
 
         } else if (matcherFormatted.find()) {
+            LOG.info("Matcher[2] found for {}", filename);
             rawShowName = matcherFormatted.group(1);
             seasonNumber = CommonUtilities.padString(matcherFormatted.group(2));
             episodeNumber = CommonUtilities.padString(matcherFormatted.group(3));
@@ -86,9 +84,13 @@ public class TvUtilities {
             return null;
         }
 
+        // TODO; add null checks below
         TvShow tvShow = null;
         try {
             final String formattedShowName = formatRawShowName(rawShowName);
+            if (formattedShowName == null) {
+                LOG.error("Failed to get formatted show name");
+            }
             final String episodeTitle = getEpisodeTitleFromTvDB(formattedShowName, seasonNumber,
                     episodeNumber);
             final String formattedFileName = buildFileName(formattedShowName, seasonNumber,
@@ -133,12 +135,11 @@ public class TvUtilities {
     }
 
     private static String formatRawShowName(String rawTvShowName) {
-
         for (final String sharedDirectory : DESKTOP_SHARED_DIRECTORIES) {
             final File[] listFiles = new File(PLEX_PREFIX + sharedDirectory).listFiles();
             for (final File showFolder : listFiles) {
                 if (rawTvShowName.equalsIgnoreCase(showFolder.getName())) {
-                    LOG.info("Matched folderName");
+                    LOG.info("Matched folderName \"{}\"", showFolder.getName());
                     return showFolder.getName();
                 }
             }
@@ -195,8 +196,7 @@ public class TvUtilities {
             try {
                 formattedShowName = TvFileUtilities.createShowFolder(rawTvShowName);
             } catch (final IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOG.error("Failed to get formated show name", e);
             }
             return formattedShowName;
         }
@@ -266,7 +266,7 @@ public class TvUtilities {
      * @return The show's TvDB ID.
      */
     public static String getShowIDFromJson(@NonNull final String formattedShowName) {
-
+        // TODO: program crashes when showDataJson does not exist.
         final String showID = getShowFolderData(formattedShowName).getShowData().getId();
         if (showID == null) {
             LOG.info("Failed to read showID from ShowFolderData");
@@ -330,9 +330,7 @@ public class TvUtilities {
         if (TvFileUtilities.episodeExists(tvShow.getDestinationFilepath(), tvShow.getSeasonNumber(),
                 tvShow.getEpisodeNumber())) {
             // TODO: change to pop up with delete file option
-            JOptionPane.showMessageDialog(new JFrame(),
-                    "Episode " + tvShow.getFormattedFileName() + " exists");
-            System.exit(0);
+            return false;
         }
 
         boolean seasonFolderCreated = false;
@@ -376,12 +374,11 @@ public class TvUtilities {
                     if (moveEpisodeFile(tvShow)) {
                         LOG.info("Moved {} to {}", tvShow.getOriginalFilepath(),
                                 tvShow.getDestinationFilepath());
-                        LOG.info("Adding folder {} to deleteFolder", showFile.getParentFile());
+                        LOG.info("Adding folder {} to deleteFolderList", showFile.getParentFile());
                         foldersToDelete.add(showFile.getParentFile());
                     } else {
                         LOG.error("Failed to move {} to {}", tvShow.getOriginalFilepath(),
                                 tvShow.getDestinationFilepath());
-                        System.exit(0);
                     }
                     editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
                 } else {

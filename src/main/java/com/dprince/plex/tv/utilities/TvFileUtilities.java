@@ -8,6 +8,7 @@ import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 import static com.dprince.plex.settings.PlexSettings.VIDEO_EXTENSIONS;
 
+import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -342,7 +343,18 @@ public class TvFileUtilities {
             final String seasonEpisode = "S" + seasonNumber + "E" + episodeNumber;
 
             for (final File episode : folder.listFiles()) {
-                if (episode.toString().contains(seasonEpisode)) {
+                if (episode.getName().contains(seasonEpisode)) {
+                    // TODO: ask to delete file
+                    final int result = JOptionPane.showConfirmDialog((Component) null,
+                            "File \"" + episode.getName()
+                                    + "\" exists,\nWould you like to delete it?",
+                            "File Exists", JOptionPane.OK_CANCEL_OPTION);
+                    if (result == 0) {// OK, delete file. (0)
+                        LOG.info("Deleting file {}", file.getName());
+                        System.out.println("OK Result: " + result);
+                    } else { // cancel, dont delete file. (2)
+                        System.out.println("Cancel Result: " + result);
+                    }
                     return true;
                 }
             }
@@ -366,9 +378,12 @@ public class TvFileUtilities {
                     if (CommonUtilities.getExtension(showFile.getName()).matches(VIDEO_EXTENSIONS)
                             && !showFile.getName().toLowerCase().matches(FILES_TO_IGNORE)
                             && showFile.length() < 700000000) {
-                        LOG.info("Moving: " + showFile.getName());
-                        CommonUtilities.renameFile(showFile.toString(),
-                                folder.toString() + "\\" + showFile.getName());
+
+                        if (!CommonUtilities.renameFile(showFile.toString(),
+                                folder.toString() + "\\" + showFile.getName())) {
+                            LOG.info("Failed to move file {}", showFile.getName());
+                            continue;
+                        }
                     } else {
                         LOG.info("Not moving: " + showFile.getName());
                     }
@@ -384,10 +399,7 @@ public class TvFileUtilities {
                         LOG.warn(String.format("Failed to move file to trash.", e));
                     }
                 }
-                // LOG.info("Renamed: {}",
-                // CommonUtilities.renameFile(showFolder.toString(),
-                // RECYCLE_BIN + showFolder.getName()));
-                System.exit(0);
+                // System.exit(0);
                 // FileUtils.deleteDirectory(showFolder);
             }
         }
