@@ -14,6 +14,7 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -71,22 +72,29 @@ public class ShowIDCheck {
                 }
 
                 try {
-                    final Dimension d = new Dimension();
-                    d.setSize(100.0, 200.0);
-
-                    final String path = "http://thetvdb.com/banners/posters/81189-10.jpg";
-                    System.out.println("Get Image from " + path);
-                    final URL url = new URL(path);
-                    final BufferedImage image = ImageIO.read(url);
-                    System.out.println("Load image into frame...");
-                    final JLabel label = new JLabel(new ImageIcon(image));
-                    label.setSize(d);
+                    // Create JFrame
                     final JFrame f = new JFrame();
                     f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+                    // final Dimension d = new Dimension();
+                    // d.setSize(100.0, 200.0);
+
+                    final String path = "http://thetvdb.com/banners/posters/81189-10.jpg";
+                    final URL url = new URL(path);
+                    final BufferedImage image = ImageIO.read(url);
+                    final JLabel label = new JLabel(new ImageIcon(image));
+                    // label.setSize(d);
+
+                    // Accept image buttons
+                    final JButton yesButton = new JButton();
+                    final JButton noButton = new JButton();
+
                     final Container contentPane = f.getContentPane();
-                    contentPane.setSize(d);
+                    // contentPane.setSize(d);
                     contentPane.add(label);
                     f.pack();
+
+                    // set JFrame to center of screen
                     final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
                     f.setLocation(dim.width / 2 - f.getSize().width / 2,
                             dim.height / 2 - f.getSize().height / 2);

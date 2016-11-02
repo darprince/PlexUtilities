@@ -19,7 +19,7 @@ public abstract class ShowData {
     public static final String FIELD_ID = "id";
     public static final String FIELD_OVERVIEW = "overview";
     public static final String FIELD_SERIES_NAME = "seriesName";
-    public static final String FILED_STATUS = "status";
+    public static final String FIELD_STATUS = "status";
 
     @JsonProperty(FIELD_FIRST_AIRED)
     public abstract String getFirstAired();
@@ -35,7 +35,7 @@ public abstract class ShowData {
     @JsonProperty(FIELD_SERIES_NAME)
     public abstract String getSeriesName();
 
-    @JsonProperty(FILED_STATUS)
+    @JsonProperty(FIELD_STATUS)
     public abstract String getStatus();
 
     public static Builder builder() {
@@ -61,7 +61,7 @@ public abstract class ShowData {
         @JsonProperty(FIELD_SERIES_NAME)
         public abstract Builder setSeriesName(@Nullable final String seriesName);
 
-        @JsonProperty(FILED_STATUS)
+        @JsonProperty(FIELD_STATUS)
         public abstract Builder setStatus(final String status);
     }
 }

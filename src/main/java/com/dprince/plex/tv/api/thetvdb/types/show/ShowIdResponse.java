@@ -1,7 +1,5 @@
 package com.dprince.plex.tv.api.thetvdb.types.show;
 
-import java.util.List;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -19,7 +17,7 @@ public abstract class ShowIdResponse {
     public static final String FIELD_DATA = "data";
 
     @JsonProperty(FIELD_DATA)
-    public abstract List<ShowData> getData();
+    public abstract ShowData getData();
 
     public static Builder builder() {
         final Builder builder = new AutoValue_ShowIdResponse.Builder();
@@ -33,6 +31,6 @@ public abstract class ShowIdResponse {
         public abstract ShowIdResponse build();
 
         @JsonProperty(FIELD_DATA)
-        public abstract Builder setData(final List<ShowData> showIdData);
+        public abstract Builder setData(final ShowData showIdData);
     }
 }

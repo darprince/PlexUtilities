@@ -89,14 +89,23 @@ public class TvUtilities {
         try {
             final String formattedShowName = formatRawShowName(rawShowName);
             if (formattedShowName == null) {
-                LOG.error("Failed to get formatted show name");
+                LOG.error("Failed to get formatted show name in parser");
             }
             final String episodeTitle = getEpisodeTitleFromTvDB(formattedShowName, seasonNumber,
                     episodeNumber);
+            if (episodeTitle == null) {
+                LOG.error("Failed to get episode title in parser");
+            }
             final String formattedFileName = buildFileName(formattedShowName, seasonNumber,
                     episodeNumber, episodeTitle, extension);
+            if (formattedFileName == null) {
+                LOG.error("Failed to get formatted file name in parser");
+            }
             final String destinationFilepath = buildDestinationFilepath(formattedShowName,
                     formattedFileName, seasonNumber);
+            if (destinationFilepath == null) {
+                LOG.error("Failed to get destination filepath in parser");
+            }
 
             tvShow = TvShow.builder().setDestinationFilepath(destinationFilepath)
                     .setEpisodeNumber(episodeNumber).setEpisodeTitle(episodeTitle)
@@ -213,7 +222,11 @@ public class TvUtilities {
      */
     public static String getEpisodeTitleFromTvDB(String formattedShowName, String seasonNumber,
             String episodeNumber) {
-        final String showID = getShowIDFromJson(formattedShowName);
+        String showID = getShowIDFromJson(formattedShowName);
+        if (showID == null) {
+            showID = TheTvDbLookup.getShowID(formattedShowName);
+            LOG.info("Failed to receive showID from JSON, received from the TvDB instead");
+        }
         final String episodeTitle = TheTvDbLookup.getEpisodeTitle(showID, seasonNumber,
                 episodeNumber);
         return episodeTitle;
@@ -266,11 +279,13 @@ public class TvUtilities {
      * @return The show's TvDB ID.
      */
     public static String getShowIDFromJson(@NonNull final String formattedShowName) {
-        // TODO: program crashes when showDataJson does not exist.
-        final String showID = getShowFolderData(formattedShowName).getShowData().getId();
-        if (showID == null) {
+        String showID = null;
+        final ShowFolderData showFolderData = getShowFolderData(formattedShowName);
+        if (showFolderData == null) {
             LOG.info("Failed to read showID from ShowFolderData");
             return TheTvDbLookup.getShowID(formattedShowName);
+        } else {
+            showID = showFolderData.getShowData().getId();
         }
         return showID;
     }
@@ -292,8 +307,11 @@ public class TvUtilities {
                 final ObjectMapper mapper = new ObjectMapper();
                 return mapper.readValue(jsonFileData, ShowFolderData.class);
             } catch (final IOException e) {
-                LOG.info("Failed to read showFolderData", e);
+                LOG.info("Failed to read showFolderData {}", e.getMessage());
+                return null;
             }
+        } else {
+            // TODO: create showFolderData file.
         }
         return null;
     }

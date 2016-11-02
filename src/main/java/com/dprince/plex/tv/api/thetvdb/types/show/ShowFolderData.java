@@ -2,7 +2,6 @@ package com.dprince.plex.tv.api.thetvdb.types.show;
 
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import com.dprince.plex.tv.api.thetvdb.types.season.SeasonData;
@@ -20,12 +19,14 @@ import com.google.auto.value.AutoValue;
 public abstract class ShowFolderData {
     public static final String FIELD_SHOW_DATA = "showData";
     public static final String FIELD_SEASON_DATA = "seasonData";
+    public static final String FIELD_CORRECT_SHOWID = "correctShowID";
 
-    @NonNull
+    @JsonProperty(FIELD_CORRECT_SHOWID)
+    public abstract boolean getCorrectShowID();
+
     @JsonProperty(FIELD_SHOW_DATA)
     public abstract ShowData getShowData();
 
-    @NonNull
     @JsonProperty(FIELD_SEASON_DATA)
     public abstract List<SeasonData> getSeasonData();
 
@@ -39,10 +40,13 @@ public abstract class ShowFolderData {
     public static abstract class Builder {
         public abstract ShowFolderData build();
 
+        @JsonProperty(FIELD_CORRECT_SHOWID)
+        public abstract Builder setCorrectShowID(final boolean correctShowID);
+
         @JsonProperty(FIELD_SHOW_DATA)
-        public abstract Builder setShowData(@NonNull final ShowData showIdData);
+        public abstract Builder setShowData(final ShowData showIdData);
 
         @JsonProperty(FIELD_SEASON_DATA)
-        public abstract Builder setSeasonData(@NonNull final List<SeasonData> seasonData);
+        public abstract Builder setSeasonData(final List<SeasonData> seasonData);
     }
 }

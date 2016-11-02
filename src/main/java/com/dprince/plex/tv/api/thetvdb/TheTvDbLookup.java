@@ -26,8 +26,12 @@ import com.dprince.plex.tv.api.thetvdb.types.show.ShowData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowIdResponse;
 import com.dprince.plex.tv.api.thetvdb.utilities.ApiCalls;
+import com.dprince.plex.tv.utilities.TvUtilities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * Methods for retrieving data from the TvDB.
@@ -52,7 +56,7 @@ public class TheTvDbLookup {
     public static void main(String[] args) {
         // final String showID = getShowID("breaking bad");
         // getShowData();
-        getShowIdResponse("Breaking Bad");
+        getShowIdResponseFromShowTitle("Breaking Bad");
         // System.out.println(getEpisodeName("breaking bad", "02", "04"));
     }
 
@@ -151,7 +155,7 @@ public class TheTvDbLookup {
             try {
                 final ShowIdResponse showIdResponse = mapper.readValue(response,
                         ShowIdResponse.class);
-                showID = showIdResponse.getData().get(0).getId();
+                showID = showIdResponse.getData().getId();
             } catch (final IOException e) {
                 LOG.error("Failed to map ShowIdResponse", e);
             }
@@ -169,7 +173,7 @@ public class TheTvDbLookup {
      * @return theTvDb {@link ShowIdResponse} of the show being queried, null
      *         otherwise
      */
-    public static ShowIdResponse getShowIdResponse(@NonNull final String showTitle) {
+    public static ShowIdResponse getShowIdResponseFromShowTitle(@NonNull final String showTitle) {
         final ObjectMapper mapper = new ObjectMapper();
         String queryString = null;
         try {
@@ -178,14 +182,50 @@ public class TheTvDbLookup {
             LOG.error("Failed to encode URL", e1);
         }
 
+        // TODO: create object, this is ugly
         final String response = ApiCalls.hitTvDbAPI(queryString, "ShowTitle: " + showTitle);
+        if (response == null) {
+            LOG.info("Response is null, returning null");
+            return null;
+        }
+        final JsonParser parser = new JsonParser();
+        final JsonElement element = parser.parse(response);
+        final JsonElement data = element.getAsJsonObject().get("data").getAsJsonArray().get(0);
+        data.getAsJsonObject().addProperty("correctShowID", false);
+        final JsonObject jsonObject = new JsonObject();
+        jsonObject.add("data", data);
+
+        if (response != null) {
+            try {
+                return mapper.readValue(jsonObject.toString(), ShowIdResponse.class);
+            } catch (final IOException e) {
+                LOG.error("Failed to map ShowIdResponse for {} {}", showTitle, e);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Queries the TvDB for the specified Tv ShowID and returns all data
+     *
+     * @param showID
+     *            The TvDB showID of the show being queried
+     * @return theTvDb {@link ShowIdResponse} of the showID being queried, null
+     *         otherwise
+     */
+    public static ShowIdResponse getShowIdResponseFromShowID(@NonNull final String showID) {
+        final ObjectMapper mapper = new ObjectMapper();
+        final String queryString = SERIES_CONTEXT + showID;
+
+        final String response = ApiCalls.hitTvDbAPI(queryString, "ShowID: " + showID);
         System.out.println("Response " + response);
-        System.exit(0);
+
         if (response != null) {
             try {
                 return mapper.readValue(response, ShowIdResponse.class);
             } catch (final IOException e) {
-                LOG.error("Failed to map ShowIdResponse for {} {}", showTitle, e);
+                LOG.error("Failed to map ShowIdResponse for {} {}", showID, e);
                 return null;
             }
         }
@@ -218,62 +258,127 @@ public class TheTvDbLookup {
     }
 
     /**
-     * Creates a {@link ShowFolderData} object and writes to the shows root
-     * folder
+     * Creates a {@link ShowFolderData} for all shows.
      */
-    public static void getShowData() {
+    public static void createShowDataJSONForAllDirectories() {
         for (final String rootDirectory : DESKTOP_SHARED_DIRECTORIES) {
             final File directory = new File(PLEX_PREFIX + rootDirectory);
-            final List<SeasonData> seasonDataList = new ArrayList<>();
 
             for (final File showFolder : directory.listFiles()) {
-                if (CommonUtilities.isSystemFolder(showFolder)) {
-                    continue;
-                }
-                final File showFolderJSONFile = new File(showFolder + "/" + FILE_OUTPUT_NAME);
-                if (!showFolderJSONFile.exists()) {
-                    LOG.info("Processing {}", showFolder.getName());
-                    final ShowIdResponse showIdResponse = getShowIdResponse(showFolder.getName());
-                    if (showIdResponse != null) {
-                        final ShowData showData = showIdResponse.getData().get(0);
-                        LOG.info("Show data: {}", showData.toString());
-                        final String showID = showData.getId();
+                final ShowFolderData showFolderData = TvUtilities
+                        .getShowFolderData(showFolder.getName());
 
-                        final List<String> seasons = getSeasonResponseData(showID)
-                                .getAiredSeasons();
-                        final List<EpisodeData> allEpisodesForShow = getAllEpisodesForShow(showID);
-
-                        if (allEpisodesForShow == null) {
-                            LOG.error("Failed to get episode list");
-                            failedShowList.add(showFolder.getName());
-                            continue;
+                if (showFolderData == null) { // No JSON
+                    createShowDataJSONForShow(showFolder);
+                } else { // Refresh JSON files
+                    try {
+                        final boolean correctShowID = showFolderData.getCorrectShowID();
+                        if (correctShowID) {
+                            final String showID = showFolderData.getShowData().getId(); // correctID
+                            createShowDataJSONForShow(showFolder, showID);
+                        } else {
+                            createShowDataJSONForShow(showFolder); // incorrectID
                         }
-
-                        for (final String season : seasons) {
-                            final List<EpisodeData> episodeDataList = new ArrayList<>();
-                            int totalEpisodesCount = 0;
-                            for (final EpisodeData episodeData : allEpisodesForShow) {
-                                if (season.equals(String.valueOf(episodeData.getAiredSeason()))) {
-                                    episodeDataList.add(episodeData);
-                                    totalEpisodesCount++;
-                                }
-                            }
-                            final SeasonData seasonData = SeasonData.builder()
-                                    .setEpisodeList(episodeDataList)
-                                    .setSeasonNumber(Integer.parseInt(season))
-                                    .setTotalEpisodes(totalEpisodesCount).build();
-                            seasonDataList.add(seasonData);
-                        }
-                        final ShowFolderData showFolderData = ShowFolderData.builder()
-                                .setSeasonData(seasonDataList).setShowData(showData).build();
-                        writeShowDataToFile(showFolder, showFolderData);
+                    } catch (final Exception e) {
+                        LOG.info("Failed to get ShowFolderData");
                     }
                 }
             }
         }
+
+        // outputs a list of all shows that failed to have a json file created.
         CommonUtilities.writeListToFile(failedShowList,
                 "//Desktop-downloa/Completed/FailedShowRetrieval.txt");
 
+    }
+
+    public static void createShowDataJSONForShow(final File showFolder, final String showID) {
+        parentCreateShowDataJSONForShow(showFolder, showID);
+    }
+
+    public static void createShowDataJSONForShow(final File showFolder) {
+        parentCreateShowDataJSONForShow(showFolder, null);
+    }
+
+    /**
+     * Queries the TvDB for data about the show being queried. Writes a
+     * {@link ShowFolderData} to the shows root folder.
+     *
+     * @param showFolder
+     */
+    private static void parentCreateShowDataJSONForShow(final File showFolder,
+            final String showIDIn) {
+        if (CommonUtilities.isSystemFolder(showFolder)) {
+            return;
+        }
+
+        final List<SeasonData> seasonDataList = new ArrayList<>();
+        LOG.info("Processing {}", showFolder.getName());
+
+        // TODO: make sure input showID equals getShowIdResponse's showID
+        // TODO: or create method that queries the TvDB by showID.
+        ShowIdResponse showIdResponse = null;
+        String showID = null;
+        ShowData showData = null;
+        if (showIDIn == null) {
+            showIdResponse = getShowIdResponseFromShowTitle(showFolder.getName());
+            if (showIdResponse == null) {
+                LOG.error("ShowIDResponse is null when showIDIn is null, skipping");
+                return;
+            }
+            showData = showIdResponse.getData();
+            showID = showData.getId();
+        } else {
+            showIdResponse = getShowIdResponseFromShowID(showIDIn);
+            if (showIdResponse == null) {
+                LOG.error("ShowIDResponse is null when showIDIn is NOT null, skipping");
+                return;
+            }
+            showData = showIdResponse.getData();
+            showID = showIDIn;
+        }
+
+        if (showIdResponse != null) {
+            final List<String> seasons = getSeasonResponseData(showID).getAiredSeasons();
+            final List<EpisodeData> allEpisodesForShow = getAllEpisodesForShow(showID);
+
+            if (allEpisodesForShow == null) {
+                LOG.error("Failed to get episode list");
+                failedShowList.add(showFolder.getName());
+                return;
+            }
+
+            for (final String season : seasons) {
+                final List<EpisodeData> episodeDataList = new ArrayList<>();
+                int totalEpisodesCount = 0;
+                for (final EpisodeData episodeData : allEpisodesForShow) {
+                    if (season.equals(String.valueOf(episodeData.getAiredSeason()))) {
+                        episodeDataList.add(episodeData);
+                        totalEpisodesCount++;
+                    }
+                }
+
+                final SeasonData seasonData = SeasonData.builder().setEpisodeList(episodeDataList)
+                        .setSeasonNumber(Integer.parseInt(season))
+                        .setTotalEpisodes(totalEpisodesCount).build();
+                seasonDataList.add(seasonData);
+            }
+
+            boolean correctID = false;
+            if (showIDIn != null) {
+                correctID = true;
+            }
+            final ShowFolderData showFolderData = ShowFolderData.builder().setCorrectShowID(false)
+                    .setSeasonData(seasonDataList).setShowData(showData).setCorrectShowID(correctID)
+                    .build();
+            if (!writeShowDataToFile(showFolder, showFolderData)) {
+                LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());
+            } else {
+                LOG.info("File written");
+            }
+            // }
+        }
+        return;
     }
 
     /**
@@ -283,15 +388,23 @@ public class TheTvDbLookup {
      * @param showFolder
      * @param showFolderData
      */
-    private static void writeShowDataToFile(final File showFolder,
+    private static boolean writeShowDataToFile(final File showFolder,
             final ShowFolderData showFolderData) {
         final Gson g = new Gson();
         final String output = g.toJson(showFolderData);
+
+        final File showFolderDataFile = new File(showFolder.toString() + FILE_OUTPUT_NAME);
+
+        if (showFolderDataFile.exists()) {
+            showFolderDataFile.delete();
+        }
+
         try (FileWriter file = new FileWriter(showFolder.toString() + FILE_OUTPUT_NAME)) {
             file.write(output);
         } catch (final IOException e) {
-            LOG.error("Failed to write show folder data");
-            e.printStackTrace();
+            LOG.error("Failed to write show folder data for {}", showFolder.toString(), e);
+            return false;
         }
+        return true;
     }
 }

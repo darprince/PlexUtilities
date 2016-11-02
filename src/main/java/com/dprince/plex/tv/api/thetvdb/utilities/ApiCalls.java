@@ -67,7 +67,6 @@ public class ApiCalls {
                     LOG.info("Connection code {}, Refreshing Token from server", connectionCode);
                     con = setHttpHeaders(con, obj, Authorization.getRequestTokenFromTVDB());
                 } else if (connectionCode == 200) {
-                    LOG.info("Connection code {}", connectionCode);
                     return con;
                 } else {
                     LOG.error("Connection code {}, retrying attempt number {}", connectionCode,
@@ -75,8 +74,8 @@ public class ApiCalls {
                 }
             } catch (final IOException e) {
                 LOG.error(
-                        "Failed to create a connection to the TvDB, retrying attempt number {} {}",
-                        attemptNumber, e.getMessage());
+                        "Failed to create a connection to the TvDB for URL {}, retrying attempt number {} {}",
+                        url, attemptNumber, e.getMessage());
                 try {
                     Thread.sleep(1000);
                 } catch (final InterruptedException e1) {
@@ -87,7 +86,7 @@ public class ApiCalls {
         }
         if (con == null) {
             LOG.error("Failed to create a connection to the TvDB, Exiting.");
-            System.exit(0);
+            return null;
         }
         return con;
     }

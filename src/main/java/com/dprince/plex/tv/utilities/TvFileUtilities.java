@@ -246,34 +246,6 @@ public class TvFileUtilities {
         }
     }
 
-    // public static void showFolderExists(TvShow tvShow) {
-    // final File file = new File(tvShow.getNewFilepath());
-    // final File seasonFolder = new File(file.getParent());
-    // final File showFolder = new File(seasonFolder.getParent());
-    //
-    // if (showFolder.exists()) {
-    // return;
-    // }
-    //
-    // final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this
-    // show to Plex?",
-    // WordUtils.capitalize(tvShow.getRawTvShowName()));
-    //
-    // if (result != null) {
-    // final File rootFolder = new File(showFolder.getParent());
-    // final File newShowFolder = new File(rootFolder.toString() + "\\" +
-    // result.toString());
-    // newShowFolder.mkdir();
-    // final File newSeasonFolder = new File(newShowFolder.toString() +
-    // "\\Season 01");
-    // newSeasonFolder.mkdir();
-    //
-    // TvFileUtilities.deleteFoldersFile();
-    // TvFileUtilities.createFoldersFile();
-    // }
-    //
-    // }
-
     public static String createShowFolder(String rawTvShowName) throws IOException {
         final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this show to Plex?",
                 WordUtils.capitalize(rawTvShowName));
