@@ -3,117 +3,139 @@ package com.dprince.plex.tv.showIDCheck;
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Toolkit;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.slf4j.Logger;
 
+import com.dprince.logger.Logging;
+import com.dprince.plex.common.CommonUtilities;
+import com.dprince.plex.settings.PlexSettings;
+import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
+import com.dprince.plex.tv.api.thetvdb.types.season.SeasonData;
+import com.dprince.plex.tv.api.thetvdb.types.show.ShowData;
+import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData;
 import com.dprince.plex.tv.utilities.TvUtilities;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ShowIDCheck {
     // http://thetvdb.com/banners/posters/81189-10.jpg
 
+    private static final Logger LOG = Logging.getLogger(ShowIDCheck.class);
+
+    final static int YES = 0;
+    final static int NO = 1;
+    final static int REFRESH = 2;
+
     public static void main(String[] args) {
-        TestURLImage();
+        processShowIDs();
+
     }
 
-    public static void getImage() {
+    private static void createOptionPane(String showID, File showFolder, int iteration) {
+        LOG.info("ShowID {}, iteration {}", showID, iteration);
+        final String path = "http://thetvdb.com/banners/posters/" + showID + "-" + iteration
+                + ".jpg";
+        URL url;
+        BufferedImage image = null;
+        try {
+            url = new URL(path);
+            image = ImageIO.read(url);
+        } catch (final IOException e) {
+            LOG.info("No more images");
+            return;
+        }
+
+        final String[] buttons = {
+                "Yes", "No", "Refresh"
+        };
+        final Image scaledInstance = image.getScaledInstance(400, -1, 0);
+        final JLabel label = new JLabel(new ImageIcon(scaledInstance));
+        final int showConfirmDialog = JOptionPane.showOptionDialog(null, label,
+                showFolder.getName(), JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+                buttons, buttons[0]);
+        // Yes - 0
+        // No - 1
+        // Cancel - 2
+
+        switch (showConfirmDialog) {
+            case (YES):
+                writeCorrectID(showID, showFolder);
+                return;
+            case (NO):
+
+                return;
+
+            case (REFRESH):
+                createOptionPane(showID, showFolder, ++iteration);
+                return;
+        }
+    }
+
+    private static void writeCorrectID(String showID, File showFolder) {
+        final ShowFolderData showFolderData = getShowFolderData(showFolder);
+        final ShowData showData = showFolderData.getShowData();
+        final List<SeasonData> seasonData = showFolderData.getSeasonData();
+        final ShowFolderData showFolderDataToWrite = ShowFolderData.builder().setCorrectShowID(true)
+                .setSeasonData(seasonData).setShowData(showData).build();
+
+        writeToShowDataToFile(showFolder, showFolderDataToWrite);
+    }
+
+    private static ShowFolderData getShowFolderData(File showFolder) {
+        final ObjectMapper mapper = new ObjectMapper();
+        String source;
+        ShowFolderData showFolderData = null;
+        try {
+            source = new String(Files.readAllBytes(Paths.get(PlexSettings.PLEX_PREFIX
+                    + TvUtilities.getShowDriveLocation(showFolder.getName()) + "/"
+                    + showFolder.getName() + "/showData.json")));
+            showFolderData = mapper.readValue(source, ShowFolderData.class);
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+        return showFolderData;
+    }
+
+    private static void writeToShowDataToFile(File showFolder,
+            ShowFolderData showFolderDataToWrite) {
+        TheTvDbLookup.writeShowDataToFile(showFolder, showFolderDataToWrite);
+    }
+
+    public static void processShowIDs() {
         for (final String drive : DESKTOP_SHARED_DIRECTORIES) {
             final File driveLocation = new File(PLEX_PREFIX + drive);
             final File[] listOfShows = driveLocation.listFiles();
 
             for (final File showFolder : listOfShows) {
-                final String showIDFromJson = TvUtilities.getShowIDFromJson(showFolder.getName());
-
+                if (!CommonUtilities.isSystemFolder(showFolder)) {
+                    final ShowFolderData showFolderData = getShowFolderData(showFolder);
+                    if (showFolderData != null) {
+                        if (showFolderData.getCorrectShowID() == false) {
+                            final String showIDFromJson = showFolderData.getShowData().getId();
+                            if (showIDFromJson != null) {
+                                LOG.info("ShowID is null {}", showIDFromJson);
+                                createOptionPane(showIDFromJson, showFolder, 1);
+                            } else {
+                                LOG.info("ShowID is null for {}", showIDFromJson);
+                            }
+                        }
+                    } else {
+                        // TODO: create showFolderData.json???
+                    }
+                }
             }
         }
     }
-
-    public static void getPopUp(String showID) throws IOException {
-
-        final URL url = new URL("http://thetvdb.com/banners/posters/81189-10.jpg");
-        final BufferedImage bufferedImage = ImageIO.read(url);
-        final JLabel label = new JLabel(new ImageIcon(bufferedImage));
-        final JFrame f = new JFrame();
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.getContentPane().add(label);
-        f.pack();
-        f.setLocation(200, 200);
-        f.setVisible(true);
-
-        final Object result = JOptionPane.showInputDialog(f, "Add this show to Plex?",
-                WordUtils.capitalize("Show Name"));
-
-    }
-
-    public static void TestURLImage() {
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                        | UnsupportedLookAndFeelException ex) {
-                }
-
-                try {
-                    // Create JFrame
-                    final JFrame f = new JFrame();
-                    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-                    // final Dimension d = new Dimension();
-                    // d.setSize(100.0, 200.0);
-
-                    final String path = "http://thetvdb.com/banners/posters/81189-10.jpg";
-                    final URL url = new URL(path);
-                    final BufferedImage image = ImageIO.read(url);
-                    final JLabel label = new JLabel(new ImageIcon(image));
-                    // label.setSize(d);
-
-                    // Accept image buttons
-                    final JButton yesButton = new JButton();
-                    final JButton noButton = new JButton();
-
-                    final Container contentPane = f.getContentPane();
-                    // contentPane.setSize(d);
-                    contentPane.add(label);
-                    f.pack();
-
-                    // set JFrame to center of screen
-                    final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-                    f.setLocation(dim.width / 2 - f.getSize().width / 2,
-                            dim.height / 2 - f.getSize().height / 2);
-                    f.setVisible(true);
-
-                    // final Object result = JOptionPane.showInputDialog(f, "Add
-                    // this show to Plex?",
-                    // WordUtils.capitalize("Show Name"));
-                } catch (final Exception exp) {
-                    exp.printStackTrace();
-                }
-
-            }
-
-            private Object getSize() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        });
-    }
-
 }

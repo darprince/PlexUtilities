@@ -361,19 +361,37 @@ public class TvFileUtilities {
                     }
                 }
 
-                final FileUtils fileUtils = FileUtils.getInstance();
-                if (fileUtils.hasTrash()) {
-                    try {
-                        fileUtils.moveToTrash(new File[] {
-                                showFolder
-                        });
-                    } catch (final IOException e) {
-                        LOG.warn(String.format("Failed to move file to trash.", e));
+                if (!showFolderContainsVideoFile(showFolder)) {
+                    final FileUtils fileUtils = FileUtils.getInstance();
+                    if (fileUtils.hasTrash()) {
+                        try {
+                            fileUtils.moveToTrash(new File[] {
+                                    showFolder
+                            });
+                        } catch (final IOException e) {
+                            LOG.warn(String.format("Failed to move file to trash.", e));
+                        }
                     }
                 }
-                // System.exit(0);
                 // FileUtils.deleteDirectory(showFolder);
             }
         }
+    }
+
+    /**
+     * Determines if a folder contains a video file that we care about. ie. not
+     * a rarbg.mkv
+     *
+     * @param showFolder
+     * @return true if folder contains file, false otherwise
+     */
+    private static boolean showFolderContainsVideoFile(File showFolder) {
+        for (final File showFile : showFolder.listFiles()) {
+            if (CommonUtilities.getExtension(showFile.getName()).matches(VIDEO_EXTENSIONS)
+                    && !showFile.getName().toLowerCase().matches(FILES_TO_IGNORE)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -66,7 +66,6 @@ public class MetaDataFormatter {
         final boolean correctOffset = needsOffsetCorrection(isoFile);
 
         final long sizeBefore = moov.getSize();
-        LOG.info("Size before: {}", sizeBefore);
         long offset = 0;
         for (final Box box : isoFile.getBoxes()) {
             if ("moov".equals(box.getType())) {
@@ -111,7 +110,6 @@ public class MetaDataFormatter {
         setCommentMetaData(title, ilst);
 
         long sizeAfter = moov.getSize();
-        LOG.info("Size after: {}", sizeAfter);
         long diff = sizeAfter - sizeBefore;
         // This is the difference of before/after
 

@@ -368,9 +368,11 @@ public class TheTvDbLookup {
             if (showIDIn != null) {
                 correctID = true;
             }
+
             final ShowFolderData showFolderData = ShowFolderData.builder().setCorrectShowID(false)
                     .setSeasonData(seasonDataList).setShowData(showData).setCorrectShowID(correctID)
                     .build();
+
             if (!writeShowDataToFile(showFolder, showFolderData)) {
                 LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());
             } else {
@@ -388,7 +390,7 @@ public class TheTvDbLookup {
      * @param showFolder
      * @param showFolderData
      */
-    private static boolean writeShowDataToFile(final File showFolder,
+    public static boolean writeShowDataToFile(final File showFolder,
             final ShowFolderData showFolderData) {
         final Gson g = new Gson();
         final String output = g.toJson(showFolderData);

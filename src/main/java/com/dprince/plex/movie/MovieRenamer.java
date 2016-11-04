@@ -45,7 +45,7 @@ public class MovieRenamer {
                     if (EXTENSIONS.contains(getExtension(movieFiles.toString()))
                             || movieFiles.getName().toString().equalsIgnoreCase(RARBG)) {
                         movieFiles.delete();
-                        break;
+                        continue;
                     }
                     if (SUB_EXTENSIONS.contains(getExtension(movieFiles.toString()))) {
                         CommonUtilities.renameFile(movieFiles.toString(),

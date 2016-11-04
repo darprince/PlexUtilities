@@ -375,7 +375,7 @@ public class TvUtilities {
      * @param directory
      */
     // TODO: stops when episode exists
-    // TODO: need to get showID's correct, goldbergs...
+    // TODO: need to get showID's correct
     public static Set<File> batchMoveEpisodes(@NonNull final String directory) {
         final Set<File> foldersToDelete = new HashSet<File>();
 

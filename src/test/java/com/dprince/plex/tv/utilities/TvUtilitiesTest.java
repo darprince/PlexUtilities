@@ -128,9 +128,10 @@ public class TvUtilitiesTest {
     }
 
     @Test
+    @Ignore
     public void batchMoveEpisodes_Test() throws Exception {
         final Set<File> batchMoveEpisodes = TvUtilities.batchMoveEpisodes(DOWNLOADS_DIRECTORY);
-        TvUtilities.deleteEmptyShowFolders(batchMoveEpisodes);
+        // TvUtilities.deleteEmptyShowFolders(batchMoveEpisodes);
     }
 
     // TODO: move to other test folder

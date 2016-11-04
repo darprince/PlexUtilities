@@ -1,5 +1,6 @@
 package com.dprince.plex;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.MovieRenamer;
+import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 import com.dprince.plex.tv.types.TvShow;
 import com.dprince.plex.tv.utilities.TvFileUtilities;
 import com.dprince.plex.tv.utilities.TvUtilities;
@@ -67,6 +69,9 @@ public class PlexUtilities {
                 LOG.info("Rename movie function called");
                 final String movieFilename = args[1];
                 MovieRenamer.renameMovie(movieFilename);
+                return;
+            case ("showDataFile"):
+                TheTvDbLookup.createShowDataJSONForShow(new File(args[1]), null);
                 return;
             default:
                 System.exit(0);
