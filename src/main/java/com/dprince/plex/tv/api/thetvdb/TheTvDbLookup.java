@@ -44,14 +44,17 @@ public class TheTvDbLookup {
 
     public static final List<String> failedShowList = new ArrayList<String>();
 
-    private static final String FILE_OUTPUT_NAME = "/showData.json";
-    private static final String PAGE = "?page=";
-    private static final String AIRED_EPISODE = "&airedEpisode=";
-    private final static String SERIES_CONTEXT = "/series/";
-    private final static String EPISODES_CONTEXT = "/episodes";
-    private final static String EPISODES_SUMMARY_CONTEXT = "/episodes/summary";
-    private static final String SEARCH_SERIES_NAME = "/search/series?name=";
-    private final static String EPISODES_SEARCH_PREFIX = "/episodes/query?airedSeason=";
+    public static final String FILE_OUTPUT_NAME = "/showData.json";
+    public static final String PAGE = "?page=";
+    public static final String AIRED_EPISODE = "&airedEpisode=";
+    public final static String SERIES_CONTEXT = "/series/";
+    public final static String EPISODES_CONTEXT = "/episodes";
+    public final static String EPISODES_SUMMARY_CONTEXT = "/episodes/summary";
+    public static final String SEARCH_SERIES_NAME = "/search/series?name=";
+    public final static String EPISODES_SEARCH_PREFIX = "/episodes/query?airedSeason=";
+
+    public TheTvDbLookup() {
+    }
 
     public static void main(String[] args) {
         // final String showID = getShowID("breaking bad");
@@ -151,9 +154,17 @@ public class TheTvDbLookup {
 
         final String response = ApiCalls.hitTvDbAPI(queryString, "ShowTitle: " + showTitle);
         if (response != null) {
+            final JsonParser parser = new JsonParser();
+            final JsonElement jsonElement = parser.parse(response);
+            final JsonElement dataElement = jsonElement.getAsJsonObject().get("data")
+                    .getAsJsonArray().get(0);
+
+            final JsonObject jsonObject = new JsonObject();
+            jsonObject.add("data", dataElement);
+
             String showID = null;
             try {
-                final ShowIdResponse showIdResponse = mapper.readValue(response,
+                final ShowIdResponse showIdResponse = mapper.readValue(jsonObject.toString(),
                         ShowIdResponse.class);
                 showID = showIdResponse.getData().getId();
             } catch (final IOException e) {

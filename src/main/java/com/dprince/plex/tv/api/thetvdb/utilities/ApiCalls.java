@@ -40,6 +40,8 @@ public class ApiCalls {
         if (con == null) {
             LOG.error("Connection to TvDb failed.");
             return null;
+        } else {
+            LOG.info("Connection succeeded");
         }
 
         final String response = getResponseFromTvDb(con, subject);
@@ -56,6 +58,8 @@ public class ApiCalls {
     private static HttpsURLConnection createConnection(@NonNull final String url) {
         HttpsURLConnection con = null;
         int attemptNumber = 1;
+
+        LOG.info("URL: {}", url.toString());
 
         while (attemptNumber < 4) {
             try {

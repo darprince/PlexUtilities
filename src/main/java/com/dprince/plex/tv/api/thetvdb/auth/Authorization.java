@@ -1,5 +1,7 @@
 package com.dprince.plex.tv.api.thetvdb.auth;
 
+import static com.dprince.plex.settings.PlexSettings.TOKEN_FILE_NAME;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -21,14 +23,13 @@ public class Authorization {
 
     private static final Logger LOG = Logging.getLogger(Authorization.class);
 
-    private static final String TOKEN_FILE_NAME = "\\\\Desktop-downloa\\TVShowRenamer\\token.txt";
     private static final String APIKEY = "{\"apikey\":\"B373D959A972D282\",\"username\":\"darprince\",\"userkey\":\"81674296C20B9CA1\"}";
 
     private static final String LOGIN = "https://api.thetvdb.com/login";
 
     /**
      * Uses the apiKey to request a refreshed token
-     * 
+     *
      * @return a new request token from thetvdb using apikey.
      */
     public static String getRequestTokenFromTVDB() {

@@ -17,4 +17,9 @@ public class PlexSettings {
     public static final String VIDEO_EXTENSIONS = "avi|mp4|mkv";
 
     public static final String TWO_DECIMALS = "%02d";
+
+    public static final String PLEX_TEST_FILES = DOWNLOADS_PREFIX + "PlexTestFiles/";
+    public static final String PLEX_RECYCLE = DOWNLOADS_PREFIX + "PlexRecycle/";
+
+    public static final String TOKEN_FILE_NAME = DOWNLOADS_PREFIX + "TVShowRenamer/token.txt";
 }
