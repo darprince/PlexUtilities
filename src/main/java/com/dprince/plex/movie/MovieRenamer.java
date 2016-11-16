@@ -1,8 +1,9 @@
 package com.dprince.plex.movie;
 
+import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
+import static com.dprince.plex.settings.PlexSettings.PARSER_LOCATION;
+
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,77 +14,81 @@ import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.utilities.MovieUtilities;
 
 public class MovieRenamer {
-    private static final String PARSER_LOCATION = "\\\\Desktop-downloa\\TVShowRenamer\\parser.jar";
 
     private static final Logger LOG = Logging.getLogger(MovieRenamer.class);
 
-    private static final String RARBG = "rarbg.com.mp4";
-    private static final List<String> EXTENSIONS = Arrays.asList("nfo", "txt", "jpg");
-    private static final List<String> SUB_EXTENSIONS = Arrays.asList("srt", "sub", "idx");
+    private static final String EXTENSIONS = "nfo|txt|jpg";
+    private static final String SUB_EXTENSIONS = "srt|sub|idx";
 
-    public static void renameMovie(String filename) {
-        final String movieName = getMovieName(filename);
-        final String year = getYear(filename);
+    public static void renameMovieFromFolder(String masterFolderPath) {
 
-        final File file = new File(filename);
-        final String basePath = file.getParentFile().toString();
+        final String formattedMovieName = getMovieNameFromFolder(masterFolderPath);
+        final String year = getYear(masterFolderPath);
 
-        String newMovieFilename = null;
-        String renamedFile = null;
-        if (!file.isDirectory()) {
-            final String extension = getExtension(filename);
-            renamedFile = getNewFilename(movieName, year, extension);
-            setMetaData(filename);
-        } else {
-            renamedFile = getNewFilenameWithoutExtension(movieName, year);
+        final File masterFolderFilePath = new File(masterFolderPath);
 
-            final File[] listOfFiles = file.listFiles();
+        String formattedFileName = null;
+        String fileToMetaEdit = null;
+        final File[] fileList = masterFolderFilePath.listFiles();
 
-            for (final File movieFiles : listOfFiles) {
-                final String movieFolder = movieFiles.getParentFile().toString();
-                if (movieFiles.isFile()) {
-                    if (EXTENSIONS.contains(getExtension(movieFiles.toString()))
-                            || movieFiles.getName().toString().equalsIgnoreCase(RARBG)) {
-                        movieFiles.delete();
-                        continue;
+        for (final File file : fileList) {
+            if (file.isDirectory()) {
+                System.out.println(
+                        "FILE IS DIRECTORY " + file.getName() + " " + file.listFiles().length);
+                for (final File subFile : file.listFiles()) {
+                    final String extension = getExtension(subFile.toString());
+                    if (extension.matches(SUB_EXTENSIONS)) {
+                        System.out.println("\nTOP SUB MATCH " + subFile.getName());
+                        formattedFileName = getNewFilename(formattedMovieName, year, extension);
+                        CommonUtilities.renameFile(subFile.toString(),
+                                masterFolderPath + "/" + formattedFileName);
+                    } else if (extension.matches(EXTENSIONS)) {
+                        System.out.println("\nTOP DELETING " + subFile.getName());
+                        subFile.delete();
                     }
-                    if (SUB_EXTENSIONS.contains(getExtension(movieFiles.toString()))) {
-                        CommonUtilities.renameFile(movieFiles.toString(),
-                                movieFiles.getParentFile().toString() + "\\" + renamedFile + ".eng."
-                                        + getExtension(movieFiles.toString()));
-                    } else {
-                        newMovieFilename = renamedFile + "." + getExtension(movieFiles.toString());
-                        final String newFilepath = movieFiles.getParentFile().toString() + "\\"
-                                + newMovieFilename;
-                        CommonUtilities.renameFile(movieFiles.toString(), newFilepath);
-
+                }
+                System.out.println("\nDELETING FOLDER " + file.getName());
+                file.delete();
+            } else {
+                System.out.println("NOT DIRECTORY " + file.getName());
+                final String extension = getExtension(file.toString());
+                if (extension.matches(EXTENSIONS) || file.getName().matches(FILES_TO_IGNORE)) {
+                    System.out.println("\nDELETING " + file.getName());
+                    file.delete();
+                } else {
+                    formattedFileName = getNewFilename(formattedMovieName, year, extension);
+                    System.out.println("RENAMING " + file.getName());
+                    CommonUtilities.renameFile(file.toString(),
+                            masterFolderPath + "/" + formattedFileName);
+                    if (extension.matches("mp4|mkv")) {
+                        fileToMetaEdit = formattedFileName;
+                        // setMetaData(masterFolderPath + "/" +
+                        // formattedFileName);
                     }
-                } else if (movieFiles.isDirectory()) {
-                    final File[] listOfSubFiles = movieFiles.listFiles();
-                    for (final File subFile : listOfSubFiles) {
-                        final String newSubFileName = movieFolder + "\\" + movieName + " (" + year
-                                + ").eng." + getExtension(subFile.toString());
-                        CommonUtilities.renameFile(subFile.toString(), newSubFileName);
-                    }
-                    movieFiles.delete();
                 }
             }
         }
 
-        if (CommonUtilities.renameFile(filename, basePath + "\\" + renamedFile) == false) {
-            LOG.error("Renaming movie failed.");
+        // rename master folder
+        final File folder = new File(masterFolderPath);
+        System.out.println("RENAMING FOLDER " + folder.toString());
+        CommonUtilities.renameFile(masterFolderPath,
+                folder.getParent() + "/" + formattedMovieName + " (" + year + ")");
+        try {
+            Thread.sleep(1500);
+            setMetaData(folder.getParent() + "/" + formattedMovieName + " (" + year + ")" + "/"
+                    + fileToMetaEdit);
+        } catch (final InterruptedException e) {
+            e.printStackTrace();
         }
 
-        final String newMovieFilePath = basePath + "\\" + renamedFile + "\\" + newMovieFilename;
-
-        setMetaData(newMovieFilePath);
     }
 
     private static void setMetaData(final String renamedFile) {
         LOG.info("setMetaData called with filename: " + renamedFile);
         final String extension = CommonUtilities.getExtension(renamedFile);
         LOG.info("Extension: " + extension);
-        if (extension.matches(".mp4")) {
+        if (extension.matches("mp4")) {
             LOG.info("Setting metadata from mp4");
             try {
                 final String parser = PARSER_LOCATION;
@@ -99,16 +104,23 @@ public class MovieRenamer {
             } catch (final Exception e) {
                 LOG.error("Metadata not cleaned.");
             }
-        } else if (extension.matches(".mkv")) {
+        } else if (extension.matches("mkv")) {
             LOG.info("Setting metadata from mkv");
             MovieUtilities.runMKVEditorForMovie(renamedFile);
         }
     }
 
-    public static String getMovieName(String filename) {
+    /**
+     * Formats a movies folderName into a proper Movie Name. Note: the year is
+     * not included.
+     *
+     * @param folderName
+     * @return a properly formatted movie name without the year.
+     */
+    public static String getMovieNameFromFolder(String folderName) {
         try {
-            String movieName = filename.substring(filename.lastIndexOf("\\") + 1,
-                    filename.length());
+            String movieName = folderName.substring(folderName.lastIndexOf("\\") + 1,
+                    folderName.length());
             final Pattern pattern = Pattern.compile("[0-9]{4}");
             final Matcher matcher = pattern.matcher(movieName);
 

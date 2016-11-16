@@ -36,6 +36,9 @@ public class TvUtilitiesTest {
             "C://Documents and Settings/Users/Darren/american.gothic.2016.part.9.WEB-DL.XviD-FUM[ettv].mpg",
     };
 
+    private static final String SINGLE_WORD_SHOW = "C://Documents and Settings/Users/Darren/atlanta.110-yestv.mkv";
+    private static final String US_IN_SHOW_NAME = "C://Documents and Settings/Users/Darren/Secrets.and.Lies.US.S02E06.HDTV.x264-FLEET.mkv";
+
     @Test
     public void parseFileName_Test() throws Exception {
         for (final String filepath : RAW_FILENAMES) {
@@ -65,6 +68,17 @@ public class TvUtilitiesTest {
     }
 
     @Test
+    public void parseFileNameWithTrailingDash_Test() throws Exception {
+        final TvShow tvShow = TvUtilities.parseFileName(SINGLE_WORD_SHOW);
+        assertNotNull(tvShow);
+        assertEquals("Tv Raw Showname ", "atlanta", tvShow.getRawShowName());
+        assertEquals("Episode Season ", "01", tvShow.getSeasonNumber());
+        assertEquals("Episode Number ", "10", tvShow.getEpisodeNumber());
+        assertEquals("TvEpisodeTitle", "The Jacket", tvShow.getEpisodeTitle());
+        assertEquals("Extension ", "mkv", tvShow.getExtension());
+    }
+
+    @Test
     public void buildNewFileName_Test() throws Exception {
         final String buildFileName = TvUtilities.buildFileName("Doctor Who", "02", "03",
                 "Episode Title", "avi");
@@ -86,10 +100,10 @@ public class TvUtilitiesTest {
 
     @Test
     public void buildDestinationFilepath_Test() throws Exception {
-        final String destinationFilepath = TvUtilities.buildDestinationFilepath("Doctor Who",
-                "Doctor Who - S01E01 - An Unearthly Child 1.avi", "02");
+        final String destinationFilepath = TvUtilities.buildDestinationFilepath("Doctor Who (2005)",
+                "Doctor Who (2005) - S02E01 - An Unearthly Child 1.avi", "02");
         assertEquals("Build destinationFilepath",
-                "//Desktop-plex/tv a-e/Doctor Who/Season 02/Doctor Who - S01E01 - An Unearthly Child 1.avi",
+                "//Desktop-plex/tv a-e/Doctor Who (2005)/Season 02/Doctor Who (2005) - S02E01 - An Unearthly Child 1.avi",
                 destinationFilepath);
     }
 
@@ -115,6 +129,9 @@ public class TvUtilitiesTest {
 
         showIDFromJson = TvUtilities.getShowIDFromJson("800 Words");
         assertEquals("Show ID", "300667", showIDFromJson);
+
+        showIDFromJson = TvUtilities.getShowIDFromJson("Good Girls Revolt");
+        assertEquals("Show ID", "315419", showIDFromJson);
     }
 
     @Test
@@ -136,12 +153,13 @@ public class TvUtilitiesTest {
 
     // TODO: move to other test folder
     @Test
+    @Ignore
     public void episodeExists_Test() throws Exception {
-        final boolean episodeExists = TvFileUtilities.episodeExists(
+        final String episodeExists = TvFileUtilities.episodeExists(
                 PLEX_PREFIX
                         + "/tv m-s/Orange Is The New Black/Season 02/Orange Is The New Black - S02E03.avi",
                 "02", "03");
-        assertTrue(episodeExists);
+        assertNotNull(episodeExists);
     }
 
     @Test
@@ -166,5 +184,14 @@ public class TvUtilitiesTest {
         assertTrue(CommonUtilities.getExtension(name3).matches(VIDEO_EXTENSIONS));
         assertFalse(CommonUtilities.getExtension(name4).matches(VIDEO_EXTENSIONS));
         assertFalse(CommonUtilities.getExtension(name5).matches(VIDEO_EXTENSIONS));
+    }
+
+    @Test
+    public void formatRawShowName_Test() throws Exception {
+        String formatRawShowName = TvUtilities.formatRawShowName("Girls");
+        System.out.println(formatRawShowName);
+
+        formatRawShowName = TvUtilities.formatRawShowName("Notorious");
+        System.out.println(formatRawShowName);
     }
 }

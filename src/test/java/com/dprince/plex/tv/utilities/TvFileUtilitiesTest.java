@@ -2,7 +2,6 @@ package com.dprince.plex.tv.utilities;
 
 import java.io.File;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.dprince.plex.settings.PlexSettings;
@@ -10,7 +9,7 @@ import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 
 public class TvFileUtilitiesTest {
     @Test
-    @Ignore
+    // @Ignore
     public void extractFiles_Test() throws Exception {
         TvFileUtilities.extractTvFiles();
     }
@@ -23,7 +22,7 @@ public class TvFileUtilitiesTest {
     }
 
     @Test
-    @Ignore
+    // @Ignore
     public void createShowDataJSONForAllDirectories_Test() {
         TheTvDbLookup.createShowDataJSONForAllDirectories();
     }

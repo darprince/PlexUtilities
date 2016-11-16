@@ -83,7 +83,17 @@ public class ShowIDCheck {
         }
     }
 
-    private static void writeCorrectID(String showID, File showFolder) {
+    public static void writeCorrectID(String showID, File showFolder) {
+        final ShowFolderData showFolderData = getShowFolderData(showFolder);
+        final ShowData showData = showFolderData.getShowData();
+        final List<SeasonData> seasonData = showFolderData.getSeasonData();
+        final ShowFolderData showFolderDataToWrite = ShowFolderData.builder().setCorrectShowID(true)
+                .setSeasonData(seasonData).setShowData(showData).build();
+
+        writeToShowDataToFile(showFolder, showFolderDataToWrite);
+    }
+
+    public static void setCorrectIDtoTrue(File showFolder) {
         final ShowFolderData showFolderData = getShowFolderData(showFolder);
         final ShowData showData = showFolderData.getShowData();
         final List<SeasonData> seasonData = showFolderData.getSeasonData();
@@ -137,5 +147,13 @@ public class ShowIDCheck {
                 }
             }
         }
+    }
+
+    public static void refreshData(String folderPath) {
+        final File folder = new File(folderPath);
+        final String formattedShowName = folder.getName();
+
+        final String showID = TvUtilities.getShowIDFromJson(formattedShowName);
+        TheTvDbLookup.createShowDataJSONForShow(folder, showID);
     }
 }

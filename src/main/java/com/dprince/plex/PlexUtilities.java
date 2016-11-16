@@ -3,12 +3,16 @@ package com.dprince.plex;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.MovieRenamer;
 import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
+import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
 import com.dprince.plex.tv.types.TvShow;
 import com.dprince.plex.tv.utilities.TvFileUtilities;
 import com.dprince.plex.tv.utilities.TvUtilities;
@@ -67,11 +71,21 @@ public class PlexUtilities {
                 return;
             case ("renameMovie"):
                 LOG.info("Rename movie function called");
-                final String movieFilename = args[1];
-                MovieRenamer.renameMovie(movieFilename);
+                MovieRenamer.renameMovieFromFolder(args[1]);
                 return;
             case ("showDataFile"):
                 TheTvDbLookup.createShowDataJSONForShow(new File(args[1]), null);
+                return;
+            case ("setToTrue"):
+                ShowIDCheck.setCorrectIDtoTrue(new File(args[1]));
+                return;
+            case ("writeCorrectShowData"):
+                final Object result = JOptionPane.showInputDialog(new JFrame(),
+                        "What is the showID?", "");
+                TheTvDbLookup.createShowDataJSONForShow(new File(args[1]), result.toString());
+                return;
+            case ("refreshData"):
+                ShowIDCheck.refreshData(args[1]);
                 return;
             default:
                 System.exit(0);

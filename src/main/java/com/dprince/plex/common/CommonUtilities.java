@@ -1,12 +1,17 @@
 package com.dprince.plex.common;
 
+import static com.dprince.plex.settings.PlexSettings.PLEX_RECYCLE;
 import static com.dprince.plex.settings.PlexSettings.TWO_DECIMALS;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNull;
@@ -210,5 +215,26 @@ public class CommonUtilities {
     public static String buildEpisodeSeasonAndNumber(@NonNull final EpisodeData episodeData) {
         return "S" + CommonUtilities.padInt(episodeData.getAiredSeason()) + "E"
                 + CommonUtilities.padInt(episodeData.getAiredEpisodeNumber());
+    }
+
+    /**
+     * Moves a file to the Plex recycle directory on Desktop-downloa
+     *
+     * @param filename
+     *            the file to be recycled
+     * @return True if successful, false otherwise.
+     */
+    public static boolean recycle(String filename) {
+        final File file = new File(filename);
+        final Path source = Paths.get(filename);
+        final Path destination = Paths.get(PLEX_RECYCLE + file.getName());
+
+        try {
+            Files.move(source, destination, REPLACE_EXISTING);
+        } catch (final IOException e) {
+            LOG.info("Recycle file failed", e);
+            return false;
+        }
+        return true;
     }
 }

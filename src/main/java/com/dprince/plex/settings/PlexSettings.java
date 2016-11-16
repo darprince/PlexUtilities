@@ -3,6 +3,7 @@ package com.dprince.plex.settings;
 public class PlexSettings {
     public static final String MKVPROPEDIT_LOCATION = "//Desktop-downloa/TVShowRenamer/mkvpropedit.exe";
     public static final String FOLDERS_FILE_LOCATION = "//DESKTOP-DOWNLOA/TVShowRenamer/folders.txt";
+    public static final String PARSER_LOCATION = "//DESKTOP-DOWNLOA/TVShowRenamer/parser.jar";
 
     public static final String DESKTOP_SHARED_DIRECTORIES[] = {
             "tv a-e", "tv f-l", "tv m-s", "tv t-z", "Kids Tv"
@@ -14,7 +15,7 @@ public class PlexSettings {
 
     public static final String FILES_TO_IGNORE = "rarbg.com.mp4|rarbg.com.avi";
 
-    public static final String VIDEO_EXTENSIONS = "avi|mp4|mkv";
+    public static final String VIDEO_EXTENSIONS = "mkv|mp4|avi|mpg|m4v";
 
     public static final String TWO_DECIMALS = "%02d";
 

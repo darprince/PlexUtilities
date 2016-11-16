@@ -8,7 +8,6 @@ import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 import static com.dprince.plex.settings.PlexSettings.VIDEO_EXTENSIONS;
 
-import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,8 +28,8 @@ import org.slf4j.Logger;
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.shared.MetaDataFormatter;
+import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 import com.dprince.plex.tv.types.TvShow;
-import com.sun.jna.platform.FileUtils;
 
 public class TvFileUtilities {
     private static final Logger LOG = Logging.getLogger(TvFileUtilities.class);
@@ -252,7 +251,11 @@ public class TvFileUtilities {
         String newSubFolderName = null;
 
         // TODO: add numerical to regex
-        final String firstLetter = result.toString().toLowerCase().substring(0, 1);
+        String resultWithoutPre = result.toString();
+        if (result.toString().startsWith("The ")) {
+            resultWithoutPre = resultWithoutPre.substring(4, resultWithoutPre.length()).trim();
+        }
+        final String firstLetter = resultWithoutPre.toLowerCase().substring(0, 1);
         if (firstLetter.matches("[a-e]")) {
             newSubFolderName = "tv a-e\\";
         } else if (firstLetter.matches("[f-l]")) {
@@ -269,15 +272,15 @@ public class TvFileUtilities {
 
         // test if folder already exists
         if (folderToCreate.exists()) {
-            return null;
+            return resultString;
         } else {
             folderToCreate.mkdir();
             seasonFolderToCreate.mkdir();
         }
 
-        TvFileUtilities.deleteFoldersFile();
-        TvFileUtilities.createFoldersFile();
-
+        // TvFileUtilities.deleteFoldersFile();
+        // TvFileUtilities.createFoldersFile();
+        TheTvDbLookup.createShowDataJSONForShow(folderToCreate);
         return resultString;
     }
 
@@ -306,7 +309,7 @@ public class TvFileUtilities {
      * @param episodeNumber
      * @return true if episode exisits, false otherwise.
      */
-    public static boolean episodeExists(@NonNull final String filepath,
+    public static String episodeExists(@NonNull final String filepath,
             @NonNull final String seasonNumber, @NonNull final String episodeNumber) {
         final File file = new File(filepath);
         final File folder = new File(file.getParent());
@@ -316,22 +319,11 @@ public class TvFileUtilities {
 
             for (final File episode : folder.listFiles()) {
                 if (episode.getName().contains(seasonEpisode)) {
-                    // TODO: ask to delete file
-                    final int result = JOptionPane.showConfirmDialog((Component) null,
-                            "File \"" + episode.getName()
-                                    + "\" exists,\nWould you like to delete it?",
-                            "File Exists", JOptionPane.OK_CANCEL_OPTION);
-                    if (result == 0) {// OK, delete file. (0)
-                        LOG.info("Deleting file {}", file.getName());
-                        System.out.println("OK Result: " + result);
-                    } else { // cancel, dont delete file. (2)
-                        System.out.println("Cancel Result: " + result);
-                    }
-                    return true;
+                    return episode.getName();
                 }
             }
         }
-        return false;
+        return null;
     }
 
     /**
@@ -341,7 +333,6 @@ public class TvFileUtilities {
      * @throws IOException
      */
     public static void extractTvFiles() throws IOException {
-        final String RECYCLE_BIN = "C:\\$Recycle.Bin/";
         final File folder = new File(DOWNLOADS_DIRECTORY);
 
         for (final File showFolder : folder.listFiles()) {
@@ -357,23 +348,16 @@ public class TvFileUtilities {
                             continue;
                         }
                     } else {
-                        LOG.info("Not moving: " + showFile.getName());
+                        LOG.info("Not Moving: " + showFile.getName());
                     }
                 }
 
                 if (!showFolderContainsVideoFile(showFolder)) {
-                    final FileUtils fileUtils = FileUtils.getInstance();
-                    if (fileUtils.hasTrash()) {
-                        try {
-                            fileUtils.moveToTrash(new File[] {
-                                    showFolder
-                            });
-                        } catch (final IOException e) {
-                            LOG.warn(String.format("Failed to move file to trash.", e));
-                        }
+                    for (final File file : showFolder.listFiles()) {
+                        CommonUtilities.recycle(file.toString());
                     }
+                    CommonUtilities.recycle(showFolder.toString());
                 }
-                // FileUtils.deleteDirectory(showFolder);
             }
         }
     }
