@@ -122,7 +122,7 @@ public class TvUtilities {
 
     /**
      * Creates a tvShow object from data retrieved from the parser.
-     * 
+     *
      * @param originalFilepath
      * @param filename
      * @param rawShowName
@@ -410,7 +410,7 @@ public class TvUtilities {
      * Reads in a shows folder data and returns a ShowFolderData object.
      *
      * @param formattedShowName
-     * @return a{@link ShowFolderData} object.
+     * @return a{@link ShowFolderData3} object.
      */
     public static ShowFolderData getShowFolderData(@NonNull final String formattedShowName) {
         final String showDriveLocation = getShowDriveLocation(formattedShowName);

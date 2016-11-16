@@ -24,6 +24,7 @@ import com.dprince.plex.tv.api.thetvdb.types.season.SeasonResponse;
 import com.dprince.plex.tv.api.thetvdb.types.season.SeasonResponseData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData;
+import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData3;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowIdResponse;
 import com.dprince.plex.tv.api.thetvdb.utilities.ApiCalls;
 import com.dprince.plex.tv.utilities.TvUtilities;
@@ -269,7 +270,7 @@ public class TheTvDbLookup {
     }
 
     /**
-     * Creates a {@link ShowFolderData} for all shows.
+     * Creates a {@link ShowFolderData3} for all shows.
      */
     public static void createShowDataJSONForAllDirectories() {
         for (final String rootDirectory : DESKTOP_SHARED_DIRECTORIES) {
@@ -313,7 +314,7 @@ public class TheTvDbLookup {
 
     /**
      * Queries the TvDB for data about the show being queried. Writes a
-     * {@link ShowFolderData} to the shows root folder.
+     * {@link ShowFolderData3} to the shows root folder.
      *
      * @param showFolder
      */
@@ -382,7 +383,7 @@ public class TheTvDbLookup {
 
             final ShowFolderData showFolderData = ShowFolderData.builder().setCorrectShowID(false)
                     .setSeasonData(seasonDataList).setShowData(showData).setCorrectShowID(correctID)
-                    .build();
+                    .setMissingEpisodeCheck(true).build();
 
             if (!writeShowDataToFile(showFolder, showFolderData)) {
                 LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());
@@ -395,7 +396,7 @@ public class TheTvDbLookup {
     }
 
     /**
-     * Converts a {@link ShowFolderData} to json and writes to the show's root
+     * Converts a {@link ShowFolderData3} to json and writes to the show's root
      * folder
      *
      * @param showFolder

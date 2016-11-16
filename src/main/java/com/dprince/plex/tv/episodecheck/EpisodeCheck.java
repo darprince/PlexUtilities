@@ -59,7 +59,8 @@ public class EpisodeCheck {
                 if (!CommonUtilities.isSystemFolder(showFolder)) {
                     final ShowFolderData showFolderData = TvUtilities
                             .getShowFolderData(showFolder.getName());
-                    if (showFolderData == null || showFolderData.getCorrectShowID() == false) {
+                    if (showFolderData == null || showFolderData.getCorrectShowID() == false
+                            || showFolderData.getMissingEpisodeCheck() == false) {
                         continue;
                     }
 

@@ -14,19 +14,20 @@ import com.google.auto.value.AutoValue;
  * @author Darren
  */
 @AutoValue
-@JsonDeserialize(builder = AutoValue_ShowFolderData.Builder.class)
+@JsonDeserialize(builder = AutoValue_ShowFolderData3.Builder.class)
 @NonNullByDefault
-public abstract class ShowFolderData {
+public abstract class ShowFolderData3 {
     public static final String FIELD_SHOW_DATA = "showData";
     public static final String FIELD_SEASON_DATA = "seasonData";
     public static final String FIELD_CORRECT_SHOWID = "correctShowID";
-    public static final String FIELD_CHECK_MISSING_EPISODES = "missingEpisodeCheck";
+    // public static final String FIELD_CHECK_MISSING_EPISODES =
+    // "missingEpisodeCheck";
 
     @JsonProperty(FIELD_CORRECT_SHOWID)
     public abstract boolean getCorrectShowID();
 
-    @JsonProperty(FIELD_CHECK_MISSING_EPISODES)
-    public abstract boolean getMissingEpisodeCheck();
+    // @JsonProperty(FIELD_CHECK_MISSING_EPISODES)
+    // public abstract boolean getMissingEpisodeCheck();
 
     @JsonProperty(FIELD_SHOW_DATA)
     public abstract ShowData getShowData();
@@ -35,20 +36,21 @@ public abstract class ShowFolderData {
     public abstract List<SeasonData> getSeasonData();
 
     public static Builder builder() {
-        final Builder builder = new AutoValue_ShowFolderData.Builder();
+        final Builder builder = new AutoValue_ShowFolderData3.Builder();
         return builder;
     }
 
     @AutoValue.Builder
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static abstract class Builder {
-        public abstract ShowFolderData build();
+        public abstract ShowFolderData3 build();
 
         @JsonProperty(FIELD_CORRECT_SHOWID)
         public abstract Builder setCorrectShowID(final boolean correctShowID);
 
-        @JsonProperty(FIELD_CHECK_MISSING_EPISODES)
-        public abstract Builder setMissingEpisodeCheck(final boolean missingEpisodeCheck);
+        // @JsonProperty(FIELD_CHECK_MISSING_EPISODES)
+        // public abstract Builder setMissingEpisodeCheck(final boolean
+        // missingEpisodeCheck);
 
         @JsonProperty(FIELD_SHOW_DATA)
         public abstract Builder setShowData(final ShowData showIdData);

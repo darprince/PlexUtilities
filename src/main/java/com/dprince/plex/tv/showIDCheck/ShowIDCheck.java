@@ -87,8 +87,10 @@ public class ShowIDCheck {
         final ShowFolderData showFolderData = getShowFolderData(showFolder);
         final ShowData showData = showFolderData.getShowData();
         final List<SeasonData> seasonData = showFolderData.getSeasonData();
+        final boolean missingEpisodeCheck = showFolderData.getMissingEpisodeCheck();
         final ShowFolderData showFolderDataToWrite = ShowFolderData.builder().setCorrectShowID(true)
-                .setSeasonData(seasonData).setShowData(showData).build();
+                .setSeasonData(seasonData).setShowData(showData)
+                .setMissingEpisodeCheck(missingEpisodeCheck).build();
 
         writeToShowDataToFile(showFolder, showFolderDataToWrite);
     }
@@ -97,8 +99,10 @@ public class ShowIDCheck {
         final ShowFolderData showFolderData = getShowFolderData(showFolder);
         final ShowData showData = showFolderData.getShowData();
         final List<SeasonData> seasonData = showFolderData.getSeasonData();
+        final boolean missingEpisodeCheck = showFolderData.getMissingEpisodeCheck();
         final ShowFolderData showFolderDataToWrite = ShowFolderData.builder().setCorrectShowID(true)
-                .setSeasonData(seasonData).setShowData(showData).build();
+                .setSeasonData(seasonData).setShowData(showData)
+                .setMissingEpisodeCheck(missingEpisodeCheck).build();
 
         writeToShowDataToFile(showFolder, showFolderDataToWrite);
     }
