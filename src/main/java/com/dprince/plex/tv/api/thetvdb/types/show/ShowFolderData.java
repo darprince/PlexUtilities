@@ -20,9 +20,14 @@ public abstract class ShowFolderData {
     public static final String FIELD_SHOW_DATA = "showData";
     public static final String FIELD_SEASON_DATA = "seasonData";
     public static final String FIELD_CORRECT_SHOWID = "correctShowID";
+    // public static final String FIELD_CHECK_MISSING_EPISODES =
+    // "missingEpisodeCheck";
 
     @JsonProperty(FIELD_CORRECT_SHOWID)
     public abstract boolean getCorrectShowID();
+
+    // @JsonProperty(FIELD_CHECK_MISSING_EPISODES)
+    // public abstract boolean getMissingEpisodeCheck();
 
     @JsonProperty(FIELD_SHOW_DATA)
     public abstract ShowData getShowData();
@@ -42,6 +47,10 @@ public abstract class ShowFolderData {
 
         @JsonProperty(FIELD_CORRECT_SHOWID)
         public abstract Builder setCorrectShowID(final boolean correctShowID);
+
+        // @JsonProperty(FIELD_CHECK_MISSING_EPISODES)
+        // public abstract Builder setMissingEpisodeCheck(final boolean
+        // missingEpisodeCheck);
 
         @JsonProperty(FIELD_SHOW_DATA)
         public abstract Builder setShowData(final ShowData showIdData);

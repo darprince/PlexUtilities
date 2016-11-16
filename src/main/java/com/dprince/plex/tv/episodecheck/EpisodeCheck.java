@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
@@ -25,6 +26,8 @@ import com.dprince.plex.tv.utilities.TvUtilities;
 public class EpisodeCheck {
 
     private static final Logger LOG = Logging.getLogger(EpisodeCheck.class);
+    public static int missingEpisodeCount = 0;
+    public static int missingSeasonCount = 0;
 
     public static void main(String[] args) {
         try {
@@ -32,6 +35,8 @@ public class EpisodeCheck {
         } catch (final IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Missing episodes: " + missingEpisodeCount);
+        System.out.println("Missing seasons: " + missingSeasonCount);
     }
 
     /**
@@ -41,6 +46,7 @@ public class EpisodeCheck {
      * @throws IOException
      */
     public static void checkEpisodes() throws IOException {
+        final LocalDate yesterdaysDate = new LocalDate().minusDays(1);
         final FileWriter fileWriter = CommonUtilities
                 .getFileWriter(DOWNLOADS_DIRECTORY + "/missingEpisodes.txt");
 
@@ -53,13 +59,13 @@ public class EpisodeCheck {
                 if (!CommonUtilities.isSystemFolder(showFolder)) {
                     final ShowFolderData showFolderData = TvUtilities
                             .getShowFolderData(showFolder.getName());
-                    if (showFolderData == null) {
+                    if (showFolderData == null || showFolderData.getCorrectShowID() == false) {
                         continue;
                     }
 
                     for (final SeasonData seasonDataObject : showFolderData.getSeasonData()) {
                         missingEpisodes = checkSeasonForMissingEpisodes(showFolder, missingEpisodes,
-                                seasonDataObject);
+                                seasonDataObject, yesterdaysDate);
                     }
                 }
                 printMissingEpisodesToFile(fileWriter, showFolder, missingEpisodes);
@@ -95,7 +101,8 @@ public class EpisodeCheck {
      * @param seasonDataObject
      */
     private static Set<String> checkSeasonForMissingEpisodes(final File showFolder,
-            final Set<String> missingEpisodes, final SeasonData seasonDataObject) {
+            final Set<String> missingEpisodes, final SeasonData seasonDataObject,
+            final LocalDate yesterdaysDate) {
         final String seasonNumber = CommonUtilities.padInt(seasonDataObject.getSeasonNumber());
         if (seasonNumber.equals("00")) {
             return missingEpisodes;
@@ -107,25 +114,32 @@ public class EpisodeCheck {
 
             // For each episode listed in showFolderData JSON
             for (final EpisodeData episodeData : seasonDataObject.getEpisodeList()) {
+                final String firstAired = episodeData.getFirstAired();
+                if (!firstAired.isEmpty()) {
+                    final LocalDate episodeAiredDate = new LocalDate(firstAired);
+                    if (episodeAiredDate.isAfter(yesterdaysDate)) {
+                        continue;
+                    }
+                }
                 final String episodeSeasonAndNumber = CommonUtilities
                         .buildEpisodeSeasonAndNumber(episodeData);
 
                 // For each episode on Plex
                 boolean found = false;
                 for (final File episodeFile : seasonFolderFiles) {
-                    if (episodeFile.getName().contains(episodeSeasonAndNumber)) {
+                    if (episodeFile.getName().contains(
+                            "E" + CommonUtilities.padInt(episodeData.getAiredEpisodeNumber()))) {
                         found = true;
                     }
                 }
                 if (!found) {
                     missingEpisodes.add(showFolder.getName() + " - " + episodeSeasonAndNumber);
+                    missingEpisodeCount++;
                 }
             }
         } else {
-            for (final EpisodeData episodeData : seasonDataObject.getEpisodeList()) {
-                missingEpisodes.add(showFolder.getName() + " - "
-                        + CommonUtilities.buildEpisodeSeasonAndNumber(episodeData));
-            }
+            missingEpisodes.add(showFolder.getName() + " - " + seasonNumber);
+            missingSeasonCount++;
         }
         return missingEpisodes;
     }
