@@ -4,7 +4,7 @@ import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
 import static com.dprince.plex.settings.PlexSettings.DOWNLOADS_DIRECTORY;
 import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
-import static com.dprince.plex.settings.PlexSettings.VIDEO_EXTENSIONS;
+import static com.dprince.plex.settings.PlexSettings.FILES_WE_WANT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -179,11 +179,11 @@ public class TvUtilitiesTest {
         final String name4 = "Doctor.Who.2005.S04.BDRip.x264-MIXED.nfo";
         final String name5 = "doctor.who.2005.s04e13.internal.bdrip.x264-archivist.txt";
 
-        assertTrue(CommonUtilities.getExtension(name1).matches(VIDEO_EXTENSIONS));
-        assertTrue(CommonUtilities.getExtension(name1).matches(VIDEO_EXTENSIONS));
-        assertTrue(CommonUtilities.getExtension(name3).matches(VIDEO_EXTENSIONS));
-        assertFalse(CommonUtilities.getExtension(name4).matches(VIDEO_EXTENSIONS));
-        assertFalse(CommonUtilities.getExtension(name5).matches(VIDEO_EXTENSIONS));
+        assertTrue(CommonUtilities.getExtension(name1).matches(FILES_WE_WANT));
+        assertTrue(CommonUtilities.getExtension(name1).matches(FILES_WE_WANT));
+        assertTrue(CommonUtilities.getExtension(name3).matches(FILES_WE_WANT));
+        assertFalse(CommonUtilities.getExtension(name4).matches(FILES_WE_WANT));
+        assertFalse(CommonUtilities.getExtension(name5).matches(FILES_WE_WANT));
     }
 
     @Test

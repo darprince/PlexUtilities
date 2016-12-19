@@ -3,10 +3,11 @@ package com.dprince.plex.tv.utilities;
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
 import static com.dprince.plex.settings.PlexSettings.DOWNLOADS_DIRECTORY;
 import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
+import static com.dprince.plex.settings.PlexSettings.FILES_WE_WANT;
 import static com.dprince.plex.settings.PlexSettings.FOLDERS_FILE_LOCATION;
 import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
-import static com.dprince.plex.settings.PlexSettings.VIDEO_EXTENSIONS;
+import static com.dprince.plex.settings.PlexSettings.VIDEO_FILES;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -338,7 +339,7 @@ public class TvFileUtilities {
         for (final File showFolder : folder.listFiles()) {
             if (showFolder.isDirectory()) {
                 for (final File showFile : showFolder.listFiles()) {
-                    if (CommonUtilities.getExtension(showFile.getName()).matches(VIDEO_EXTENSIONS)
+                    if (CommonUtilities.getExtension(showFile.getName()).matches(VIDEO_FILES)
                             && !showFile.getName().toLowerCase().matches(FILES_TO_IGNORE)
                             && showFile.length() < 700000000) {
 
@@ -354,6 +355,11 @@ public class TvFileUtilities {
 
                 if (!showFolderContainsVideoFile(showFolder)) {
                     for (final File file : showFolder.listFiles()) {
+                        if (file.isDirectory()) {
+                            for (final File file2 : file.listFiles()) {
+                                CommonUtilities.recycle(file2.toString());
+                            }
+                        }
                         CommonUtilities.recycle(file.toString());
                     }
                     CommonUtilities.recycle(showFolder.toString());
@@ -371,7 +377,7 @@ public class TvFileUtilities {
      */
     private static boolean showFolderContainsVideoFile(File showFolder) {
         for (final File showFile : showFolder.listFiles()) {
-            if (CommonUtilities.getExtension(showFile.getName()).matches(VIDEO_EXTENSIONS)
+            if (CommonUtilities.getExtension(showFile.getName()).matches(FILES_WE_WANT)
                     && !showFile.getName().toLowerCase().matches(FILES_TO_IGNORE)) {
                 return true;
             }

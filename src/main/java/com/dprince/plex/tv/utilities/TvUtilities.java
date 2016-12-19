@@ -2,10 +2,9 @@ package com.dprince.plex.tv.utilities;
 
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
 import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
+import static com.dprince.plex.settings.PlexSettings.FILES_WE_WANT;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
-import static com.dprince.plex.settings.PlexSettings.VIDEO_EXTENSIONS;
 
-import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,8 +13,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.swing.JOptionPane;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -28,6 +25,8 @@ import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 import com.dprince.plex.tv.api.thetvdb.types.episode.EpisodeData;
 import com.dprince.plex.tv.api.thetvdb.types.season.SeasonData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData;
+import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData3;
+import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
 import com.dprince.plex.tv.types.TvShow;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -140,10 +139,17 @@ public class TvUtilities {
             if (formattedShowName == null) {
                 LOG.error("Failed to get formatted show name in parser");
             }
-            final String episodeTitle = getEpisodeTitle(formattedShowName, seasonNumber,
-                    episodeNumber);
+            String episodeTitle = getEpisodeTitle(formattedShowName, seasonNumber, episodeNumber);
             if (episodeTitle == null) {
-                LOG.error("Failed to get episode title in parser");
+                LOG.info("Refreshing showData file.");
+                final String showDriveLocation = getShowDriveLocation(formattedShowName);
+                final String showFolderPath = PlexSettings.PLEX_PREFIX + "/" + showDriveLocation
+                        + "/" + formattedShowName;
+                ShowIDCheck.refreshData(showFolderPath);
+                episodeTitle = getEpisodeTitle(formattedShowName, seasonNumber, episodeNumber);
+                if (episodeTitle == null) {
+                    LOG.info("Failed to get TV episode title");
+                }
             }
             final String formattedFileName = buildFileName(formattedShowName, seasonNumber,
                     episodeNumber, episodeTitle, extension);
@@ -234,12 +240,12 @@ public class TvUtilities {
     static String formatRawShowName(String rawTvShowName) {
         String toReturn = null;
 
-        toReturn = matchFromFolderName(rawTvShowName);
+        toReturn = matchAwkwardTvShow(rawTvShowName);
         if (toReturn != null) {
             return toReturn;
         }
 
-        toReturn = matchAwkwardTvShow(rawTvShowName);
+        toReturn = matchFromFolderName(rawTvShowName);
         if (toReturn != null) {
             return toReturn;
         }
@@ -396,6 +402,7 @@ public class TvUtilities {
      */
     public static String getShowIDFromJson(@NonNull final String formattedShowName) {
         String showID = null;
+        LOG.info("FormattedShowName: " + formattedShowName);
         final ShowFolderData showFolderData = getShowFolderData(formattedShowName);
         if (showFolderData == null) {
             LOG.info("Failed to read showID from ShowFolderData");
@@ -464,17 +471,18 @@ public class TvUtilities {
         final String episodeExists = TvFileUtilities.episodeExists(tvShow.getDestinationFilepath(),
                 tvShow.getSeasonNumber(), tvShow.getEpisodeNumber());
         if (episodeExists != null) {
-            final int result = JOptionPane.showConfirmDialog((Component) null,
-                    "File \"" + episodeExists + "\" exists,\nWould you like to delete "
-                            + tvShow.getFormattedFileName() + "?",
-                    "File Exists", JOptionPane.OK_CANCEL_OPTION);
-            if (result == 0) {// OK, delete file. (0)
-                LOG.info("Deleting file {}", tvShow.getFormattedFileName());
-                CommonUtilities.recycle(tvShow.getOriginalFilepath());
-                System.exit(0);
-            } else { // cancel, dont delete file. (2)
-                System.exit(0);
-            }
+            final String oldFilename = new File(tvShow.getOriginalFilepath()).getName();
+            // final int result = JOptionPane.showConfirmDialog(
+            // (Component) null, "File \"" + episodeExists
+            // + "\" exists,\nWould you like to delete " + oldFilename + "?",
+            // "File Exists", JOptionPane.OK_CANCEL_OPTION);
+            // if (result == 0) {// OK, delete file. (0)
+            LOG.info("Deleting file {}", oldFilename);
+            CommonUtilities.recycle(tvShow.getOriginalFilepath());
+            System.exit(0);
+            // } else { // cancel, dont delete file. (2)
+            // System.exit(0);
+            // }
         }
 
         boolean seasonFolderCreated = false;
@@ -545,7 +553,7 @@ public class TvUtilities {
         LOG.info("Starting foldersToDelete(), {} folders", foldersToDelete.size());
         for (final File folder : foldersToDelete) {
             for (final File file : folder.listFiles()) {
-                if (CommonUtilities.getExtension(file.toString()).matches(VIDEO_EXTENSIONS)) {
+                if (CommonUtilities.getExtension(file.toString()).matches(FILES_WE_WANT)) {
                     final boolean matches = file.getName().toLowerCase().matches(FILES_TO_IGNORE);
                     if (!matches) {
                         LOG.info("Not deleting folder {}, contains {}", folder.getName(),

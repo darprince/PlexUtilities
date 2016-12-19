@@ -12,10 +12,12 @@ public class PlexSettings {
     public static final String PLEX_PREFIX = "//Desktop-plex/";
     public static final String DOWNLOADS_PREFIX = "//Desktop-downloa/";
     public static final String DOWNLOADS_DIRECTORY = "//Desktop-Downloa/Completed";
+    public static final String PLEX_LOGS = "//Desktop-downloa/PlexLogs";
 
-    public static final String FILES_TO_IGNORE = "rarbg.com.mp4|rarbg.com.avi";
+    public static final String FILES_TO_IGNORE = "rarbg.com.mp4|rarbg.com.avi|rarbg.mp4";
 
-    public static final String VIDEO_EXTENSIONS = "mkv|mp4|avi|mpg|m4v";
+    public static final String FILES_WE_WANT = "mkv|mp4|avi|mpg|m4v|mp3|flac|epub";
+    public static final String VIDEO_FILES = "mkv|mp4|avi|mpg|m4v";
 
     public static final String TWO_DECIMALS = "%02d";
 

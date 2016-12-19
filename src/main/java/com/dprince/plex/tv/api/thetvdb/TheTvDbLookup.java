@@ -376,14 +376,18 @@ public class TheTvDbLookup {
                 seasonDataList.add(seasonData);
             }
 
+            final ShowFolderData currentFolderData = TvUtilities
+                    .getShowFolderData(showFolder.getName());
             boolean correctID = false;
-            if (showIDIn != null) {
-                correctID = true;
+            boolean missingEpisodeCheck = true;
+            if (currentFolderData != null) {
+                correctID = currentFolderData.getCorrectShowID();
+                missingEpisodeCheck = currentFolderData.getMissingEpisodeCheck();
             }
 
             final ShowFolderData showFolderData = ShowFolderData.builder().setCorrectShowID(false)
                     .setSeasonData(seasonDataList).setShowData(showData).setCorrectShowID(correctID)
-                    .setMissingEpisodeCheck(true).build();
+                    .setMissingEpisodeCheck(missingEpisodeCheck).build();
 
             if (!writeShowDataToFile(showFolder, showFolderData)) {
                 LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());

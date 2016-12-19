@@ -12,6 +12,7 @@ import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.MovieRenamer;
 import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
+import com.dprince.plex.tv.episodecheck.MissingEpisodeCheck;
 import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
 import com.dprince.plex.tv.types.TvShow;
 import com.dprince.plex.tv.utilities.TvFileUtilities;
@@ -84,8 +85,15 @@ public class PlexUtilities {
                         "What is the showID?", "");
                 TheTvDbLookup.createShowDataJSONForShow(new File(args[1]), result.toString());
                 return;
+            case ("setMissingEpisodeCheck"):
+                final File file = new File(args[1]);
+                MissingEpisodeCheck.setMissingEpisodeCheckToFalse(file);
+                return;
             case ("refreshData"):
                 ShowIDCheck.refreshData(args[1]);
+                return;
+            case ("getMissingEpisodes"):
+                MissingEpisodeCheck.getMissingEpisodes();
                 return;
             default:
                 System.exit(0);
