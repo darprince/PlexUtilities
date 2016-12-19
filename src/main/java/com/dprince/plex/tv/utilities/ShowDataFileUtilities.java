@@ -37,7 +37,7 @@ public class ShowDataFileUtilities {
                 final ObjectMapper mapper = new ObjectMapper();
                 return mapper.readValue(jsonFileData, ShowFolderData.class);
             } catch (final IOException e) {
-                LOG.info("Failed to read showFolderData {}", e.getMessage());
+                LOG.error("Failed to read showFolderData {}", e.getMessage());
                 return null;
             }
         } else {
@@ -54,10 +54,9 @@ public class ShowDataFileUtilities {
      */
     public static String getShowID(@NonNull final String formattedShowName) {
         String showID = null;
-        LOG.info("FormattedShowName: " + formattedShowName);
         final ShowFolderData showFolderData = getShowFolderData(formattedShowName);
         if (showFolderData == null) {
-            LOG.info("Failed to read showID from ShowFolderData");
+            LOG.error("Failed to read showID from ShowFolderData");
             return TheTvDbLookup.getShowID(formattedShowName);
         } else {
             showID = showFolderData.getShowData().getId();

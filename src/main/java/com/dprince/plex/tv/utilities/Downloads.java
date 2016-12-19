@@ -37,11 +37,9 @@ public class Downloads {
 
                         if (!CommonUtilities.renameFile(showFile.toString(),
                                 folder.toString() + "\\" + showFile.getName())) {
-                            LOG.info("Failed to move file {}", showFile.getName());
+                            LOG.error("Failed to move file {}", showFile.getName());
                             continue;
                         }
-                    } else {
-                        LOG.info("Not Moving: " + showFile.getName());
                     }
                 }
 
@@ -127,14 +125,12 @@ public class Downloads {
      * @return true if file is moved, false otherwise.
      */
     public static boolean moveEpisodeFile(@NonNull final TvShow tvShow) {
-        LOG.info("moveEpisodeFile called");
-
         final String episodeExists = episodeExists(tvShow.getDestinationFilepath(),
                 tvShow.getSeasonNumber(), tvShow.getEpisodeNumber());
 
         if (episodeExists != null) {
-            final String oldFilename = new File(tvShow.getOriginalFilepath()).getName();
-            LOG.info("Deleting file {}", oldFilename);
+            System.out.println("\n************Deleting file: " + tvShow.getOriginalFilepath()
+                    + "*************");
             CommonUtilities.recycle(tvShow.getOriginalFilepath());
             System.exit(0);
         }
@@ -143,14 +139,7 @@ public class Downloads {
             ShowFolderUtilities.createNewSeasonFolder(tvShow);
         }
 
-        final boolean success = CommonUtilities.renameFile(tvShow.getOriginalFilepath(),
+        return CommonUtilities.renameFile(tvShow.getOriginalFilepath(),
                 tvShow.getDestinationFilepath());
-        LOG.info("File renamed: " + success);
-
-        if (success) {
-            return true;
-        }
-
-        return false;
     }
 }

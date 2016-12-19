@@ -48,7 +48,6 @@ public class ShowFolderUtilities {
      * @return true if folder is created, false otherwise.
      */
     public static boolean createNewSeasonFolder(@NonNull final TvShow tvShow) {
-        LOG.info("Create season folder called");
         final String formattedShowName = tvShow.getFormattedShowName();
         final String showDriveLocation = ShowFolderUtilities
                 .getShowDriveLocation(formattedShowName);
@@ -58,7 +57,6 @@ public class ShowFolderUtilities {
         if (file.exists()) {
             if (tvShow.getSeasonNumber().equals("00")) {
                 final File specialsFolder = new File(file.getPath() + "\\Specials");
-                LOG.info("Creating \"Specials\" folder");
                 return specialsFolder.mkdir();
             } else {
                 int season = 1;
@@ -68,7 +66,6 @@ public class ShowFolderUtilities {
                     season++;
                     seasonFolder = new File(seasonFolderPrefix + season);
                 }
-                LOG.info("Creating \"Season {}\"  folder", season);
                 return seasonFolder.mkdir();
             }
         }
@@ -132,5 +129,4 @@ public class ShowFolderUtilities {
         TheTvDbLookup.createShowDataJSONForShow(folderToCreate);
         return resultString;
     }
-
 }

@@ -70,9 +70,8 @@ public class ParseFileName {
         String episodeNumber = null;
         String extension = null;
 
-        LOG.info("Matcher[1] found for {}", filename);
         rawShowName = matcher.group(1).replaceAll("\\.", " ").toLowerCase().trim();
-        LOG.info(rawShowName);
+        System.out.println("RawShowName: " + rawShowName);
         if (matcher.group(3) != null) {
             seasonNumber = CommonUtilities.padString(matcher.group(3));
             episodeNumber = CommonUtilities.padString(matcher.group(4));
@@ -87,12 +86,9 @@ public class ParseFileName {
             episodeNumber = CommonUtilities.padString(matcher.group(7));
         }
         extension = matcher.group(10);
-        LOG.info("RawShowName: {}", rawShowName);
 
-        final TvShow tvShow = createTvShow(orginalFilepath, filename, rawShowName, seasonNumber,
-                episodeNumber, extension);
-
-        return tvShow;
+        return createTvShow(orginalFilepath, filename, rawShowName, seasonNumber, episodeNumber,
+                extension);
     }
 
     private static TvShow matcherTwoFound(Matcher matcherFormatted, String filename,
@@ -102,17 +98,14 @@ public class ParseFileName {
         String episodeNumber = null;
         String extension = null;
 
-        LOG.info("Matcher[2] found for {}", filename);
         rawShowName = matcherFormatted.group(1);
         seasonNumber = CommonUtilities.padString(matcherFormatted.group(2));
         episodeNumber = CommonUtilities.padString(matcherFormatted.group(3));
         extension = matcherFormatted.group(4);
-        LOG.info("RawShowName: {}", rawShowName);
+        System.out.println("RawShowName: " + rawShowName);
 
-        final TvShow tvShow = createTvShow(orginalFilepath, filename, rawShowName, seasonNumber,
-                episodeNumber, extension);
-
-        return tvShow;
+        return createTvShow(orginalFilepath, filename, rawShowName, seasonNumber, episodeNumber,
+                extension);
     }
 
     /**
@@ -131,20 +124,21 @@ public class ParseFileName {
         TvShow tvShow = null;
         try {
             final String formattedShowName = formatRawShowName(rawShowName);
-            LOG.info("Formatted filename from parser: " + formattedShowName);
+            System.out.println("Formatted showName: " + formattedShowName);
 
-            String episodeTitle = getEpisodeTitleFromShowDataFile(formattedShowName, seasonNumber, episodeNumber);
+            String episodeTitle = getEpisodeTitleFromShowDataFile(formattedShowName, seasonNumber,
+                    episodeNumber);
 
             if (episodeTitle == null) {
-                LOG.info("Refreshing showData file.");
                 final String showDriveLocation = ShowFolderUtilities
                         .getShowDriveLocation(formattedShowName);
                 final String showFolderPath = PlexSettings.PLEX_PREFIX + "/" + showDriveLocation
                         + "/" + formattedShowName;
                 ShowIDCheck.refreshData(showFolderPath);
-                episodeTitle = getEpisodeTitleFromShowDataFile(formattedShowName, seasonNumber, episodeNumber);
+                episodeTitle = getEpisodeTitleFromShowDataFile(formattedShowName, seasonNumber,
+                        episodeNumber);
                 if (episodeTitle == null) {
-                    LOG.info("Failed to get TV episode title");
+                    LOG.error("Failed to get TV episode title");
                 }
             }
             final String formattedFileName = buildFileName(formattedShowName, seasonNumber,
@@ -164,7 +158,6 @@ public class ParseFileName {
                     .setFormattedShowName(formattedShowName).setOriginalFilepath(originalFilepath)
                     .setRawShowName(rawShowName).setSeasonNumber(seasonNumber).build();
 
-            LOG.info(tvShow.toString());
         } catch (final Exception e) {
             LOG.error("Failed to build TvShow", e);
             return null;
@@ -182,8 +175,8 @@ public class ParseFileName {
      * @param episodeNumber
      * @return the episode title.
      */
-    private static String getEpisodeTitleFromShowDataFile(String formattedShowName, String seasonNumber,
-            String episodeNumber) {
+    private static String getEpisodeTitleFromShowDataFile(String formattedShowName,
+            String seasonNumber, String episodeNumber) {
         try {
             final ShowFolderData showFolderData = ShowDataFileUtilities
                     .getShowFolderData(formattedShowName);
@@ -193,7 +186,6 @@ public class ParseFileName {
                         for (final EpisodeData episodeData : seasonData.getEpisodeList()) {
                             if (episodeData.getAiredEpisodeNumber() == Integer
                                     .parseInt(episodeNumber)) {
-                                LOG.info("Returning episode title from showFolderData");
                                 return episodeData.getEpisodeName();
                             }
                         }
@@ -312,7 +304,6 @@ public class ParseFileName {
                     rawTvShowName = rawTvShowName.substring(0, rawTvShowName.indexOf("(")).trim();
                 }
                 if (rawTvShowName.equalsIgnoreCase(folderSubstring)) {
-                    LOG.info("Matched folderName \"{}\", {}", showFolder.getName(), rawTvShowName);
                     return showFolder.getName();
                 }
             }
@@ -349,7 +340,7 @@ public class ParseFileName {
         String showID = ShowDataFileUtilities.getShowID(formattedShowName);
         if (showID == null) {
             showID = TheTvDbLookup.getShowID(formattedShowName);
-            LOG.info("Failed to receive showID from JSON, received from the TvDB instead");
+            LOG.error("Failed to receive showID from JSON, received from the TvDB instead");
         }
         final String episodeTitle = TheTvDbLookup.getEpisodeTitle(showID, seasonNumber,
                 episodeNumber);
