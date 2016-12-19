@@ -35,11 +35,13 @@ public class MissingEpisodeCheck {
     private static final Logger LOG = Logging.getLogger(MissingEpisodeCheck.class);
     public static int missingEpisodeCount = 0;
     public static int missingSeasonCount = 0;
+    public static int missingSpecialSeasonCount = 0;
     public static int missingSpecialsCount = 0;
     public static int recentEpisodesCount = 0;
 
     public static Set<String> missingEpisodes = new HashSet<String>();
     public static Set<String> missingSeasons = new HashSet<String>();
+    public static Set<String> missingSpecialSeasons = new HashSet<String>();
     public static Set<String> missingSpecials = new HashSet<String>();
     public static Set<String> recentEpisodes = new HashSet<String>();
 
@@ -52,6 +54,7 @@ public class MissingEpisodeCheck {
         }
         System.out.println("Missing episodes: " + missingEpisodeCount);
         System.out.println("Missing seasons: " + missingSeasonCount);
+        System.out.println("Missing special seasons: " + missingSpecialSeasonCount);
         System.out.println("Missing specials: " + missingSpecialsCount);
         System.out.println("Recent episodes: " + recentEpisodesCount);
     }
@@ -61,7 +64,6 @@ public class MissingEpisodeCheck {
     }
 
     private static void printFiles() {
-
         try {
             System.out.println("Printing missing episodes");
             final FileWriter episodeFileWriter = CommonUtilities
@@ -90,8 +92,15 @@ public class MissingEpisodeCheck {
             printMissingEpisodesToFile(specialsFileWriter, missingSpecials);
             specialsFileWriter.close();
 
+            System.out.println("Printing missing special seasons");
+            final FileWriter specialSeasonFileWriter = CommonUtilities
+                    .getFileWriter(PLEX_LOGS + "/missingSpecialSeasons.txt");
+            printMissingEpisodesToFile(specialSeasonFileWriter, missingSpecialSeasons);
+            specialSeasonFileWriter.close();
+
             System.out.println("episodes: " + missingEpisodes.size());
             System.out.println("seasons: " + missingSeasons.size());
+            System.out.println("special Seasons: " + missingSpecialSeasons.size());
             System.out.println("specials: " + missingSpecials.size());
             System.out.println("recentEpisodes: " + recentEpisodes.size());
         } catch (final IOException e) {
@@ -146,8 +155,8 @@ public class MissingEpisodeCheck {
                 checkSeasonFolderForMissingEpisodes(showFolder, missingSpecials, seasonDataObject,
                         yesterdaysDate, specialsFolder, "Specials");
             } else {
-                missingSeasons.add(showFolder.getName() + " - Season" + seasonNumber);
-                missingSeasonCount++;
+                missingSpecialSeasons.add(showFolder.getName() + " - Season" + seasonNumber);
+                missingSpecialSeasonCount++;
             }
         } else {
             final File seasonFolder = new File(showFolder.toString() + "/Season " + seasonNumber);
@@ -188,16 +197,18 @@ public class MissingEpisodeCheck {
             }
             if (!found) {
                 if (!firstAired.isEmpty() && new LocalDate(firstAired).getYear() == 2016) {
-                    recentEpisodes.add(showFolder.getName() + " " + episodeSeasonAndNumber);
-                    System.out.println(
-                            "Added " + showFolder.getName() + " " + episodeSeasonAndNumber);
+                    recentEpisodes.add(
+                            showFolder.getName() + " " + episodeSeasonAndNumber + " " + firstAired);
+                    System.out.println("Added " + showFolder.getName() + " "
+                            + episodeSeasonAndNumber + " " + firstAired);
                     if (counter.equalsIgnoreCase("Episodes")) {
                         recentEpisodesCount++;
                     } else if (counter.equalsIgnoreCase("Specials")) {
                         missingSpecialsCount++;
                     }
                 } else {
-                    missingEpisodes.add(showFolder.getName() + " " + episodeSeasonAndNumber);
+                    missingEpisodes.add(
+                            showFolder.getName() + " " + episodeSeasonAndNumber + " " + firstAired);
                     if (counter.equalsIgnoreCase("Episodes")) {
                         missingEpisodeCount++;
                     } else if (counter.equalsIgnoreCase("Specials")) {
