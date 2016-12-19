@@ -13,10 +13,11 @@ import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.MovieRenamer;
 import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 import com.dprince.plex.tv.episodecheck.MissingEpisodeCheck;
+import com.dprince.plex.tv.metadata.MetaData;
 import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
 import com.dprince.plex.tv.types.TvShow;
-import com.dprince.plex.tv.utilities.TvFileUtilities;
-import com.dprince.plex.tv.utilities.TvUtilities;
+import com.dprince.plex.tv.utilities.Downloads;
+import com.dprince.plex.tv.utilities.ParseFileName;
 
 public class PlexUtilities {
 
@@ -36,39 +37,21 @@ public class PlexUtilities {
         switch (function) {
             case ("tvShowRename"):
                 LOG.info("Renaming function called");
-                final TvShow tvShow = TvUtilities.parseFileName(args[1]);
-                TvUtilities.moveEpisodeFile(tvShow);
-                TvUtilities.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
-                return;
-            case ("batchRenameAndMove"):
-                TvUtilities.batchMoveEpisodes(args[1]);
-                return;
-            case ("refreshTitlesFile"):
-                LOG.info("Refresh folders file function called");
-                TvFileUtilities.deleteFoldersFile();
-                TvFileUtilities.createFoldersFile();
+                final TvShow tvShow = ParseFileName.parseFileName(args[1]);
+                Downloads.moveEpisodeFile(tvShow);
+                MetaData.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
                 return;
             case ("TvMetaDataEdit"):
                 LOG.info("TvMetaDataEdit function called");
-                final TvShow metaDataEditTvShow = TvUtilities.parseFileName(args[1]);
-                TvUtilities.editMetaData(metaDataEditTvShow.getOriginalFilepath(),
+                final TvShow metaDataEditTvShow = ParseFileName.parseFileName(args[1]);
+                MetaData.editMetaData(metaDataEditTvShow.getOriginalFilepath(),
                         metaDataEditTvShow.getEpisodeTitle());
                 CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilepath(),
                         metaDataEditTvShow.getDestinationFilepath());
                 return;
-            case ("newSeasonFolder"):
-                LOG.info("Create New Season folder called");
-                final TvShow tvShowForSeasonFolder = TvUtilities.parseFileName(args[1]);
-                TvFileUtilities.createNewSeasonFolder(tvShowForSeasonFolder);
-                return;
-            case ("newFolderFromDir"):
-                LOG.info("Create New Season folder from directory called");
-                final String dir = args[1];
-                TvFileUtilities.createNewSeasonFolderFromDir(dir);
-                return;
             case ("extractTvFiles"):
                 LOG.info("Extract TV Shows function called");
-                TvFileUtilities.extractTvFiles();
+                Downloads.extractTvFiles();
                 return;
             case ("renameMovie"):
                 LOG.info("Rename movie function called");

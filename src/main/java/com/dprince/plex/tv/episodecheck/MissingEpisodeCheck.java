@@ -26,7 +26,8 @@ import com.dprince.plex.tv.api.thetvdb.types.episode.EpisodeData;
 import com.dprince.plex.tv.api.thetvdb.types.season.SeasonData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData;
-import com.dprince.plex.tv.utilities.TvUtilities;
+import com.dprince.plex.tv.utilities.ShowDataFileUtilities;
+import com.dprince.plex.tv.utilities.ShowFolderUtilities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MissingEpisodeCheck {
@@ -113,7 +114,7 @@ public class MissingEpisodeCheck {
 
             for (final File showFolder : listOfShowsPerDrive) {
                 if (!CommonUtilities.isSystemFolder(showFolder)) {
-                    final ShowFolderData showFolderData = TvUtilities
+                    final ShowFolderData showFolderData = ShowDataFileUtilities
                             .getShowFolderData(showFolder.getName());
                     if (showFolderData == null || showFolderData.getCorrectShowID() == false
                             || showFolderData.getMissingEpisodeCheck() == false) {
@@ -234,7 +235,7 @@ public class MissingEpisodeCheck {
         ShowFolderData showFolderData = null;
         try {
             source = new String(Files.readAllBytes(Paths.get(PlexSettings.PLEX_PREFIX
-                    + TvUtilities.getShowDriveLocation(showFolder.getName()) + "/"
+                    + ShowFolderUtilities.getShowDriveLocation(showFolder.getName()) + "/"
                     + showFolder.getName() + "/showData.json")));
             showFolderData = mapper.readValue(source, ShowFolderData.class);
         } catch (final IOException e) {

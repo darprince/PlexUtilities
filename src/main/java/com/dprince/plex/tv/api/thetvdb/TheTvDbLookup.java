@@ -27,7 +27,7 @@ import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData3;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowIdResponse;
 import com.dprince.plex.tv.api.thetvdb.utilities.ApiCalls;
-import com.dprince.plex.tv.utilities.TvUtilities;
+import com.dprince.plex.tv.utilities.ShowDataFileUtilities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -185,6 +185,7 @@ public class TheTvDbLookup {
      * @return theTvDb {@link ShowIdResponse} of the show being queried, null
      *         otherwise
      */
+    @Deprecated
     public static ShowIdResponse getShowIdResponseFromShowTitle(@NonNull final String showTitle) {
         final ObjectMapper mapper = new ObjectMapper();
         String queryString = null;
@@ -207,15 +208,12 @@ public class TheTvDbLookup {
         final JsonObject jsonObject = new JsonObject();
         jsonObject.add("data", data);
 
-        if (response != null) {
-            try {
-                return mapper.readValue(jsonObject.toString(), ShowIdResponse.class);
-            } catch (final IOException e) {
-                LOG.error("Failed to map ShowIdResponse for {} {}", showTitle, e);
-                return null;
-            }
+        try {
+            return mapper.readValue(jsonObject.toString(), ShowIdResponse.class);
+        } catch (final IOException e) {
+            LOG.error("Failed to map ShowIdResponse for {} {}", showTitle, e);
+            return null;
         }
-        return null;
     }
 
     /**
@@ -277,7 +275,7 @@ public class TheTvDbLookup {
             final File directory = new File(PLEX_PREFIX + rootDirectory);
 
             for (final File showFolder : directory.listFiles()) {
-                final ShowFolderData showFolderData = TvUtilities
+                final ShowFolderData showFolderData = ShowDataFileUtilities
                         .getShowFolderData(showFolder.getName());
 
                 if (showFolderData == null) { // No JSON
@@ -376,7 +374,7 @@ public class TheTvDbLookup {
                 seasonDataList.add(seasonData);
             }
 
-            final ShowFolderData currentFolderData = TvUtilities
+            final ShowFolderData currentFolderData = ShowDataFileUtilities
                     .getShowFolderData(showFolder.getName());
             boolean correctID = false;
             boolean missingEpisodeCheck = true;

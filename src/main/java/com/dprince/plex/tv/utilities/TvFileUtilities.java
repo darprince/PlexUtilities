@@ -1,13 +1,10 @@
 package com.dprince.plex.tv.utilities;
 
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
-import static com.dprince.plex.settings.PlexSettings.DOWNLOADS_DIRECTORY;
 import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
 import static com.dprince.plex.settings.PlexSettings.FILES_WE_WANT;
 import static com.dprince.plex.settings.PlexSettings.FOLDERS_FILE_LOCATION;
-import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
-import static com.dprince.plex.settings.PlexSettings.VIDEO_FILES;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,25 +14,23 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
-import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
-import com.dprince.plex.shared.MetaDataFormatter;
-import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
+import com.dprince.plex.tv.metadata.MetaData;
 import com.dprince.plex.tv.types.TvShow;
 
 public class TvFileUtilities {
     private static final Logger LOG = Logging.getLogger(TvFileUtilities.class);
 
     // TODO: This is from the old version, should be updated
+    @Deprecated
     public static void createFoldersFile() {
         final File tvShowFoldersFile = new File(FOLDERS_FILE_LOCATION);
         if (tvShowFoldersFile.exists()) {
@@ -77,6 +72,7 @@ public class TvFileUtilities {
     /**
      * Deletes the folder that holds all the show names.
      */
+    @Deprecated
     public static void deleteFoldersFile() {
         final File tvShowFoldersFile = new File(FOLDERS_FILE_LOCATION);
         if (tvShowFoldersFile.exists()) {
@@ -85,6 +81,7 @@ public class TvFileUtilities {
     }
 
     // TODO: also from old version
+    @Deprecated
     public static String[][] setTitlesFromDirectories() {
         final List<File> finalFileList = new ArrayList<>();
         try {
@@ -122,6 +119,7 @@ public class TvFileUtilities {
         return allFiles;
     }
 
+    @Deprecated
     public static String[][] getTitlesArray() {
         String[][] titles = null;
 
@@ -150,238 +148,83 @@ public class TvFileUtilities {
     }
 
     /**
-     * Creates the next season folder that does not exist for a show.
+     * Scans a directory for all video files and attempts to parse them and move
+     * them. Once all video files are processed, the files parent folder will be
+     * attempted to be deleted.
      *
-     * @param formattedShowName
-     * @return true if folder is created, false otherwise.
+     * @param directory
      */
-    public static boolean createNewSeasonFolder(@NonNull final TvShow tvShow) {
-        LOG.info("Create season folder called");
-        final String formattedShowName = tvShow.getFormattedShowName();
-        final String showDriveLocation = TvUtilities.getShowDriveLocation(formattedShowName);
+    @Deprecated
+    public static Set<File> batchMoveEpisodes(@NonNull final String directory) {
+        final Set<File> foldersToDelete = new HashSet<File>();
 
-        final File file = new File(PLEX_PREFIX + showDriveLocation + "/" + formattedShowName);
-
-        if (file.exists()) {
-            if (tvShow.getSeasonNumber().equals("00")) {
-                final File specialsFolder = new File(file.getPath() + "\\Specials");
-                LOG.info("Creating \"Specials\" folder");
-                return specialsFolder.mkdir();
-            } else {
-                int season = 1;
-                final String seasonFolderPrefix = file.getPath() + "\\Season 0";
-                File seasonFolder = new File(seasonFolderPrefix + season);
-                while (seasonFolder.exists()) {
-                    season++;
-                    seasonFolder = new File(seasonFolderPrefix + season);
-                }
-                LOG.info("Creating \"Season 0{}\"  folder", season);
-                return seasonFolder.mkdir();
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Creates a new season folder in the current folder.
-     *
-     * @param filepath
-     * @return true if folder is created, false otherwise.
-     */
-    public static boolean createNewSeasonFolderFromDir(String filepath) {
-        final File file = new File(filepath);
-        if (file.exists()) {
-            int season = 1;
-            final String seasonFolderPrefix = file.getPath() + "\\Season 0";
-            File seasonFolder = new File(seasonFolderPrefix + season);
-            while (seasonFolder.exists()) {
-                season++;
-                seasonFolder = new File(seasonFolderPrefix + season);
-            }
-            return seasonFolder.mkdir();
-        }
-        return false;
-    }
-
-    /**
-     * Edits the meta data of a mkv file.
-     *
-     * @param filepath
-     * @param episodeTitle
-     */
-    public static void runMKVEditorForTvShow(@NonNull final String filepath, String episodeTitle) {
-
-        if (episodeTitle == null || episodeTitle.equals("null")) {
-            episodeTitle = "";
-        }
-
-        final String command = MKVPROPEDIT_LOCATION + " \"" + filepath + "\" --set title=\""
-                + episodeTitle
-                + "\" --edit track:a1 --set name=\"\" --edit track:v1 --set name=\"\"";
-
-        LOG.info("Mkv metadata edit command: " + command);
-
-        try {
-            Runtime.getRuntime().exec(command);
-        } catch (final Exception e) {
-            LOG.error("Failed to edit mkv metadata", e);
-        }
-    }
-
-    /**
-     * Edits the metadata of a MP4 file.
-     *
-     * @param filepath
-     * @param episodeTitle
-     */
-    public static void runMP4EditorForTvShow(String filepath, String episodeTitle) {
-        try {
-            if (episodeTitle != null) {
-                MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
-            } else {
-                MetaDataFormatter.writeRandomMetadata(filepath, "");
-            }
-        } catch (final IOException e) {
-            LOG.error("Failed to call MetaDataFormatter", e);
-        }
-    }
-
-    public static String createShowFolder(String rawTvShowName) throws IOException {
-        final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this show to Plex?",
-                WordUtils.capitalize(rawTvShowName));
-        String newSubFolderName = null;
-
-        // TODO: add numerical to regex
-        String resultWithoutPre = result.toString();
-        if (result.toString().startsWith("The ")) {
-            resultWithoutPre = resultWithoutPre.substring(4, resultWithoutPre.length()).trim();
-        }
-        final String firstLetter = resultWithoutPre.toLowerCase().substring(0, 1);
-        if (firstLetter.matches("[a-e]")) {
-            newSubFolderName = "tv a-e\\";
-        } else if (firstLetter.matches("[f-l]")) {
-            newSubFolderName = "tv f-l\\";
-        } else if (firstLetter.matches("[m-s]")) {
-            newSubFolderName = "tv m-s\\";
-        } else if (firstLetter.matches("[t-z]")) {
-            newSubFolderName = "tv t-z\\";
-        }
-
-        final String resultString = result.toString();
-        final File folderToCreate = new File(PLEX_PREFIX + newSubFolderName + resultString);
-        final File seasonFolderToCreate = new File(folderToCreate.toString() + "\\Season 01");
-
-        // test if folder already exists
-        if (folderToCreate.exists()) {
-            return resultString;
-        } else {
-            folderToCreate.mkdir();
-            seasonFolderToCreate.mkdir();
-        }
-
-        // TvFileUtilities.deleteFoldersFile();
-        // TvFileUtilities.createFoldersFile();
-        TheTvDbLookup.createShowDataJSONForShow(folderToCreate);
-        return resultString;
-    }
-
-    /**
-     * Determines if the season folder for the file exists.
-     *
-     * @param filepath
-     * @return true if season folder exists, false otherwise.
-     */
-    public static boolean seasonFolderExists(String filepath) {
-        final File file = new File(filepath);
-        final File seasonFolder = new File(file.getParent());
-
-        if (seasonFolder.exists()) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Takes a filepath, seasonNumber, episodeNumber and determines if that
-     * episode already exisits.
-     *
-     * @param filepath
-     * @param seasonNumber
-     * @param episodeNumber
-     * @return true if episode exisits, false otherwise.
-     */
-    public static String episodeExists(@NonNull final String filepath,
-            @NonNull final String seasonNumber, @NonNull final String episodeNumber) {
-        final File file = new File(filepath);
-        final File folder = new File(file.getParent());
-
-        if (folder.exists()) {
-            final String seasonEpisode = "S" + seasonNumber + "E" + episodeNumber;
-
-            for (final File episode : folder.listFiles()) {
-                if (episode.getName().contains(seasonEpisode)) {
-                    return episode.getName();
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Extracts all video files from Completed sub-directories to Completed that
-     * are smaller than 700 MB and not called rarbg.com.mp4 or rarbg.com.avi
-     *
-     * @throws IOException
-     */
-    public static void extractTvFiles() throws IOException {
-        final File folder = new File(DOWNLOADS_DIRECTORY);
-
-        for (final File showFolder : folder.listFiles()) {
+        for (final File showFolder : new File(directory).listFiles()) {
+            LOG.info("Folder {} has {} folders/files", new File(directory).getName(),
+                    new File(directory).listFiles().length);
             if (showFolder.isDirectory()) {
-                for (final File showFile : showFolder.listFiles()) {
-                    if (CommonUtilities.getExtension(showFile.getName()).matches(VIDEO_FILES)
-                            && !showFile.getName().toLowerCase().matches(FILES_TO_IGNORE)
-                            && showFile.length() < 700000000) {
-
-                        if (!CommonUtilities.renameFile(showFile.toString(),
-                                folder.toString() + "\\" + showFile.getName())) {
-                            LOG.info("Failed to move file {}", showFile.getName());
-                            continue;
-                        }
+                LOG.info("Recursively calling method on {}", showFolder.getName());
+                foldersToDelete.addAll(batchMoveEpisodes(showFolder.toString()));
+            } else {
+                final File showFile = showFolder;
+                final TvShow tvShow = ParseFileName.parseFileName(showFile.toString());
+                if (tvShow != null) {
+                    if (Downloads.moveEpisodeFile(tvShow)) {
+                        LOG.info("Moved {} to {}", tvShow.getOriginalFilepath(),
+                                tvShow.getDestinationFilepath());
+                        LOG.info("Adding folder {} to deleteFolderList", showFile.getParentFile());
+                        foldersToDelete.add(showFile.getParentFile());
                     } else {
-                        LOG.info("Not Moving: " + showFile.getName());
+                        LOG.error("Failed to move {} to {}", tvShow.getOriginalFilepath(),
+                                tvShow.getDestinationFilepath());
                     }
-                }
-
-                if (!showFolderContainsVideoFile(showFolder)) {
-                    for (final File file : showFolder.listFiles()) {
-                        if (file.isDirectory()) {
-                            for (final File file2 : file.listFiles()) {
-                                CommonUtilities.recycle(file2.toString());
-                            }
-                        }
-                        CommonUtilities.recycle(file.toString());
-                    }
-                    CommonUtilities.recycle(showFolder.toString());
+                    MetaData.editMetaData(tvShow.getDestinationFilepath(),
+                            tvShow.getEpisodeTitle());
+                } else {
+                    LOG.info("TvShow is null {}", showFile.getName());
                 }
             }
         }
+        return foldersToDelete;
     }
 
     /**
-     * Determines if a folder contains a video file that we care about. ie. not
-     * a rarbg.mkv
+     * Takes a list of folders and attempts to delete them, if the folder
+     * contains a video file that is not rarbg.com, then the folder will be
+     * deleted
      *
-     * @param showFolder
-     * @return true if folder contains file, false otherwise
+     * @param foldersToDelete
      */
-    private static boolean showFolderContainsVideoFile(File showFolder) {
-        for (final File showFile : showFolder.listFiles()) {
-            if (CommonUtilities.getExtension(showFile.getName()).matches(FILES_WE_WANT)
-                    && !showFile.getName().toLowerCase().matches(FILES_TO_IGNORE)) {
-                return true;
+    @Deprecated
+    public static void deleteEmptyShowFolders(final Set<File> foldersToDelete) {
+        boolean deleteFolder = true;
+        LOG.info("Starting foldersToDelete(), {} folders", foldersToDelete.size());
+        for (final File folder : foldersToDelete) {
+            for (final File file : folder.listFiles()) {
+                if (CommonUtilities.getExtension(file.toString()).matches(FILES_WE_WANT)) {
+                    final boolean matches = file.getName().toLowerCase().matches(FILES_TO_IGNORE);
+                    if (!matches) {
+                        LOG.info("Not deleting folder {}, contains {}", folder.getName(),
+                                file.getName());
+                        deleteFolder = false;
+                    }
+                }
+                if (folder.getName().equals("Completed")) {
+                    deleteFolder = false;
+                }
             }
+            if (deleteFolder) {
+                // try {
+                LOG.info("Folder would be deleted");
+                // FileUtils.deleteDirectory(folder);
+                // } catch (final IOException e) {
+                // LOG.error("Failed to delete folder {}",
+                // folder.toString(),
+                // e);
+                // }
+            } else {
+                LOG.info("Folder would not be deleted");
+            }
+            deleteFolder = true;
         }
-        return false;
     }
 }

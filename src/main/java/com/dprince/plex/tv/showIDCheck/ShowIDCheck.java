@@ -26,7 +26,8 @@ import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 import com.dprince.plex.tv.api.thetvdb.types.season.SeasonData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData;
-import com.dprince.plex.tv.utilities.TvUtilities;
+import com.dprince.plex.tv.utilities.ShowDataFileUtilities;
+import com.dprince.plex.tv.utilities.ShowFolderUtilities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ShowIDCheck {
@@ -40,7 +41,6 @@ public class ShowIDCheck {
 
     public static void main(String[] args) {
         processShowIDs();
-
     }
 
     private static void createOptionPane(String showID, File showFolder, int iteration) {
@@ -113,7 +113,7 @@ public class ShowIDCheck {
         ShowFolderData showFolderData = null;
         try {
             source = new String(Files.readAllBytes(Paths.get(PlexSettings.PLEX_PREFIX
-                    + TvUtilities.getShowDriveLocation(showFolder.getName()) + "/"
+                    + ShowFolderUtilities.getShowDriveLocation(showFolder.getName()) + "/"
                     + showFolder.getName() + "/showData.json")));
             showFolderData = mapper.readValue(source, ShowFolderData.class);
         } catch (final IOException e) {
@@ -157,7 +157,7 @@ public class ShowIDCheck {
         final File folder = new File(folderPath);
         final String formattedShowName = folder.getName();
 
-        final String showID = TvUtilities.getShowIDFromJson(formattedShowName);
+        final String showID = ShowDataFileUtilities.getShowID(formattedShowName);
         TheTvDbLookup.createShowDataJSONForShow(folder, showID);
     }
 }

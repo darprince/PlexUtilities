@@ -8,6 +8,8 @@ import java.io.File;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.dprince.plex.tv.metadata.MetaDataFormatter;
+
 public class SharedResourcesTest {
 
     private static final String NEW_TITLE = "New Title";
