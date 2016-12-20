@@ -164,8 +164,25 @@ public class MissingEpisodeCheck {
                 checkSeasonFolderForMissingEpisodes(showFolder, missingEpisodes, seasonDataObject,
                         yesterdaysDate, seasonFolder, "Episodes");
             } else {
-                missingSeasons.add(showFolder.getName() + " - Season" + seasonNumber);
-                missingSeasonCount++;
+                String firstAired = null;
+                final List<EpisodeData> episodeList = seasonDataObject.getEpisodeList();
+                for (final EpisodeData ep : episodeList) {
+                    if (ep.getAiredEpisodeNumber() == 1) {
+                        try {
+                            firstAired = ep.getFirstAired();
+                            break;
+                        } catch (final Exception e) {
+                        }
+                    }
+                }
+                if (firstAired != null && !firstAired.isEmpty()) {
+                    final LocalDate ld = new LocalDate(firstAired);
+                    if (ld.isBefore(new LocalDate())) {
+                        missingSeasons.add(showFolder.getName() + " - Season" + seasonNumber + " "
+                                + firstAired);
+                        missingSeasonCount++;
+                    }
+                }
             }
         }
     }
