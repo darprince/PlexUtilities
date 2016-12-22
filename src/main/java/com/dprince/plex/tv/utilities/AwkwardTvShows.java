@@ -8,7 +8,8 @@ public enum AwkwardTvShows {
     AGENTS_OF_SHIELD("marvels agents of s h i e l d", "Marvel's, Agents of S.H.I.E.L.D"),
     DESCENDANTS("descendants wicked world", "Descendants, Wicked World"),
     EVE_UK("eve uk", "Eve (2015)"),
-    ALASKA_LAST_FRONTIER("alaska-the last frontier", "Alaska, The Last Frontier");
+    ALASKA_LAST_FRONTIER("alaska-the last frontier", "Alaska, The Last Frontier"),
+    EYEWITNESS("eyewitness us", "Eyewitness (US)");
 
     String match;
     String replacement;

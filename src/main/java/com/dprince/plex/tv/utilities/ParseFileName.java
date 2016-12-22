@@ -4,6 +4,7 @@ import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -180,8 +181,7 @@ public class ParseFileName {
             String episodeNumber) {
 
         try {
-            final ShowFolderData showFolderData = ShowDataFileUtilities
-                    .getSDF(formattedShowName);
+            final ShowFolderData showFolderData = ShowDataFileUtilities.getSDF(formattedShowName);
             if (showFolderData.getCorrectShowID()) {
                 for (final SeasonData seasonData : showFolderData.getSeasonData()) {
                     if (seasonData.getSeasonNumber() == Integer.parseInt(seasonNumber)) {
@@ -245,9 +245,12 @@ public class ParseFileName {
             return toReturn;
         }
 
-        LOG.error("Failed to formatRawShowName() ({})", rawTvShowName);
-        System.exit(0);
-        return null;
+        try {
+            toReturn = ShowFolderUtilities.createShowFolder(rawTvShowName);
+        } catch (final IOException e) {
+            LOG.error("Failed to get formated show name", e);
+        }
+        return toReturn;
     }
 
     /**
