@@ -8,16 +8,16 @@ public class ShowDataFileUtilitiesTest {
 
     @Test
     public void getShowIDFromJson() throws Exception {
-        String showIDFromJson = ShowDataFileUtilities.getShowID("Fuller House");
+        String showIDFromJson = ShowDataFileUtilities.getShowIDFromSDF("Fuller House");
         assertEquals("Show ID", "301236", showIDFromJson);
 
-        showIDFromJson = ShowDataFileUtilities.getShowID("Happy Days");
+        showIDFromJson = ShowDataFileUtilities.getShowIDFromSDF("Happy Days");
         assertEquals("Show ID", "74475", showIDFromJson);
 
-        showIDFromJson = ShowDataFileUtilities.getShowID("800 Words");
+        showIDFromJson = ShowDataFileUtilities.getShowIDFromSDF("800 Words");
         assertEquals("Show ID", "300667", showIDFromJson);
 
-        showIDFromJson = ShowDataFileUtilities.getShowID("Good Girls Revolt");
+        showIDFromJson = ShowDataFileUtilities.getShowIDFromSDF("Good Girls Revolt");
         assertEquals("Show ID", "315419", showIDFromJson);
     }
 }

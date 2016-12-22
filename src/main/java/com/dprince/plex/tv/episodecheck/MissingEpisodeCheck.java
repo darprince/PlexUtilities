@@ -124,7 +124,7 @@ public class MissingEpisodeCheck {
             for (final File showFolder : listOfShowsPerDrive) {
                 if (!CommonUtilities.isSystemFolder(showFolder)) {
                     final ShowFolderData showFolderData = ShowDataFileUtilities
-                            .getShowFolderData(showFolder.getName());
+                            .getSDF(showFolder.getName());
                     if (showFolderData == null || showFolderData.getCorrectShowID() == false
                             || showFolderData.getMissingEpisodeCheck() == false) {
                         continue;

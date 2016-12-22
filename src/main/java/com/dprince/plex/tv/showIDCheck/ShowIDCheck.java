@@ -157,7 +157,7 @@ public class ShowIDCheck {
         final File folder = new File(folderPath);
         final String formattedShowName = folder.getName();
 
-        final String showID = ShowDataFileUtilities.getShowID(formattedShowName);
+        final String showID = ShowDataFileUtilities.getShowIDFromSDF(formattedShowName);
         TheTvDbLookup.createShowDataJSONForShow(folder, showID);
     }
 }

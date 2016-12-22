@@ -18,6 +18,7 @@ import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
 import com.dprince.plex.tv.types.TvShow;
 import com.dprince.plex.tv.utilities.Downloads;
 import com.dprince.plex.tv.utilities.ParseFileName;
+import com.dprince.plex.tv.utilities.ParseNewlyDownloaded;
 
 public class PlexUtilities {
 
@@ -36,25 +37,28 @@ public class PlexUtilities {
 
         switch (function) {
             case ("tvShowRename"):
-                LOG.info("Renaming function called");
+                System.out.println("Renaming function called");
                 final TvShow tvShow = ParseFileName.parseFileName(args[1]);
                 Downloads.moveEpisodeFile(tvShow);
                 MetaData.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
                 return;
             case ("TvMetaDataEdit"):
-                LOG.info("TvMetaDataEdit function called");
+                System.out.println("TvMetaDataEdit function called");
                 final TvShow metaDataEditTvShow = ParseFileName.parseFileName(args[1]);
                 MetaData.editMetaData(metaDataEditTvShow.getOriginalFilepath(),
                         metaDataEditTvShow.getEpisodeTitle());
                 CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilepath(),
                         metaDataEditTvShow.getDestinationFilepath());
                 return;
+            case ("parseFolder"):
+                ParseNewlyDownloaded.parseFolder(args[1]);
+                return;
             case ("extractTvFiles"):
-                LOG.info("Extract TV Shows function called");
+                System.out.println("Extract TV Shows function called");
                 Downloads.extractTvFiles();
                 return;
             case ("renameMovie"):
-                LOG.info("Rename movie function called");
+                System.out.println("Rename movie function called");
                 MovieRenamer.renameMovieFromFolder(args[1]);
                 return;
             case ("showDataFile"):

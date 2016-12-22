@@ -65,7 +65,7 @@ public class Downloads {
      * @param showFolder
      * @return true if folder contains file, false otherwise
      */
-    private static boolean showFolderContainsVideoFile(File showFolder) {
+    static boolean showFolderContainsVideoFile(File showFolder) {
         for (final File showFile : showFolder.listFiles()) {
             if (CommonUtilities.getExtension(showFile.getName()).matches(FILES_WE_WANT)
                     && !showFile.getName().toLowerCase().matches(FILES_TO_IGNORE)) {
@@ -129,8 +129,8 @@ public class Downloads {
                 tvShow.getSeasonNumber(), tvShow.getEpisodeNumber());
 
         if (episodeExists != null) {
-            System.out.println("\n************Deleting file: " + tvShow.getOriginalFilepath()
-                    + "*************");
+            System.out.println("\n************Episode Exists Deleting file: "
+                    + tvShow.getOriginalFilepath() + "*************");
             CommonUtilities.recycle(tvShow.getOriginalFilepath());
             System.exit(0);
         }

@@ -276,7 +276,7 @@ public class TheTvDbLookup {
 
             for (final File showFolder : directory.listFiles()) {
                 final ShowFolderData showFolderData = ShowDataFileUtilities
-                        .getShowFolderData(showFolder.getName());
+                        .getSDF(showFolder.getName());
 
                 if (showFolderData == null) { // No JSON
                     createShowDataJSONForShow(showFolder);
@@ -323,7 +323,7 @@ public class TheTvDbLookup {
         }
 
         final List<SeasonData> seasonDataList = new ArrayList<>();
-        LOG.info("Processing {}", showFolder.getName());
+        System.out.println("Createing showDataJson for " + showFolder.getName());
 
         // TODO: make sure input showID equals getShowIdResponse's showID
         // TODO: or create method that queries the TvDB by showID.
@@ -375,7 +375,7 @@ public class TheTvDbLookup {
             }
 
             final ShowFolderData currentFolderData = ShowDataFileUtilities
-                    .getShowFolderData(showFolder.getName());
+                    .getSDF(showFolder.getName());
             boolean correctID = false;
             boolean missingEpisodeCheck = true;
             if (currentFolderData != null) {

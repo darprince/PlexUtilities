@@ -25,7 +25,7 @@ public class ShowDataFileUtilities {
      * @param formattedShowName
      * @return a{@link ShowFolderData3} object.
      */
-    public static ShowFolderData getShowFolderData(@NonNull final String formattedShowName) {
+    public static ShowFolderData getSDF(@NonNull final String formattedShowName) {
         final String showDriveLocation = ShowFolderUtilities
                 .getShowDriveLocation(formattedShowName);
         final String showDataFile = PlexSettings.PLEX_PREFIX + "/" + showDriveLocation + "/"
@@ -52,9 +52,9 @@ public class ShowDataFileUtilities {
      * @param formattedShowName
      * @return The show's TvDB ID.
      */
-    public static String getShowID(@NonNull final String formattedShowName) {
+    public static String getShowIDFromSDF(@NonNull final String formattedShowName) {
         String showID = null;
-        final ShowFolderData showFolderData = getShowFolderData(formattedShowName);
+        final ShowFolderData showFolderData = getSDF(formattedShowName);
         if (showFolderData == null) {
             LOG.error("Failed to read showID from ShowFolderData");
             return TheTvDbLookup.getShowID(formattedShowName);

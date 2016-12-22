@@ -126,8 +126,9 @@ public class ParseFileName {
             final String formattedShowName = formatRawShowName(rawShowName);
             System.out.println("Formatted showName: " + formattedShowName);
 
-            String episodeTitle = getEpisodeTitleFromShowDataFile(formattedShowName, seasonNumber,
+            String episodeTitle = getEpisodeTitleFromSDF(formattedShowName, seasonNumber,
                     episodeNumber);
+            System.out.println("EpTitle from SDF: " + episodeTitle + " ParseFileName 131");
 
             if (episodeTitle == null) {
                 final String showDriveLocation = ShowFolderUtilities
@@ -135,7 +136,7 @@ public class ParseFileName {
                 final String showFolderPath = PlexSettings.PLEX_PREFIX + "/" + showDriveLocation
                         + "/" + formattedShowName;
                 ShowIDCheck.refreshData(showFolderPath);
-                episodeTitle = getEpisodeTitleFromShowDataFile(formattedShowName, seasonNumber,
+                episodeTitle = getEpisodeTitleFromSDF(formattedShowName, seasonNumber,
                         episodeNumber);
                 if (episodeTitle == null) {
                     LOG.error("Failed to get TV episode title");
@@ -175,17 +176,20 @@ public class ParseFileName {
      * @param episodeNumber
      * @return the episode title.
      */
-    private static String getEpisodeTitleFromShowDataFile(String formattedShowName,
-            String seasonNumber, String episodeNumber) {
+    private static String getEpisodeTitleFromSDF(String formattedShowName, String seasonNumber,
+            String episodeNumber) {
+
         try {
             final ShowFolderData showFolderData = ShowDataFileUtilities
-                    .getShowFolderData(formattedShowName);
+                    .getSDF(formattedShowName);
             if (showFolderData.getCorrectShowID()) {
                 for (final SeasonData seasonData : showFolderData.getSeasonData()) {
                     if (seasonData.getSeasonNumber() == Integer.parseInt(seasonNumber)) {
                         for (final EpisodeData episodeData : seasonData.getEpisodeList()) {
                             if (episodeData.getAiredEpisodeNumber() == Integer
                                     .parseInt(episodeNumber)) {
+                                System.out.println(
+                                        "Returning " + episodeData.getEpisodeName() + " from SDF.");
                                 return episodeData.getEpisodeName();
                             }
                         }
@@ -193,6 +197,7 @@ public class ParseFileName {
                 }
             }
         } catch (final Exception e) {
+            System.out.println("EpTitle from SDF is null, trying theTVDB. ParseFileName 200");
             return getEpisodeTitleFromTvDB(formattedShowName, seasonNumber, episodeNumber);
         }
         return null;
@@ -243,44 +248,6 @@ public class ParseFileName {
         LOG.error("Failed to formatRawShowName() ({})", rawTvShowName);
         System.exit(0);
         return null;
-        // final String[][] titles = TvFileUtilities.getTitlesArray();
-        //
-        // String[] titleFromFileArray = null;
-        // int stringMatches = 0;
-        // int toReturnMatches = 0;
-        //
-        // if (toReturn == null) {
-        // for (final String title[] : titles) {
-        // stringMatches = 0;
-        // final String titleFromFoldersFile = title[1].toLowerCase();
-        // titleFromFileArray = titleFromFoldersFile.split(" ");
-        // for (int i = 0; i < titleFromFileArray.length; i++) {
-        // if (!rawTvShowName.contains(titleFromFileArray[i].toLowerCase())) {
-        // break;
-        // }
-        // if (i == titleFromFileArray.length - 1) {
-        // stringMatches++;
-        // if (stringMatches > toReturnMatches) {
-        // toReturnMatches = stringMatches;
-        // toReturn = title[0].toString();
-        // }
-        // }
-        // stringMatches++;
-        // }
-        // }
-        // }
-        //
-        // if (toReturn == null) {
-        // String formattedShowName = null;
-        // try {
-        // formattedShowName =
-        // ShowFolderUtilities.createShowFolder(rawTvShowName);
-        // } catch (final IOException e) {
-        // LOG.error("Failed to get formated show name", e);
-        // }
-        // return formattedShowName;
-        // }
-        // return toReturn;
     }
 
     /**
@@ -337,7 +304,7 @@ public class ParseFileName {
      */
     public static String getEpisodeTitleFromTvDB(String formattedShowName, String seasonNumber,
             String episodeNumber) {
-        String showID = ShowDataFileUtilities.getShowID(formattedShowName);
+        String showID = ShowDataFileUtilities.getShowIDFromSDF(formattedShowName);
         if (showID == null) {
             showID = TheTvDbLookup.getShowID(formattedShowName);
             LOG.error("Failed to receive showID from JSON, received from the TvDB instead");

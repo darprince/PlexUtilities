@@ -44,7 +44,7 @@ public class CommonUtilities {
             @NonNull final String destinationFileName) {
         final File oldName = new File(originalFilename);
         final File newName = new File(destinationFileName);
-        LOG.info("Moving file {} to {}", originalFilename, destinationFileName);
+        System.out.println("Moving file " + originalFilename + " to " + destinationFileName);
         if (oldName.renameTo(newName)) {
             return true;
         } else {

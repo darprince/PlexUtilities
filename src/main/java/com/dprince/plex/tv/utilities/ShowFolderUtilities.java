@@ -64,7 +64,7 @@ public class ShowFolderUtilities {
                 File seasonFolder = new File(seasonFolderPrefix + CommonUtilities.padInt(season));
                 while (seasonFolder.exists()) {
                     season++;
-                    seasonFolder = new File(seasonFolderPrefix + season);
+                    seasonFolder = new File(seasonFolderPrefix + CommonUtilities.padInt(season));
                 }
                 return seasonFolder.mkdir();
             }
