@@ -323,7 +323,7 @@ public class TheTvDbLookup {
         }
 
         final List<SeasonData> seasonDataList = new ArrayList<>();
-        System.out.println("Createing showDataJson for " + showFolder.getName());
+        System.out.println("Creating showDataJson for " + showFolder.getName());
 
         // TODO: make sure input showID equals getShowIdResponse's showID
         // TODO: or create method that queries the TvDB by showID.

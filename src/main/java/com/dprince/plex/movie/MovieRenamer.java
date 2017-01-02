@@ -42,7 +42,8 @@ public class MovieRenamer {
                         formattedFileName = getNewFilename(formattedMovieName, year, extension);
                         CommonUtilities.renameFile(subFile.toString(),
                                 masterFolderPath + "/" + formattedFileName);
-                    } else if (extension.matches(EXTENSIONS)) {
+                    } else if (extension.matches(EXTENSIONS)
+                            || subFile.getName().toLowerCase().contains("sample")) {
                         System.out.println("\nTOP DELETING " + subFile.getName());
                         subFile.delete();
                     }
@@ -52,7 +53,8 @@ public class MovieRenamer {
             } else {
                 System.out.println("NOT DIRECTORY " + file.getName());
                 final String extension = getExtension(file.toString());
-                if (extension.matches(EXTENSIONS) || file.getName().matches(FILES_TO_IGNORE)) {
+                if (extension.matches(EXTENSIONS) || file.getName().matches(FILES_TO_IGNORE)
+                        || file.getName().toLowerCase().contains("sample")) {
                     System.out.println("\nDELETING " + file.getName());
                     file.delete();
                 } else {

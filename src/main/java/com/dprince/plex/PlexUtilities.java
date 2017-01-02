@@ -38,13 +38,13 @@ public class PlexUtilities {
         switch (function) {
             case ("tvShowRename"):
                 System.out.println("Renaming function called");
-                final TvShow tvShow = ParseFileName.parseFileName(args[1]);
+                final TvShow tvShow = ParseFileName.parseFileName(args[1], true);
                 Downloads.moveEpisodeFile(tvShow);
                 MetaData.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
                 return;
             case ("TvMetaDataEdit"):
                 System.out.println("TvMetaDataEdit function called");
-                final TvShow metaDataEditTvShow = ParseFileName.parseFileName(args[1]);
+                final TvShow metaDataEditTvShow = ParseFileName.parseFileName(args[1], false);
                 MetaData.editMetaData(metaDataEditTvShow.getOriginalFilepath(),
                         metaDataEditTvShow.getEpisodeTitle());
                 CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilepath(),

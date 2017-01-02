@@ -166,7 +166,7 @@ public class TvFileUtilities {
                 foldersToDelete.addAll(batchMoveEpisodes(showFolder.toString()));
             } else {
                 final File showFile = showFolder;
-                final TvShow tvShow = ParseFileName.parseFileName(showFile.toString());
+                final TvShow tvShow = ParseFileName.parseFileName(showFile.toString(), true);
                 if (tvShow != null) {
                     if (Downloads.moveEpisodeFile(tvShow)) {
                         LOG.info("Moved {} to {}", tvShow.getOriginalFilepath(),

@@ -77,12 +77,12 @@ public class Downloads {
 
     /**
      * Takes a filepath, seasonNumber, episodeNumber and determines if that
-     * episode already exisits.
+     * episode already exists.
      *
      * @param filepath
      * @param seasonNumber
      * @param episodeNumber
-     * @return true if episode exisits, false otherwise.
+     * @return true if episode exists, false otherwise.
      */
     public static String episodeExists(@NonNull final String filepath,
             @NonNull final String seasonNumber, @NonNull final String episodeNumber) {

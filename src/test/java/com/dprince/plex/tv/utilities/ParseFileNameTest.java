@@ -33,7 +33,7 @@ public class ParseFileNameTest {
     @Test
     public void parseFileName_Test() throws Exception {
         for (final String filepath : RAW_FILENAMES) {
-            final TvShow tvShow = ParseFileName.parseFileName(filepath);
+            final TvShow tvShow = ParseFileName.parseFileName(filepath, false);
             assertNotNull(tvShow);
             assertEquals("Tv Raw Showname ", "orange is the new black", tvShow.getRawShowName());
             assertEquals("Episode Number ", "09", tvShow.getEpisodeNumber());
@@ -47,7 +47,7 @@ public class ParseFileNameTest {
     @Ignore
     public void parseFileNameWithYear_Test() throws Exception {
         for (final String filepath : RAW_FILENAMES_WITH_YEAR) {
-            final TvShow tvShow = ParseFileName.parseFileName(filepath);
+            final TvShow tvShow = ParseFileName.parseFileName(filepath, false);
             assertNotNull(tvShow);
             assertEquals("Tv Raw Showname ", "american gothic", tvShow.getRawShowName());
             assertEquals("Episode Number ", "09", tvShow.getEpisodeNumber());
@@ -60,7 +60,7 @@ public class ParseFileNameTest {
 
     @Test
     public void parseFileNameWithTrailingDash_Test() throws Exception {
-        final TvShow tvShow = ParseFileName.parseFileName(SINGLE_WORD_SHOW);
+        final TvShow tvShow = ParseFileName.parseFileName(SINGLE_WORD_SHOW, false);
         assertNotNull(tvShow);
         assertEquals("Tv Raw Showname ", "atlanta", tvShow.getRawShowName());
         assertEquals("Episode Season ", "01", tvShow.getSeasonNumber());
@@ -94,10 +94,10 @@ public class ParseFileNameTest {
 
     @Test
     public void formatRawShowName_Test() throws Exception {
-        String formatRawShowName = ParseFileName.formatRawShowName("Girls");
+        String formatRawShowName = ParseFileName.formatRawShowName("Girls", false);
         System.out.println(formatRawShowName);
 
-        formatRawShowName = ParseFileName.formatRawShowName("Notorious");
+        formatRawShowName = ParseFileName.formatRawShowName("Notorious", false);
         System.out.println(formatRawShowName);
     }
 }

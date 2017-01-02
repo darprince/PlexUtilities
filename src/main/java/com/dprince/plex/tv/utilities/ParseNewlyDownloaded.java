@@ -28,7 +28,7 @@ public class ParseNewlyDownloaded {
                 }
             }
         } else {
-            final TvShow metaDataEditTvShow = ParseFileName.parseFileName(folderPath);
+            final TvShow metaDataEditTvShow = ParseFileName.parseFileName(folderPath, true);
             MetaData.editMetaData(metaDataEditTvShow.getOriginalFilepath(),
                     metaDataEditTvShow.getEpisodeTitle());
             CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilepath(),
@@ -44,7 +44,7 @@ public class ParseNewlyDownloaded {
             if (CommonUtilities.getExtension(file.getName()).matches(VIDEO_FILES)
                     && !file.getName().toLowerCase().matches(FILES_TO_IGNORE)) {
 
-                final TvShow tvShow = ParseFileName.parseFileName(file.toString());
+                final TvShow tvShow = ParseFileName.parseFileName(file.toString(), true);
                 if (tvShow != null) {
                     tvShowList.add(tvShow);
                 }

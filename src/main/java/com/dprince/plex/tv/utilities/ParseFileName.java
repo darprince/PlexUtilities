@@ -42,7 +42,8 @@ public class ParseFileName {
      * @param originalFilepath
      * @return {@link TvShow}
      */
-    public static TvShow parseFileName(@NonNull final String originalFilepath) {
+    public static TvShow parseFileName(@NonNull final String originalFilepath,
+            @NonNull final boolean createShowFolder) {
         final String filename = new File(originalFilepath).getName();
 
         final Pattern pattern = Pattern.compile(REGEX);
@@ -53,9 +54,10 @@ public class ParseFileName {
 
         TvShow tvShow = null;
         if (matcher.find()) {
-            tvShow = matcherOneFound(matcher, filename, originalFilepath);
+            tvShow = matcherOneFound(matcher, filename, originalFilepath, createShowFolder);
         } else if (matcherFormatted.find()) {
-            tvShow = matcherTwoFound(matcherFormatted, filename, originalFilepath);
+            tvShow = matcherTwoFound(matcherFormatted, filename, originalFilepath,
+                    createShowFolder);
         } else {
             LOG.error("Failed to parse filename {}", originalFilepath);
             return null;
@@ -64,8 +66,8 @@ public class ParseFileName {
         return tvShow;
     }
 
-    private static TvShow matcherOneFound(Matcher matcher, String filename,
-            String orginalFilepath) {
+    private static TvShow matcherOneFound(Matcher matcher, String filename, String orginalFilepath,
+            boolean createShowFolder) {
         String rawShowName = null;
         String seasonNumber = null;
         String episodeNumber = null;
@@ -89,11 +91,11 @@ public class ParseFileName {
         extension = matcher.group(10);
 
         return createTvShow(orginalFilepath, filename, rawShowName, seasonNumber, episodeNumber,
-                extension);
+                extension, createShowFolder);
     }
 
     private static TvShow matcherTwoFound(Matcher matcherFormatted, String filename,
-            String orginalFilepath) {
+            String orginalFilepath, boolean createShowFolder) {
         String rawShowName = null;
         String seasonNumber = null;
         String episodeNumber = null;
@@ -106,7 +108,7 @@ public class ParseFileName {
         System.out.println("RawShowName: " + rawShowName);
 
         return createTvShow(orginalFilepath, filename, rawShowName, seasonNumber, episodeNumber,
-                extension);
+                extension, createShowFolder);
     }
 
     /**
@@ -121,12 +123,15 @@ public class ParseFileName {
      * @return a {@link TvShow}
      */
     private static TvShow createTvShow(String originalFilepath, String filename, String rawShowName,
-            String seasonNumber, String episodeNumber, String extension) {
+            String seasonNumber, String episodeNumber, String extension, boolean createShowFolder) {
         TvShow tvShow = null;
         try {
-            final String formattedShowName = formatRawShowName(rawShowName);
+            final String formattedShowName = formatRawShowName(rawShowName, createShowFolder);
             System.out.println("Formatted showName: " + formattedShowName);
 
+            if (formattedShowName == null) {
+                return null;
+            }
             String episodeTitle = getEpisodeTitleFromSDF(formattedShowName, seasonNumber,
                     episodeNumber);
             System.out.println("EpTitle from SDF: " + episodeTitle + " ParseFileName 131");
@@ -232,7 +237,7 @@ public class ParseFileName {
      * @param rawTvShowName
      * @return The formatted show name
      */
-    static String formatRawShowName(String rawTvShowName) {
+    static String formatRawShowName(String rawTvShowName, boolean createShowFolder) {
         String toReturn = null;
 
         toReturn = matchAwkwardTvShow(rawTvShowName);
@@ -245,10 +250,12 @@ public class ParseFileName {
             return toReturn;
         }
 
-        try {
-            toReturn = ShowFolderUtilities.createShowFolder(rawTvShowName);
-        } catch (final IOException e) {
-            LOG.error("Failed to get formated show name", e);
+        if (createShowFolder) {
+            try {
+                toReturn = ShowFolderUtilities.createShowFolder(rawTvShowName);
+            } catch (final IOException e) {
+                LOG.error("Failed to get formated show name", e);
+            }
         }
         return toReturn;
     }
