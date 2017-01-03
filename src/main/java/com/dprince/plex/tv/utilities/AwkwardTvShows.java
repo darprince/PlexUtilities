@@ -9,7 +9,8 @@ public enum AwkwardTvShows {
     DESCENDANTS("descendants wicked world", "Descendants, Wicked World"),
     EVE_UK("eve uk", "Eve (2015)"),
     ALASKA_LAST_FRONTIER("alaska-the last frontier", "Alaska, The Last Frontier"),
-    EYEWITNESS("eyewitness us", "Eyewitness (US)");
+    EYEWITNESS("eyewitness us", "Eyewitness (US)"),
+    BROOKLYN_NINE_NINE("brooklyn nine nine", "Brooklyn Nine-Nine");
 
     String match;
     String replacement;

@@ -325,8 +325,6 @@ public class TheTvDbLookup {
         final List<SeasonData> seasonDataList = new ArrayList<>();
         System.out.println("Creating showDataJson for " + showFolder.getName());
 
-        // TODO: make sure input showID equals getShowIdResponse's showID
-        // TODO: or create method that queries the TvDB by showID.
         ShowIdResponse showIdResponse = null;
         String showID = null;
         ShowData showData = null;
@@ -391,8 +389,8 @@ public class TheTvDbLookup {
                 LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());
             } else {
                 LOG.info("File written");
+                System.exit(0);
             }
-            // }
         }
         return;
     }

@@ -9,6 +9,10 @@ public class PlexSettings {
             "tv a-e", "tv f-l", "tv m-s", "tv t-z", "Kids Tv"
     };
 
+    public static final String DESKTOP_SHARED_MOVIE_DIRECTORIES[] = {
+            "Movies A-I", "Movies J-S", "Movies T-Z", "Kids Movies"
+    };
+
     public static final String PLEX_PREFIX = "//Desktop-plex/";
     public static final String DOWNLOADS_PREFIX = "//Desktop-downloa/";
     public static final String DOWNLOADS_DIRECTORY = "//Desktop-Downloa/Completed";

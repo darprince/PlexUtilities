@@ -167,7 +167,7 @@ public class MovieRenamer {
      * @param filename
      * @return The movie's year.
      */
-    private static String getYear(String filename) {
+    public static String getYear(String filename) {
         try {
             final Pattern pattern = Pattern.compile("[0-9]{4}");
             final Matcher matcher = pattern.matcher(filename);

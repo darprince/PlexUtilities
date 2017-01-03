@@ -6,13 +6,11 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.slf4j.Logger;
-
-import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.MovieRenamer;
 import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 import com.dprince.plex.tv.episodecheck.MissingEpisodeCheck;
+import com.dprince.plex.tv.limeTorrents.LimeTorrents;
 import com.dprince.plex.tv.metadata.MetaData;
 import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
 import com.dprince.plex.tv.types.TvShow;
@@ -21,8 +19,6 @@ import com.dprince.plex.tv.utilities.ParseFileName;
 import com.dprince.plex.tv.utilities.ParseNewlyDownloaded;
 
 public class PlexUtilities {
-
-    private static final Logger LOG = Logging.getLogger(PlexUtilities.class);
 
     public static void main(String[] args) throws InterruptedException, IOException {
         if (args.length <= 0) {
@@ -33,6 +29,13 @@ public class PlexUtilities {
         for (final String string : args) {
             System.out.println("Arg: " + string);
         }
+
+        if (args.length > 2) {
+            final int timeToWait = Integer.parseInt(args[2]);
+            System.out.println("SLEEPING for " + timeToWait);
+            Thread.sleep(timeToWait);
+        }
+
         final String function = args[0];
 
         switch (function) {
@@ -81,6 +84,9 @@ public class PlexUtilities {
                 return;
             case ("getMissingEpisodes"):
                 MissingEpisodeCheck.getMissingEpisodes();
+                return;
+            case ("autoDL"):
+                LimeTorrents.begin();
                 return;
             default:
                 System.exit(0);

@@ -1,4 +1,4 @@
-package com.dprince.plex.rarbg;
+package com.dprince.plex.tv.limeTorrents;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,15 +9,19 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.dprince.plex.movie.MovieRenamer;
+import com.dprince.plex.movie.utilities.MovieUtilities;
 import com.dprince.plex.tv.types.TvShow;
 import com.dprince.plex.tv.utilities.Downloads;
 import com.dprince.plex.tv.utilities.ParseFileName;
 
-public class RarBG {
+public class LimeTorrents {
     private static final String DOWNLOADS_DIRECTORY = "//DESKTOP-DOWNLOA/Downloads/";
     private static final String INDEX_MARKER = "-torrent-";
     private static final String USER_AGENT = "Mozilla/5.0";
@@ -27,13 +31,20 @@ public class RarBG {
     private static final String HASH_PREFIX = "http://itorrents.org/torrent/";
 
     private static final List<String> fileList = new ArrayList<String>();
+    private static final Set<String> movieList = new HashSet<String>();
+    private static final Set<String> unknownTv = new HashSet<String>();
 
-    static int count = 0;
-    static int falseCount = 0;
+    static int downloadedCount = 0;
+    static int tvCount = 0;
+    static int unwantedTvCount = 0;
     // http://limetorrents.bypassed.top/Vikings-S04E14-PROPER-HDTV-x264-KILLERS[ettv]-torrent-8517567.html
     // http://itorrents.org/torrent/AECDEDA4BC562A9A52FD25E5036FDFB8B5ECCB44.torrent
 
     public static void main(String[] args) {
+        begin();
+    }
+
+    public static void begin() {
         try {
             final String html = getPageSource(BASE_URL);
             final List<Torrent> torrentList = getTorrents(html);
@@ -41,33 +52,88 @@ public class RarBG {
             for (final Torrent torrent : torrentList) {
                 final String href = torrent.getHref().substring(0,
                         torrent.getHref().lastIndexOf(INDEX_MARKER));
-                final String fileName = "c:/path/" + href + ".mp4";
-                final TvShow tvShow = ParseFileName.parseFileName(fileName.replaceAll("-", "."),
-                        false);
-                // TODO: need to stop show creation popup for this script.
 
-                if (tvShow != null) {
-                    // check if episode exists
-                    if (!episodeExists(tvShow) && torrent.getSize() < 500) {
-                        count++;
-                        // if it does not exist, get it
-                        getTorrentFile(torrent, tvShow);
+                // Check unwantedTvShows and skip if found
+                if (isUnwanted(href)) {
+                    continue;
+                }
+
+                final String fileName = "c:/path/" + href + ".mp4";
+                if (href.matches(".*[sS]{1}[0-9]{2}[Ee]{1}[0-9]{2}.*")) {
+                    tvCount++;
+                    final TvShow tvShow = ParseFileName.parseFileName(fileName.replaceAll("-", "."),
+                            false);
+
+                    if (tvShow != null) {
+                        if (!episodeExists(tvShow) && torrent.getSize() < 500) {
+                            downloadedCount++;
+                            getTorrentFile(torrent, tvShow);
+                        }
+                        continue;
                     } else {
-                        falseCount++;
+                        // skipping existing show or too large of a file
+                        unknownTv.add(href + " " + torrent.getSize());
+                        continue;
                     }
                 } else {
-                    falseCount++;
+                    if (isWantedMovie(torrent, href)) {
+                        continue;
+                    } else {
+                    }
                 }
             }
-            System.out.println("Count: " + count);
-            System.out.println("False Count: " + falseCount);
 
+            System.out.println("\n\n##################### MOVIE LIST ######################");
+            for (final String movieHref : movieList) {
+                System.out.println(movieHref);
+            }
+
+            System.out.println("\n\n###################### UNKNOWN TV ####################");
+            for (final String file : unknownTv) {
+                System.out.println(file);
+            }
+
+            System.out.println("\n\n###################### DOWNLOADED ####################");
             for (final String file : fileList) {
                 System.out.println(file);
             }
-        } catch (final Exception e) {
+
+            System.out.println("\nDownloaded Count: " + downloadedCount);
+            System.out.println("Matched TV Count: " + tvCount);
+            System.out.println("Unwanted TV Count: " + unwantedTvCount);
+        } catch (
+
+        final Exception e)
+
+        {
             e.printStackTrace();
         }
+
+    }
+
+    private static boolean isWantedMovie(Torrent torrent, String href) {
+        href = href.replaceAll("\\.", " ").replaceAll("-", " ").replaceAll("[ ]{2,}", " ");
+        final String formattedMovieName = MovieRenamer.getMovieNameFromFolder(href);
+        final String year = MovieRenamer.getYear(href);
+
+        final String formattedFileName = formattedMovieName + " (" + year + ")";
+
+        if (MovieUtilities.getMovieDriveLocation(formattedFileName) == null) {
+            movieList.add(formattedFileName + " " + torrent.getSize());
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isUnwanted(final String href) {
+        for (final UnwantedTvShows unwantedTvShow : UnwantedTvShows.values()) {
+            if (href.toLowerCase().replaceAll("\\.", " ").replaceAll("-", " ")
+                    .contains(unwantedTvShow.rawShowName)) {
+                unwantedTvCount++;
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void getTorrentFile(Torrent torrent, TvShow tvShow) {
@@ -75,6 +141,7 @@ public class RarBG {
         final String torrentFile = HASH_PREFIX + hash + ".torrent";
         try {
             saveFile(torrentFile, DOWNLOADS_DIRECTORY + tvShow.getFormattedFileName() + ".torrent");
+            fileList.add(tvShow.getFormattedFileName() + " " + torrent.getSize());
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -104,11 +171,8 @@ public class RarBG {
         final String episodeExists = Downloads.episodeExists(tvShow.getDestinationFilepath(),
                 tvShow.getSeasonNumber(), tvShow.getEpisodeNumber());
         if (episodeExists != null) {
-            System.out.println("\n\nEpisode Exists: " + episodeExists + "\n\n");
             return true;
         } else {
-            System.out.println("*****************************************Episode Doesnt Exist: "
-                    + tvShow.getFormattedFileName());
             return false;
         }
     }
@@ -194,7 +258,6 @@ public class RarBG {
         fos.close();
         in.close();
         System.out.println("file was downloaded");
-        fileList.add(file);
-        count++;
+        downloadedCount++;
     }
 }

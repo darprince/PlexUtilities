@@ -1,4 +1,4 @@
-package com.dprince.plex.rarbg;
+package com.dprince.plex.tv.limeTorrents;
 
 public class Torrent {
     String href;
