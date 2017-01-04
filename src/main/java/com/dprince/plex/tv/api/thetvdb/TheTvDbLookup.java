@@ -389,7 +389,7 @@ public class TheTvDbLookup {
                 LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());
             } else {
                 LOG.info("File written");
-                System.exit(0);
+                return;
             }
         }
         return;
