@@ -92,6 +92,9 @@ public class ShowFolderUtilities {
     public static String createShowFolder(String rawTvShowName) throws IOException {
         final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this show to Plex?",
                 WordUtils.capitalize(rawTvShowName));
+        if (result == null) {
+            System.exit(0);
+        }
         String newSubFolderName = null;
 
         // TODO: add numerical to regex

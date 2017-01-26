@@ -28,7 +28,7 @@ public class ParseNewlyDownloaded {
                 }
             }
         } else {
-            final TvShow metaDataEditTvShow = ParseFileName.parseFileName(folderPath, true);
+            final TvShow metaDataEditTvShow = ParseFileName.parseFileName(folderPath, true, true);
             MetaData.editMetaData(metaDataEditTvShow.getOriginalFilepath(),
                     metaDataEditTvShow.getEpisodeTitle());
             CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilepath(),
@@ -44,7 +44,7 @@ public class ParseNewlyDownloaded {
             if (CommonUtilities.getExtension(file.getName()).matches(VIDEO_FILES)
                     && !file.getName().toLowerCase().matches(FILES_TO_IGNORE)) {
 
-                final TvShow tvShow = ParseFileName.parseFileName(file.toString(), true);
+                final TvShow tvShow = ParseFileName.parseFileName(file.toString(), true, true);
                 if (tvShow != null) {
                     tvShowList.add(tvShow);
                 }
@@ -71,7 +71,19 @@ public class ParseNewlyDownloaded {
         if (CommonUtilities.renameFile(tvShow.getOriginalFilepath(),
                 tvShow.getDestinationFilepath())) {
             return deleteFolder(folderPath);
+        } else {
+            System.out.println("Retrying move file.");
+            try {
+                Thread.sleep(10000);
+            } catch (final InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (CommonUtilities.renameFile(tvShow.getOriginalFilepath(),
+                    tvShow.getDestinationFilepath())) {
+                return deleteFolder(folderPath);
+            }
         }
+        System.out.println("File not moved.");
         return false;
     }
 

@@ -213,7 +213,7 @@ public class MissingEpisodeCheck {
                 }
             }
             if (!found) {
-                if (!firstAired.isEmpty() && new LocalDate(firstAired).getYear() == 2016) {
+                if (!firstAired.isEmpty() && new LocalDate(firstAired).getYear() == 2017) {
                     recentEpisodes.add(
                             showFolder.getName() + " " + episodeSeasonAndNumber + " " + firstAired);
                     System.out.println("Added " + showFolder.getName() + " "

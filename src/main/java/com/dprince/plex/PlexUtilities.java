@@ -9,8 +9,9 @@ import javax.swing.JOptionPane;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.MovieRenamer;
 import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
+import com.dprince.plex.tv.autoDL.limeTorrents.LimeTorrents;
+import com.dprince.plex.tv.autoDL.rarbg.RarBG;
 import com.dprince.plex.tv.episodecheck.MissingEpisodeCheck;
-import com.dprince.plex.tv.limeTorrents.LimeTorrents;
 import com.dprince.plex.tv.metadata.MetaData;
 import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
 import com.dprince.plex.tv.types.TvShow;
@@ -41,13 +42,14 @@ public class PlexUtilities {
         switch (function) {
             case ("tvShowRename"):
                 System.out.println("Renaming function called");
-                final TvShow tvShow = ParseFileName.parseFileName(args[1], true);
+                final TvShow tvShow = ParseFileName.parseFileName(args[1], true, true);
                 Downloads.moveEpisodeFile(tvShow);
                 MetaData.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
                 return;
             case ("TvMetaDataEdit"):
                 System.out.println("TvMetaDataEdit function called");
-                final TvShow metaDataEditTvShow = ParseFileName.parseFileName(args[1], false);
+                final TvShow metaDataEditTvShow = ParseFileName.parseFileName(args[1], false,
+                        false);
                 MetaData.editMetaData(metaDataEditTvShow.getOriginalFilepath(),
                         metaDataEditTvShow.getEpisodeTitle());
                 CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilepath(),
@@ -87,6 +89,9 @@ public class PlexUtilities {
                 return;
             case ("autoDL"):
                 LimeTorrents.begin();
+                return;
+            case ("rarBG"):
+                RarBG.begin();
                 return;
             default:
                 System.exit(0);

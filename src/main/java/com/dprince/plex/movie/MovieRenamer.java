@@ -17,7 +17,7 @@ public class MovieRenamer {
 
     private static final Logger LOG = Logging.getLogger(MovieRenamer.class);
 
-    private static final String EXTENSIONS = "nfo|txt|jpg";
+    private static final String EXTENSIONS = "nfo|txt|jpg|png";
     private static final String SUB_EXTENSIONS = "srt|sub|idx";
 
     public static void renameMovieFromFolder(String masterFolderPath) {
@@ -53,7 +53,8 @@ public class MovieRenamer {
             } else {
                 System.out.println("NOT DIRECTORY " + file.getName());
                 final String extension = getExtension(file.toString());
-                if (extension.matches(EXTENSIONS) || file.getName().matches(FILES_TO_IGNORE)
+                if (extension.toLowerCase().matches(EXTENSIONS)
+                        || file.getName().toLowerCase().matches(FILES_TO_IGNORE)
                         || file.getName().toLowerCase().contains("sample")) {
                     System.out.println("\nDELETING " + file.getName());
                     file.delete();

@@ -1,13 +1,5 @@
-package com.dprince.plex.tv.limeTorrents;
+package com.dprince.plex.tv.autoDL.limeTorrents;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,9 +9,9 @@ import java.util.regex.Pattern;
 
 import com.dprince.plex.movie.MovieRenamer;
 import com.dprince.plex.movie.utilities.MovieUtilities;
-import com.dprince.plex.tv.limeTorrents.types.OMDBapi;
+import com.dprince.plex.tv.autoDL.limeTorrents.types.OMDBapi;
+import com.dprince.plex.tv.autoDL.shared.AutoDLShared;
 import com.dprince.plex.tv.types.TvShow;
-import com.dprince.plex.tv.utilities.Downloads;
 import com.dprince.plex.tv.utilities.ParseFileName;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class LimeTorrents {
     private static final String DOWNLOADS_DIRECTORY = "//DESKTOP-DOWNLOA/Downloads/";
     private static final String INDEX_MARKER = "-torrent-";
-    private static final String USER_AGENT = "Mozilla/5.0";
+    public static final String USER_AGENT = "Mozilla/5.0";
 
     private static final String BASE_URL = "http://limetorrents.bypassed.top/index.php?page=top100";
     private static final String TORRENT_PAGE_PREFIX = "http://limetorrents.bypassed.top/";
@@ -39,9 +31,9 @@ public class LimeTorrents {
     private static final Set<String> movieList = new HashSet<String>();
     private static final Set<String> unknownTv = new HashSet<String>();
 
-    static int downloadedCount = 0;
+    public static int downloadedCount = 0;
     static int tvCount = 0;
-    static int unwantedTvCount = 0;
+    public static int unwantedTvCount = 0;
     // http://limetorrents.bypassed.top/Vikings-S04E14-PROPER-HDTV-x264-KILLERS[ettv]-torrent-8517567.html
     // http://itorrents.org/torrent/AECDEDA4BC562A9A52FD25E5036FDFB8B5ECCB44.torrent
 
@@ -51,7 +43,7 @@ public class LimeTorrents {
 
     public static void begin() {
         try {
-            final String html = getPageSource(BASE_URL);
+            final String html = AutoDLShared.getPageSource(BASE_URL);
             final List<Torrent> torrentList = getTorrents(html);
 
             for (final Torrent torrent : torrentList) {
@@ -59,7 +51,7 @@ public class LimeTorrents {
                         torrent.getHref().lastIndexOf(INDEX_MARKER));
 
                 // Check unwantedTvShows and skip if found
-                if (isUnwanted(href)) {
+                if (AutoDLShared.isUnwanted(href)) {
                     continue;
                 }
 
@@ -67,10 +59,10 @@ public class LimeTorrents {
                 if (href.matches(".*[sS]{1}[0-9]{2}[Ee]{1}[0-9]{2}.*")) {
                     tvCount++;
                     final TvShow tvShow = ParseFileName.parseFileName(fileName.replaceAll("-", "."),
-                            false);
+                            false, false);
 
                     if (tvShow != null) {
-                        if (!episodeExists(tvShow) && torrent.getSize() < 500) {
+                        if (!AutoDLShared.episodeExists(tvShow) && torrent.getSize() < 500) {
                             downloadedCount++;
                             getTorrentFile(torrent, tvShow.getFormattedFileName());
                         }
@@ -130,7 +122,7 @@ public class LimeTorrents {
                         + formattedMovieName.replaceAll("[ ]{1,}", "%20") + "&y=" + year;
                 double rating = 0.0;
                 try {
-                    final String html = getPageSource(url);
+                    final String html = AutoDLShared.getPageSource(url);
                     final ObjectMapper mapper = new ObjectMapper()
                             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                     final OMDBapi omdb = mapper.readValue(html, OMDBapi.class);
@@ -151,22 +143,11 @@ public class LimeTorrents {
         return false;
     }
 
-    private static boolean isUnwanted(final String href) {
-        for (final UnwantedTvShows unwantedTvShow : UnwantedTvShows.values()) {
-            if (href.toLowerCase().replaceAll("\\.", " ").replaceAll("-", " ")
-                    .contains(unwantedTvShow.rawShowName)) {
-                unwantedTvCount++;
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static void getTorrentFile(Torrent torrent, String formattedFileName) {
         final String hash = getHash(torrent);
         final String torrentFile = HASH_PREFIX + hash + ".torrent";
         try {
-            saveFile(torrentFile,
+            AutoDLShared.saveFile(torrentFile,
                     DOWNLOADS_DIRECTORY + formattedFileName + " " + torrent.getSize() + ".torrent");
             fileList.add(formattedFileName + " " + torrent.getSize());
         } catch (final Exception e) {
@@ -178,7 +159,7 @@ public class LimeTorrents {
         final String link = TORRENT_PAGE_PREFIX + torrent.getHref();
         String pageSource = null;
         try {
-            pageSource = getPageSource(link);
+            pageSource = AutoDLShared.getPageSource(link);
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -191,17 +172,6 @@ public class LimeTorrents {
             return matcher.group(1);
         }
         return null;
-    }
-
-    private static boolean episodeExists(final TvShow tvShow) {
-        System.out.println(tvShow.getDestinationFilepath());
-        final String episodeExists = Downloads.episodeExists(tvShow.getDestinationFilepath(),
-                tvShow.getSeasonNumber(), tvShow.getEpisodeNumber());
-        if (episodeExists != null) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public static List<Torrent> getTorrents(final String html) {
@@ -241,50 +211,5 @@ public class LimeTorrents {
         }
 
         return torrentList;
-    }
-
-    public static String getPageSource(final String url) throws Exception {
-        final URL obj = new URL(url);
-        final HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-        con.setRequestMethod("GET");
-        con.setRequestProperty("User-Agent", USER_AGENT);
-
-        final int responseCode = con.getResponseCode();
-
-        final BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        final StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        if (responseCode == 200) {
-            return response.toString();
-        } else {
-            return null;
-        }
-    }
-
-    public static void saveFile(String baseUrl, String file) throws IOException {
-        final URL url = new URL(baseUrl);
-        System.out.println("opening connection");
-        final InputStream in = url.openStream();
-        final FileOutputStream fos = new FileOutputStream(new File(file));
-
-        System.out.println("reading file...");
-        int length = -1;
-        final byte[] buffer = new byte[1024];// buffer for portion of data from
-        // connection
-        while ((length = in.read(buffer)) > -1) {
-            fos.write(buffer, 0, length);
-        }
-
-        fos.close();
-        in.close();
-        System.out.println("file was downloaded");
-        downloadedCount++;
     }
 }

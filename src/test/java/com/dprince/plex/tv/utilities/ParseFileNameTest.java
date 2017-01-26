@@ -14,16 +14,16 @@ public class ParseFileNameTest {
     private static final String[] RAW_FILENAMES = {
             "C://Documents and Settings/Users/Darren/orange.is.the.new.black.S01E09.WEB-DL.XviD-FUM[ettv].mkv",
             "C://Documents and Settings/Users/Darren/orange.is.the.new.black.109.WEB-DL.XviD-FUM[ettv].mp4",
-            "C://Documents and Settings/Users/Darren/orange.is.the.new.black.1x09.WEB-DL.XviD-FUM[ettv].avi",
-            "C://Documents and Settings/Users/Darren/orange.is.the.new.black.1of9.WEB-DL.XviD-FUM[ettv].mpg",
+            "C://Documents and Settings/Users/Darren/orange.is.the.new.black.9x09.WEB-DL.XviD-FUM[ettv].avi",
+            "C://Documents and Settings/Users/Darren/orange.is.the.new.black.9of9.WEB-DL.XviD-FUM[ettv].mpg",
             "C://Documents and Settings/Users/Darren/orange.is.the.new.black.part.9.WEB-DL.XviD-FUM[ettv].mpg",
     };
 
     private static final String[] RAW_FILENAMES_WITH_YEAR = {
             "C://Documents and Settings/Users/Darren/american.gothic.2016.S01E09.WEB-DL.XviD-FUM[ettv].mkv",
             "C://Documents and Settings/Users/Darren/american.gothic.2016.109.WEB-DL.XviD-FUM[ettv].mp4",
-            "C://Documents and Settings/Users/Darren/american.gothic.2016.1x09.WEB-DL.XviD-FUM[ettv].avi",
-            "C://Documents and Settings/Users/Darren/american.gothic.2016.1of9.WEB-DL.XviD-FUM[ettv].mpg",
+            "C://Documents and Settings/Users/Darren/american.gothic.2016.9x09.WEB-DL.XviD-FUM[ettv].avi",
+            "C://Documents and Settings/Users/Darren/american.gothic.2016.9of9.WEB-DL.XviD-FUM[ettv].mpg",
             "C://Documents and Settings/Users/Darren/american.gothic.2016.part.9.WEB-DL.XviD-FUM[ettv].mpg",
     };
 
@@ -33,7 +33,7 @@ public class ParseFileNameTest {
     @Test
     public void parseFileName_Test() throws Exception {
         for (final String filepath : RAW_FILENAMES) {
-            final TvShow tvShow = ParseFileName.parseFileName(filepath, false);
+            final TvShow tvShow = ParseFileName.parseFileName(filepath, false, true);
             assertNotNull(tvShow);
             assertEquals("Tv Raw Showname ", "orange is the new black", tvShow.getRawShowName());
             assertEquals("Episode Number ", "09", tvShow.getEpisodeNumber());
@@ -47,7 +47,7 @@ public class ParseFileNameTest {
     @Ignore
     public void parseFileNameWithYear_Test() throws Exception {
         for (final String filepath : RAW_FILENAMES_WITH_YEAR) {
-            final TvShow tvShow = ParseFileName.parseFileName(filepath, false);
+            final TvShow tvShow = ParseFileName.parseFileName(filepath, false, true);
             assertNotNull(tvShow);
             assertEquals("Tv Raw Showname ", "american gothic", tvShow.getRawShowName());
             assertEquals("Episode Number ", "09", tvShow.getEpisodeNumber());
@@ -60,7 +60,7 @@ public class ParseFileNameTest {
 
     @Test
     public void parseFileNameWithTrailingDash_Test() throws Exception {
-        final TvShow tvShow = ParseFileName.parseFileName(SINGLE_WORD_SHOW, false);
+        final TvShow tvShow = ParseFileName.parseFileName(SINGLE_WORD_SHOW, false, true);
         assertNotNull(tvShow);
         assertEquals("Tv Raw Showname ", "atlanta", tvShow.getRawShowName());
         assertEquals("Episode Season ", "01", tvShow.getSeasonNumber());

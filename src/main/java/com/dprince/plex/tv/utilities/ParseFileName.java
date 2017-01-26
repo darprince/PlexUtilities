@@ -1,7 +1,9 @@
 package com.dprince.plex.tv.utilities;
 
+import static com.dprince.plex.settings.PlexSettings.BASIC_REGEX;
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
 import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
+import static com.dprince.plex.settings.PlexSettings.REGEX_FORMATTED_FILENAME;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,8 +33,12 @@ public class ParseFileName {
 
     private static final Logger LOG = Logging.getLogger(ParseFileName.class);
 
-    private static final String REGEX = "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})[\\.-]{1}).*(mkv|mp4|avi|mpg){1}";
-    private static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[ -]{3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(mkv|mp4|avi|mpg|m4v){1}";
+    // private static final String BASIC_REGEX =
+    // "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})[\\.-]{1}).*(mkv|mp4|avi|mpg){1}";
+    // private static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[
+    // -]{3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(mkv|mp4|avi|mpg|m4v){1}";
+
+    private static boolean debug;
 
     /**
      * Takes the show's filepath and determines the rawTvShowName, seasonNumber,
@@ -43,10 +49,14 @@ public class ParseFileName {
      * @return {@link TvShow}
      */
     public static TvShow parseFileName(@NonNull final String originalFilepath,
-            @NonNull final boolean createShowFolder) {
-        final String filename = new File(originalFilepath).getName();
+            @NonNull final boolean createShowFolder, @NonNull final boolean debugIn) {
+        ParseFileName.debug = debugIn;
+        String filename = new File(originalFilepath).getName();
+        System.out.println(filename);
+        filename = filename.toLowerCase().replaceAll("heavy.rescue.401", "heavy.rescue");
+        System.out.println(filename);
 
-        final Pattern pattern = Pattern.compile(REGEX);
+        final Pattern pattern = Pattern.compile(BASIC_REGEX);
         final Matcher matcher = pattern.matcher(filename);
 
         final Pattern patternFormatted = Pattern.compile(REGEX_FORMATTED_FILENAME);
@@ -74,14 +84,19 @@ public class ParseFileName {
         String extension = null;
 
         rawShowName = matcher.group(1).replaceAll("\\.", " ").toLowerCase().trim();
-        System.out.println("RawShowName: " + rawShowName);
+        if (debug) {
+            System.out.println("M1 RawShowName: " + rawShowName);
+        }
         if (matcher.group(3) != null) {
+            System.out.println("Matcher g3");
             seasonNumber = CommonUtilities.padString(matcher.group(3));
             episodeNumber = CommonUtilities.padString(matcher.group(4));
         } else if (matcher.group(5) != null) {
-            seasonNumber = CommonUtilities.padString(matcher.group(5));
-            episodeNumber = CommonUtilities.padString(matcher.group(6));
+            System.out.println("Matcher g5");
+            seasonNumber = "01";
+            episodeNumber = CommonUtilities.padString(matcher.group(5));
         } else if (matcher.group(8) != null) {
+            System.out.println("Matcher g8");
             seasonNumber = CommonUtilities.padString(matcher.group(8));
             episodeNumber = CommonUtilities.padString(matcher.group(9));
         } else {
@@ -105,7 +120,9 @@ public class ParseFileName {
         seasonNumber = CommonUtilities.padString(matcherFormatted.group(2));
         episodeNumber = CommonUtilities.padString(matcherFormatted.group(3));
         extension = matcherFormatted.group(4);
-        System.out.println("RawShowName: " + rawShowName);
+        if (debug) {
+            System.out.println("M2 RawShowName: " + rawShowName);
+        }
 
         return createTvShow(orginalFilepath, filename, rawShowName, seasonNumber, episodeNumber,
                 extension, createShowFolder);
@@ -127,14 +144,20 @@ public class ParseFileName {
         TvShow tvShow = null;
         try {
             final String formattedShowName = formatRawShowName(rawShowName, createShowFolder);
-            System.out.println("Formatted showName: " + formattedShowName);
+            if (debug) {
+                System.out.println("Formatted showName: " + formattedShowName);
+            }
 
             if (formattedShowName == null) {
                 return null;
             }
             String episodeTitle = getEpisodeTitleFromSDF(formattedShowName, seasonNumber,
                     episodeNumber);
-            System.out.println("EpTitle from SDF: " + episodeTitle + " ParseFileName 131");
+
+            if (debug) {
+                System.out.println("EpTitle for S" + seasonNumber + "E" + episodeNumber
+                        + " from SDF: " + episodeTitle + " ParseFileName 152");
+            }
 
             if (episodeTitle == null) {
                 final String showDriveLocation = ShowFolderUtilities
@@ -193,8 +216,10 @@ public class ParseFileName {
                         for (final EpisodeData episodeData : seasonData.getEpisodeList()) {
                             if (episodeData.getAiredEpisodeNumber() == Integer
                                     .parseInt(episodeNumber)) {
-                                System.out.println(
-                                        "Returning " + episodeData.getEpisodeName() + " from SDF.");
+                                if (debug) {
+                                    System.out.println("Returning " + episodeData.getEpisodeName()
+                                            + " from SDF.");
+                                }
                                 return episodeData.getEpisodeName();
                             }
                         }
@@ -202,7 +227,9 @@ public class ParseFileName {
                 }
             }
         } catch (final Exception e) {
-            System.out.println("EpTitle from SDF is null, trying theTVDB. ParseFileName 200");
+            if (debug) {
+                System.out.println("EpTitle from SDF is null, trying theTVDB. ParseFileName 200");
+            }
             return getEpisodeTitleFromTvDB(formattedShowName, seasonNumber, episodeNumber);
         }
         return null;
@@ -254,7 +281,7 @@ public class ParseFileName {
             try {
                 toReturn = ShowFolderUtilities.createShowFolder(rawTvShowName);
             } catch (final IOException e) {
-                LOG.error("Failed to get formated show name", e);
+                LOG.error("Failed to get formatted show name", e);
             }
         }
         return toReturn;

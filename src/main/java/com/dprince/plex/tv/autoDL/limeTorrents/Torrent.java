@@ -1,12 +1,36 @@
-package com.dprince.plex.tv.limeTorrents;
+package com.dprince.plex.tv.autoDL.limeTorrents;
 
 public class Torrent {
     String href;
     String size;
+    double rating;
+    String title;
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
 
     public Torrent(String href, String size) {
         this.href = href;
         this.size = size;
+    }
+
+    public Torrent(String href, double rating, String title) {
+        this.href = href;
+        this.rating = rating;
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getHref() {

@@ -1,4 +1,4 @@
-package com.dprince.plex.tv.limeTorrents.types;
+package com.dprince.plex.tv.autoDL.limeTorrents.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -11,6 +11,10 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
@@ -381,15 +385,37 @@ public class TheTvDbLookup {
                 missingEpisodeCheck = currentFolderData.getMissingEpisodeCheck();
             }
 
-            final ShowFolderData showFolderData = ShowFolderData.builder().setCorrectShowID(false)
+            final ShowFolderData showFolderData = ShowFolderData.builder().setCorrectShowID(true)
                     .setSeasonData(seasonDataList).setShowData(showData).setCorrectShowID(correctID)
                     .setMissingEpisodeCheck(missingEpisodeCheck).build();
 
-            if (!writeShowDataToFile(showFolder, showFolderData)) {
-                LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());
-            } else {
-                LOG.info("File written");
-                return;
+            JDialog.setDefaultLookAndFeelDecorated(true);
+            final int response = JOptionPane.showConfirmDialog(null,
+                    "<html><body><p style='width: 200px;'>"
+                            + showFolderData.getShowData().getSeriesName() + ", "
+                            + showFolderData.getShowData().getFirstAired() + ", <br><br>"
+                            + showFolderData.getShowData().getOverview() + "</p></body></html>",
+                    "Correct for " + showFolder.getName() + "?", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+
+            if (response == JOptionPane.NO_OPTION) {
+                System.out.println("Option close");
+                final Object result = JOptionPane.showInputDialog(new JFrame(), "Add series Id?",
+                        "");
+                // TODO: fix this.
+                if (result == null) {
+                    System.out.println("Closed option");
+                    System.exit(0);
+                }
+                parentCreateShowDataJSONForShow(showFolder, String.valueOf(result));
+            } else if (response == JOptionPane.YES_OPTION) {
+                System.out.println("Yes option");
+                if (!writeShowDataToFile(showFolder, showFolderData)) {
+                    LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());
+                } else {
+                    LOG.info("File written");
+                    return;
+                }
             }
         }
         return;
