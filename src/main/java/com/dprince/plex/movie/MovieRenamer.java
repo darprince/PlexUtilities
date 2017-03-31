@@ -25,6 +25,10 @@ public class MovieRenamer {
         final String formattedMovieName = getMovieNameFromFolder(masterFolderPath);
         final String year = getYear(masterFolderPath);
 
+        if (formattedMovieName == null || year == null) {
+            System.out.println("Movie name could not be parsed.");
+            System.exit(0);
+        }
         final File masterFolderFilePath = new File(masterFolderPath);
 
         String formattedFileName = null;

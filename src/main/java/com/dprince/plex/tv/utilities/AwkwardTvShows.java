@@ -3,6 +3,7 @@ package com.dprince.plex.tv.utilities;
 public enum AwkwardTvShows {
     CONTINENT7("continent 7 antarctica", "Continent 7, Antarctica"),
     CHICAGO_PD("chicago p d", "Chicago PD"),
+    CRIMINAL_MINDS("criminal minds beyond borders", "Criminal Minds, Beyond Borders"),
     DREAMWORKS_TROLLHUNTERS("dreamworks trollhunters", "Trollhunters"),
     DR_KEN("dr ken", "Dr. Ken"),
     TABOO("taboo uk", "Taboo (2017)"),
@@ -18,9 +19,12 @@ public enum AwkwardTvShows {
     MAGNUM_PI("magnum p i", "Magnum P.I."),
     HEAVY_RESCUE("heavy rescue", "Heavy Rescue 401"),
     HUNTED_US("hunted us", "Hunted (US)"),
+    PRIME_SUSPECT("prime suspect", "Prime Suspect 1973"),
     THE_SELECTION(
             "the selection-special operations experiment",
-            "The Selection, Special Operations Experiment");
+            "The Selection, Special Operations Experiment"),
+    VICE("vice world of sports", "Vice, World of Sports"),
+    LAST_MAN("last man standing us", "Last Man Standing");
 
     String match;
     String replacement;

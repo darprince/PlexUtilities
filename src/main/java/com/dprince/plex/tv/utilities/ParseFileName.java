@@ -275,6 +275,11 @@ public class ParseFileName {
         toReturn = matchFromFolderName(rawTvShowName);
         if (toReturn != null) {
             return toReturn;
+        } else {
+            toReturn = matchFromFolderName(rawTvShowName.replaceAll(".us", ""));
+            if (toReturn != null) {
+                return toReturn;
+            }
         }
 
         if (createShowFolder) {

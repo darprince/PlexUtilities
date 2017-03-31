@@ -60,7 +60,16 @@ public class ParseNewlyDownloaded {
 
         if (episodeExists != null) {
             System.out.println("\n************ Episode Exists Deleting folder *************");
-            deleteFolder(folderPath);
+            final File folderFile = new File(folderPath);
+
+            while (folderFile.exists()) {
+                try {
+                    deleteFolder(folderPath);
+                } catch (final Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+
             System.exit(0);
         }
 
