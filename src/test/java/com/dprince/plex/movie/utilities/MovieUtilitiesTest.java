@@ -4,13 +4,21 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.dprince.plex.settings.PlexSettings;
+
 public class MovieUtilitiesTest {
 
     @Test
     public void getMovieDriveLocation() throws Exception {
-        assertTrue("Movies A-I" == MovieUtilities.getMovieDriveLocation("The Accountant (2016)"));
-        assertTrue("Movies J-S" == MovieUtilities.getMovieDriveLocation("John Wick (2014)"));
-        assertTrue("Movies T-Z" == MovieUtilities.getMovieDriveLocation("World War Z (2013)"));
-        assertTrue("Kids Movies" == MovieUtilities.getMovieDriveLocation("Toy Story (1995)"));
+        System.out.println(MovieUtilities.getMovieDriveLocation("Toy Story (1995)"));
+        assertTrue(PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[0] == MovieUtilities
+                .getMovieDriveLocation("The Accountant (2016)"));
+        assertTrue(PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[1] == MovieUtilities
+                .getMovieDriveLocation("John Wick (2014)"));
+        assertTrue(PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[2] == MovieUtilities
+                .getMovieDriveLocation("World War Z (2013)"));
+        assertTrue(PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[3] == MovieUtilities
+                .getMovieDriveLocation("Toy Story (1995)"));
+
     }
 }

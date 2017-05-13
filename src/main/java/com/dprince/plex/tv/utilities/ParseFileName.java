@@ -116,7 +116,7 @@ public class ParseFileName {
         String episodeNumber = null;
         String extension = null;
 
-        rawShowName = matcherFormatted.group(1);
+        rawShowName = matcherFormatted.group(1).trim();
         seasonNumber = CommonUtilities.padString(matcherFormatted.group(2));
         episodeNumber = CommonUtilities.padString(matcherFormatted.group(3));
         extension = matcherFormatted.group(4);

@@ -10,6 +10,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
+import com.dprince.plex.settings.PlexSettings;
 
 public class MovieUtilities {
 
@@ -67,10 +68,11 @@ public class MovieUtilities {
             }
         }
 
-        queryString = PLEX_PREFIX + "Kids Movies/" + formattedMovieName;
+        queryString = PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[3] + "/"
+                + formattedMovieName;
         queriedDrive = new File(queryString);
         if (queriedDrive.exists()) {
-            return "Kids Movies";
+            return PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[3];
         }
 
         return null;
