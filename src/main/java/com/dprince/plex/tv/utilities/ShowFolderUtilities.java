@@ -6,6 +6,7 @@ import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -90,27 +91,40 @@ public class ShowFolderUtilities {
     }
 
     public static String createShowFolder(String rawTvShowName) throws IOException {
-        final Object result = JOptionPane.showInputDialog(new JFrame(), "Add this show to Plex?",
+        final JCheckBox checkbox = new JCheckBox("Kids show?");
+        final String message = "Add this show to Plex?";
+        final Object[] params = {
+                message, checkbox
+        };
+        final Object result = JOptionPane.showInputDialog(new JFrame(), params,
                 WordUtils.capitalize(rawTvShowName));
         if (result == null) {
             System.exit(0);
         }
+        final boolean kidsShow = checkbox.isSelected();
         String newSubFolderName = null;
 
-        // TODO: add numerical to regex
-        String resultWithoutPre = result.toString();
-        if (result.toString().startsWith("The ")) {
-            resultWithoutPre = resultWithoutPre.substring(4, resultWithoutPre.length()).trim();
-        }
-        final String firstLetter = resultWithoutPre.toLowerCase().substring(0, 1);
-        if (firstLetter.matches("[a-e]")) {
-            newSubFolderName = "tv a-e\\";
-        } else if (firstLetter.matches("[f-l]")) {
-            newSubFolderName = "tv f-l\\";
-        } else if (firstLetter.matches("[m-s]")) {
-            newSubFolderName = "tv m-s\\";
-        } else if (firstLetter.matches("[t-z]")) {
-            newSubFolderName = "tv t-z\\";
+        if (kidsShow) {
+            System.out.println("THIS IS A KIDS SHOW");
+            newSubFolderName = "Kids TV";
+        } else {
+            System.out.println("NOT A KIDS SHOW");
+
+            // TODO: add numerical to regex
+            String resultWithoutPre = result.toString();
+            if (result.toString().startsWith("The ")) {
+                resultWithoutPre = resultWithoutPre.substring(4, resultWithoutPre.length()).trim();
+            }
+            final String firstLetter = resultWithoutPre.toLowerCase().substring(0, 1);
+            if (firstLetter.matches("[a-e]")) {
+                newSubFolderName = "tv a-e\\";
+            } else if (firstLetter.matches("[f-l]")) {
+                newSubFolderName = "tv f-l\\";
+            } else if (firstLetter.matches("[m-s]")) {
+                newSubFolderName = "tv m-s\\";
+            } else if (firstLetter.matches("[t-z]")) {
+                newSubFolderName = "tv t-z\\";
+            }
         }
 
         final String resultString = result.toString();

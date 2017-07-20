@@ -5,8 +5,8 @@ public class PlexSettings {
     public static final String FOLDERS_FILE_LOCATION = "//DESKTOP-DOWNLOA/TVShowRenamer/folders.txt";
     public static final String PARSER_LOCATION = "//DESKTOP-DOWNLOA/TVShowRenamer/parser.jar";
 
-    public static final String BASIC_REGEX = "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})[\\.-]{1}).*(mkv|mp4|avi|mpg){1}";
-    public static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[ -]{1,3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(mkv|mp4|avi|mpg|m4v){1}";
+    public static final String BASIC_REGEX = "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2,4})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|[0]{0,1}([\\d]{1})([\\d]{2})[\\.-]{1}).*(mkv|mp4|avi|mpg){1}";
+    public static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[ -]{1,3}[sS]{1}([0-9]{2,4})[eE]{1}([0-9]{2}).*(mkv|mp4|avi|mpg|m4v){1}";
 
     public static final String DESKTOP_SHARED_DIRECTORIES[] = {
             "tv a-e", "tv f-l", "tv m-s", "tv t-z", "Kids Tv"

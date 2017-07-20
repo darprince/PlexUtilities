@@ -72,6 +72,6 @@ public class TheTvDbLookupTest {
 
         assertTrue(seasonResponseData instanceof SeasonResponseData);
 
-        assertThat("SeasonResponseData", 5, equalTo(seasonResponseData.getAiredSeasons().size()));
+        assertThat("SeasonResponseData", 7, equalTo(seasonResponseData.getAiredSeasons().size()));
     }
 }

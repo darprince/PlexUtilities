@@ -14,6 +14,7 @@ public enum AwkwardTvShows {
     DESCENDANTS("descendants wicked world", "Descendants, Wicked World"),
     EVE_UK("eve uk", "Eve (2015)"),
     ALASKA_LAST_FRONTIER("alaska-the last frontier", "Alaska, The Last Frontier"),
+    TWENTY_TWENTY("20 20 in an instant", "In An Instant"),
     EYEWITNESS("eyewitness us", "Eyewitness (US)"),
     BROOKLYN_NINE_NINE("brooklyn nine nine", "Brooklyn Nine-Nine"),
     MAGNUM_PI("magnum p i", "Magnum P.I."),
