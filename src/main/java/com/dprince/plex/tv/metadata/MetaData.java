@@ -50,6 +50,7 @@ public class MetaData {
         } catch (final IOException e) {
             LOG.error("Failed to call MetaDataFormatter", e);
         }
+        return;
     }
 
     /**
@@ -71,7 +72,12 @@ public class MetaData {
         LOG.info("Mkv metadata edit command: " + command);
 
         try {
-            Runtime.getRuntime().exec(command);
+            final Process exec = Runtime.getRuntime().exec(command);
+            while (exec.isAlive()) {
+
+            }
+            LOG.info("Metadata has been set!!!, returning.");
+            return;
         } catch (final Exception e) {
             LOG.error("Failed to edit mkv metadata", e);
         }

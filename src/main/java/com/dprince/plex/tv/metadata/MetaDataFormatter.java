@@ -142,6 +142,8 @@ public class MetaDataFormatter {
         fc.write(ByteBuffer.wrap(baos.getBuffer(), 0, baos.size()));
         fc.close();
         baos.close();
+        LOG.info("Finished Writing metaData to file ({})", title);
+        return;
     }
 
     public static String getTitleFromMetaData(String videoFilePath) throws IOException {

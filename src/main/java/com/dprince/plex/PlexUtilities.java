@@ -45,7 +45,8 @@ public class PlexUtilities {
                 final TvShow tvShow = ParseFileName.parseFileName(args[1], true, true);
                 Downloads.moveEpisodeFile(tvShow);
                 MetaData.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
-                return;
+                System.exit(0);
+                break;
             case ("TvMetaDataEdit"):
                 System.out.println("TvMetaDataEdit function called");
                 final TvShow metaDataEditTvShow = ParseFileName.parseFileName(args[1], false,
@@ -54,42 +55,42 @@ public class PlexUtilities {
                         metaDataEditTvShow.getEpisodeTitle());
                 CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilepath(),
                         metaDataEditTvShow.getDestinationFilepath());
-                return;
+                break;
             case ("parseFolder"):
                 ParseNewlyDownloaded.parseFolder(args[1]);
-                return;
+                break;
             case ("extractTvFiles"):
                 System.out.println("Extract TV Shows function called");
                 Downloads.extractTvFiles();
-                return;
+                break;
             case ("renameMovie"):
                 System.out.println("Rename movie function called");
                 MovieRenamer.renameMovieFromFolder(args[1]);
-                return;
+                break;
             case ("showDataFile"):
                 TheTvDbLookup.createShowDataJSONForShow(new File(args[1]), null);
                 return;
             case ("setToTrue"):
                 ShowIDCheck.setCorrectIDtoTrue(new File(args[1]));
-                return;
+                break;
             case ("writeCorrectShowData"):
                 final Object result = JOptionPane.showInputDialog(new JFrame(),
                         "What is the showID?", "");
                 TheTvDbLookup.createShowDataJSONForShow(new File(args[1]), result.toString());
-                return;
+                break;
             case ("setMissingEpisodeCheck"):
                 final File file = new File(args[1]);
                 MissingEpisodeCheck.setMissingEpisodeCheckToFalse(file);
-                return;
+                break;
             case ("refreshData"):
                 ShowIDCheck.refreshData(args[1]);
-                return;
+                break;
             case ("getMissingEpisodes"):
                 MissingEpisodeCheck.getMissingEpisodes();
-                return;
+                break;
             case ("autoDL"):
                 LimeTorrents.begin();
-                return;
+                break;
             case ("rarBG"):
                 RarBG.begin();
                 return;
