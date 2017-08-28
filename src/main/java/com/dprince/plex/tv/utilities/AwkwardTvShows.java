@@ -19,6 +19,7 @@ public enum AwkwardTvShows {
     BROOKLYN_NINE_NINE("brooklyn nine nine", "Brooklyn Nine-Nine"),
     MAGNUM_PI("magnum p i", "Magnum P.I."),
     HEAVY_RESCUE("heavy rescue", "Heavy Rescue 401"),
+    ROOM_104("room", "Room 104"),
     HUNTED_US("hunted us", "Hunted (US)"),
     DIMENSION("dimension", "Dimension 404"),
     PRIME_SUSPECT("prime suspect", "Prime Suspect 1973"),
@@ -26,6 +27,7 @@ public enum AwkwardTvShows {
             "the selection-special operations experiment",
             "The Selection, Special Operations Experiment"),
     VICE("vice world of sports", "Vice, World of Sports"),
+    VICE_TONIGHT("vice news tonight", "Vice News, Tonight"),
     LAST_MAN("last man standing us", "Last Man Standing"),
     HUGH_HEFNER(
             "american playboy the hugh hefner story",

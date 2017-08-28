@@ -34,9 +34,9 @@ public class ParseFileName {
     private static final Logger LOG = Logging.getLogger(ParseFileName.class);
 
     // private static final String BASIC_REGEX =
-    // "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})[\\.-]{1}).*(mkv|mp4|avi|mpg){1}";
+    // "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})[\\.-]{1}).*(mkv|mp4|avi|mpg|flv){1}";
     // private static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[
-    // -]{3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(mkv|mp4|avi|mpg|m4v){1}";
+    // -]{3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(mkv|mp4|avi|mpg|m4v|flv){1}";
 
     private static boolean debug;
 
@@ -54,6 +54,7 @@ public class ParseFileName {
         String filename = new File(originalFilepath).getName();
         System.out.println(filename);
         filename = filename.toLowerCase().replaceAll("heavy.rescue.401", "heavy.rescue");
+        filename = filename.toLowerCase().replaceAll("room.104", "room");
         System.out.println(filename);
 
         final Pattern pattern = Pattern.compile(BASIC_REGEX);

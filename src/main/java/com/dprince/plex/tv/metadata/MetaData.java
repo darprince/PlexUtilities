@@ -50,6 +50,14 @@ public class MetaData {
         } catch (final IOException e) {
             LOG.error("Failed to call MetaDataFormatter", e);
         }
+
+        try {
+            LOG.info("ReRunning METADATA FORMATTER for mp4");
+            if (!MetaDataFormatter.getTitleFromMetaData(filepath).equals(episodeTitle)) {
+                runMP4EditorForTvShow(filepath, episodeTitle);
+            }
+        } catch (final IOException e) {
+        }
         return;
     }
 
