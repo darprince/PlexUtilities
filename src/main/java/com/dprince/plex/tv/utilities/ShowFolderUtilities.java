@@ -12,12 +12,16 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
 
+import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 import com.dprince.plex.tv.types.TvShow;
 
 public class ShowFolderUtilities {
+
+    private static final Logger LOG = Logging.getLogger(ShowFolderUtilities.class);
 
     /**
      * Determines the drive that the show is located on.
@@ -99,14 +103,14 @@ public class ShowFolderUtilities {
         final Object result = JOptionPane.showInputDialog(new JFrame(), params,
                 WordUtils.capitalize(rawTvShowName));
         if (result == null) {
-            System.exit(0);
+            LOG.error("Result/Checkbox is null.");
         }
         final boolean kidsShow = checkbox.isSelected();
         String newSubFolderName = null;
 
         if (kidsShow) {
             System.out.println("THIS IS A KIDS SHOW");
-            newSubFolderName = "Kids TV";
+            newSubFolderName = "Kids TV\\";
         } else {
             System.out.println("NOT A KIDS SHOW");
 

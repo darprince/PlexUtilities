@@ -4,6 +4,12 @@ import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
 import static com.dprince.plex.settings.PlexSettings.PARSER_LOCATION;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +18,7 @@ import org.slf4j.Logger;
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.utilities.MovieUtilities;
+import com.dprince.plex.settings.PlexSettings;
 
 public class MovieRenamer {
 
@@ -20,7 +27,8 @@ public class MovieRenamer {
     private static final String EXTENSIONS = "nfo|txt|jpg|png";
     private static final String SUB_EXTENSIONS = "srt|sub|idx";
 
-    public static void renameMovieFromFolder(String masterFolderPath) {
+    public static void renameMovieFromFolder(String masterFolderPath, boolean kidsMovie,
+            boolean moveFiles) {
 
         final String formattedMovieName = getMovieNameFromFolder(masterFolderPath);
         final String year = getYear(masterFolderPath);
@@ -76,19 +84,102 @@ public class MovieRenamer {
             }
         }
 
-        // rename master folder
+        String destinationPath = null;
         final File folder = new File(masterFolderPath);
+        if (moveFiles) {
+            if (kidsMovie) {
+                destinationPath = PlexSettings.PLEX_PREFIX
+                        + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[3];
+            } else {
+                destinationPath = deriveDestinationFolder(formattedMovieName);
+            }
+        }
+
         System.out.println("RENAMING FOLDER " + folder.toString());
-        CommonUtilities.renameFile(masterFolderPath,
-                folder.getParent() + "/" + formattedMovieName + " (" + year + ")");
+        if (destinationPath == null) {
+            destinationPath = folder.getParent();
+            CommonUtilities.renameFile(masterFolderPath,
+                    folder.getParent() + "/" + formattedMovieName + " (" + year + ")");
+        } else {
+            final Path source = Paths.get(masterFolderPath);
+            final Path target = Paths
+                    .get(destinationPath + "/" + formattedMovieName + " (" + year + ")");
+
+            recursiveMoveFolder(source, target);
+
+        }
+
+        if (new File(destinationPath + "/" + formattedMovieName + " (" + year + ")").exists()) {
+            LOG.info("File has been written");
+        }
+
         try {
             Thread.sleep(1500);
-            setMetaData(folder.getParent() + "/" + formattedMovieName + " (" + year + ")" + "/"
+            setMetaData(destinationPath + "/" + formattedMovieName + " (" + year + ")" + "/"
                     + fileToMetaEdit);
         } catch (final InterruptedException e) {
             e.printStackTrace();
         }
 
+        if (moveFiles) {
+            final File masterFolder = new File(masterFolderPath);
+            if (masterFolder.listFiles().length == 0) {
+                masterFolder.delete();
+                LOG.info("Folder has been deleted");
+            }
+        }
+
+    }
+
+    private static void recursiveMoveFolder(final Path source, final Path target) {
+        target.toFile().mkdir();
+
+        if (target.toFile().exists()) {
+            final List<File> filesToMoveList = new ArrayList<>();
+            for (final File file : source.toFile().listFiles()) {
+                if (file.isDirectory()) {
+                    new File(target.toString() + file.getName()).mkdir();
+                    recursiveMoveFolder(Paths.get(file.toString()),
+                            Paths.get(target + "/" + file.getName()));
+                } else {
+                    filesToMoveList.add(file);
+                }
+            }
+
+            for (final File file2 : filesToMoveList) {
+                try {
+                    LOG.info("Moving {} to {}", file2.getName(), target + "/" + file2.getName());
+                    Files.move(Paths.get(file2.toURI()), Paths.get(target + "/" + file2.getName()));
+                } catch (final IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            LOG.info("Root folder ({}) not created...", target.toString());
+        }
+    }
+
+    private static String deriveDestinationFolder(String formattedMovieName) {
+        String firstLetter;
+        if (formattedMovieName.startsWith("The ")) {
+            firstLetter = formattedMovieName.substring(4, 5);
+        } else {
+            firstLetter = formattedMovieName.substring(0, 1);
+        }
+        firstLetter = firstLetter.toUpperCase();
+
+        if (firstLetter.matches("[A-I]{1}")) {
+            return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[0] + "/"
+                    + firstLetter;
+        } else if (firstLetter.matches("[J-S]{1}")) {
+            return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[1] + "/"
+                    + firstLetter;
+        } else if (firstLetter.matches("[T-Z]{1}")) {
+            return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[2] + "/"
+                    + firstLetter;
+        } else {
+            return null;
+        }
     }
 
     private static void setMetaData(final String renamedFile) {

@@ -44,7 +44,9 @@ public class MetaData {
         try {
             if (episodeTitle != null) {
                 MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
+                MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
             } else {
+                MetaDataFormatter.writeRandomMetadata(filepath, "");
                 MetaDataFormatter.writeRandomMetadata(filepath, "");
             }
         } catch (final IOException e) {
@@ -52,8 +54,8 @@ public class MetaData {
         }
 
         try {
-            LOG.info("ReRunning METADATA FORMATTER for mp4");
             if (!MetaDataFormatter.getTitleFromMetaData(filepath).equals(episodeTitle)) {
+                LOG.info("ReRunning METADATA FORMATTER for mp4");
                 runMP4EditorForTvShow(filepath, episodeTitle);
             }
         } catch (final IOException e) {

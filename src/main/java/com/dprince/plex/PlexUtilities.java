@@ -47,6 +47,14 @@ public class PlexUtilities {
                 MetaData.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
                 System.exit(0);
                 break;
+            case ("setMetaData"):
+                final String message = "Enter metadata to set.";
+                final Object[] params = {
+                        message
+                };
+                final Object metaData = JOptionPane.showInputDialog(new JFrame(), params, "");
+                MetaData.editMetaData(args[1], metaData.toString());
+                break;
             case ("TvMetaDataEdit"):
                 System.out.println("TvMetaDataEdit function called");
                 final TvShow metaDataEditTvShow = ParseFileName.parseFileName(args[1], false,
@@ -63,9 +71,17 @@ public class PlexUtilities {
                 System.out.println("Extract TV Shows function called");
                 Downloads.extractTvFiles();
                 break;
+            case ("renameMovieNoMove"):
+                System.out.println("Rename movie function called");
+                MovieRenamer.renameMovieFromFolder(args[1], false, false);
+                break;
             case ("renameMovie"):
                 System.out.println("Rename movie function called");
-                MovieRenamer.renameMovieFromFolder(args[1]);
+                MovieRenamer.renameMovieFromFolder(args[1], false, true);
+                break;
+            case ("renameKidsMovie"):
+                System.out.println("Rename movie function called");
+                MovieRenamer.renameMovieFromFolder(args[1], true, true);
                 break;
             case ("showDataFile"):
                 TheTvDbLookup.createShowDataJSONForShow(new File(args[1]), null);
