@@ -13,7 +13,7 @@ public class PlexSettings {
     };
 
     public static final String DESKTOP_SHARED_MOVIE_DIRECTORIES[] = {
-            "Movies A-I", "Movies J-S", "Movies T-Z", "Kids Movies"
+            "Movies A-I", "Movies J-O", "Movies P-S", "Movies T-Z", "Kids Movies"
     };
 
     public static final String PLEX_PREFIX = "//Desktop-plex/";

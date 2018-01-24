@@ -25,6 +25,7 @@ public enum AwkwardTvShows {
     DIMENSION("dimension", "Dimension 404"),
     PRIME_SUSPECT("prime suspect", "Prime Suspect 1973"),
     MANHUNT("manhunt unabomber", "Manhunt, Unabomber"),
+    THE_100("the", "The 100"),
     YOURE_THE_WORST("youre the worst", "You're the Worst"),
     GREAT_FIRE("the great fire", "The Great Fire, In Real Time"),
     AMERICAN_MASTERS("pbs american masters", "American Masters"),
@@ -35,7 +36,9 @@ public enum AwkwardTvShows {
     VICE_TONIGHT("vice news tonight", "Vice News, Tonight"),
     LAST_MAN("last man standing us", "Last Man Standing"),
     A_SEASON("a season with navy football", "A Season With"),
+    X_FILES("the x-files", "X-Files"),
     A_SEASON_WITH("a season with notre dame football", "A Season With"),
+    MCMAFIA("mcmafia", "McMafia"),
     HUGH_HEFNER(
             "american playboy the hugh hefner story",
             "American Playboy, The Hugh Hefner Story"),

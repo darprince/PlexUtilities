@@ -41,24 +41,31 @@ public class MetaData {
      * @param episodeTitle
      */
     public static void runMP4EditorForTvShow(String filepath, String episodeTitle) {
-        try {
-            if (episodeTitle != null) {
-                MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
-                MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
-            } else {
-                MetaDataFormatter.writeRandomMetadata(filepath, "");
-                MetaDataFormatter.writeRandomMetadata(filepath, "");
-            }
-        } catch (final IOException e) {
-            LOG.error("Failed to call MetaDataFormatter", e);
-        }
+        // try {
+        // if (episodeTitle != null) {
+        // MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
+        // MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
+        // } else {
+        // MetaDataFormatter.writeRandomMetadata(filepath, "");
+        // MetaDataFormatter.writeRandomMetadata(filepath, "");
+        // }
+        // } catch (final IOException e) {
+        // LOG.error("Failed to call MetaDataFormatter", e);
+        // }
 
         try {
-            if (!MetaDataFormatter.getTitleFromMetaData(filepath).equals(episodeTitle)) {
+            while (!MetaDataFormatter.getTitleFromMetaData(filepath).equals(episodeTitle)) {
                 LOG.info("ReRunning METADATA FORMATTER for mp4");
-                runMP4EditorForTvShow(filepath, episodeTitle);
+                if (episodeTitle != null) {
+                    MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
+                    MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
+                } else {
+                    MetaDataFormatter.writeRandomMetadata(filepath, "");
+                    MetaDataFormatter.writeRandomMetadata(filepath, "");
+                }
             }
         } catch (final IOException e) {
+            e.printStackTrace();
         }
         return;
     }

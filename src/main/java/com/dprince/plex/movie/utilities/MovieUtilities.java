@@ -68,11 +68,11 @@ public class MovieUtilities {
             }
         }
 
-        queryString = PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[3] + "/"
+        queryString = PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[4] + "/"
                 + formattedMovieName;
         queriedDrive = new File(queryString);
         if (queriedDrive.exists()) {
-            return PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[3];
+            return PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[4];
         }
 
         return null;

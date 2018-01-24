@@ -55,6 +55,7 @@ public class ParseFileName {
         System.out.println(filename);
         filename = filename.toLowerCase().replaceAll("heavy.rescue.401", "heavy.rescue");
         filename = filename.toLowerCase().replaceAll("room.104", "room");
+        filename = filename.toLowerCase().replaceAll("the.100", "the");
         System.out.println(filename);
 
         final Pattern pattern = Pattern.compile(BASIC_REGEX);

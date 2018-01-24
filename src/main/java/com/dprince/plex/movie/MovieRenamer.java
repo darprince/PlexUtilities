@@ -171,11 +171,14 @@ public class MovieRenamer {
         if (firstLetter.matches("[A-I]{1}")) {
             return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[0] + "/"
                     + firstLetter;
-        } else if (firstLetter.matches("[J-S]{1}")) {
+        } else if (firstLetter.matches("[J-O]{1}")) {
             return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[1] + "/"
                     + firstLetter;
-        } else if (firstLetter.matches("[T-Z]{1}")) {
+        } else if (firstLetter.matches("[P-S]{1}")) {
             return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[2] + "/"
+                    + firstLetter;
+        } else if (firstLetter.matches("[T-Z]{1}")) {
+            return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[3] + "/"
                     + firstLetter;
         } else {
             return null;

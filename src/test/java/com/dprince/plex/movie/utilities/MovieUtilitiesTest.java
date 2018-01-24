@@ -15,9 +15,9 @@ public class MovieUtilitiesTest {
                 .getMovieDriveLocation("The Accountant (2016)"));
         assertTrue(PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[1] == MovieUtilities
                 .getMovieDriveLocation("John Wick (2014)"));
-        assertTrue(PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[2] == MovieUtilities
-                .getMovieDriveLocation("World War Z (2013)"));
         assertTrue(PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[3] == MovieUtilities
+                .getMovieDriveLocation("World War Z (2013)"));
+        assertTrue(PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[4] == MovieUtilities
                 .getMovieDriveLocation("Toy Story (1995)"));
 
     }
