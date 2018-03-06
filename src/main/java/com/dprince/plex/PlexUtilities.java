@@ -9,8 +9,6 @@ import javax.swing.JOptionPane;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.MovieRenamer;
 import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
-import com.dprince.plex.tv.autoDL.limeTorrents.LimeTorrents;
-import com.dprince.plex.tv.autoDL.rarbg.RarBG;
 import com.dprince.plex.tv.episodecheck.MissingEpisodeCheck;
 import com.dprince.plex.tv.metadata.MetaData;
 import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
@@ -104,12 +102,6 @@ public class PlexUtilities {
             case ("getMissingEpisodes"):
                 MissingEpisodeCheck.getMissingEpisodes();
                 break;
-            case ("autoDL"):
-                LimeTorrents.begin();
-                break;
-            case ("rarBG"):
-                RarBG.begin();
-                return;
             default:
                 System.exit(0);
         }

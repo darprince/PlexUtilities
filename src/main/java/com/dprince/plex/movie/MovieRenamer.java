@@ -163,7 +163,7 @@ public class MovieRenamer {
         }
     }
 
-    private static String deriveDestinationFolder(String formattedMovieName) {
+    public static String deriveDestinationFolder(String formattedMovieName) {
         String firstLetter;
         if (formattedMovieName.startsWith("The ")) {
             firstLetter = formattedMovieName.substring(4, 5);

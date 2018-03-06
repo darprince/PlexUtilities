@@ -1,12 +1,9 @@
 package com.dprince.plex.movie.utilities;
 
-import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES;
 import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
-import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 
 import java.io.File;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
@@ -49,24 +46,4 @@ public class MovieUtilities {
         }
     }
 
-    public static String getMovieDriveLocation(@NonNull final String formattedMovieName) {
-        File queriedDrive = null;
-        String queryString = null;
-        String firstChar = null;
-        if (formattedMovieName.startsWith("The ")) {
-            firstChar = formattedMovieName.substring(4, 5);
-        } else {
-            firstChar = formattedMovieName.substring(0, 1);
-        }
-
-        for (final String sharedDrive : DESKTOP_SHARED_MOVIE_DIRECTORIES) {
-            queryString = PLEX_PREFIX + sharedDrive + "/" + firstChar + "/" + formattedMovieName;
-            queriedDrive = new File(queryString);
-            if (queriedDrive.exists()) {
-                return sharedDrive;
-            }
-        }
-
-        return null;
-    }
 }
