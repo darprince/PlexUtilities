@@ -41,30 +41,20 @@ public class MetaData {
      * @param episodeTitle
      */
     public static void runMP4EditorForTvShow(String filepath, String episodeTitle) {
-        // try {
-        // if (episodeTitle != null) {
-        // MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
-        // MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
-        // } else {
-        // MetaDataFormatter.writeRandomMetadata(filepath, "");
-        // MetaDataFormatter.writeRandomMetadata(filepath, "");
-        // }
-        // } catch (final IOException e) {
-        // LOG.error("Failed to call MetaDataFormatter", e);
-        // }
-
         try {
             while (!MetaDataFormatter.getTitleFromMetaData(filepath).equals(episodeTitle)) {
                 LOG.info("ReRunning METADATA FORMATTER for mp4");
                 if (episodeTitle != null) {
                     MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
+                    Thread.sleep(1000);
                     MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
                 } else {
                     MetaDataFormatter.writeRandomMetadata(filepath, "");
+                    Thread.sleep(1000);
                     MetaDataFormatter.writeRandomMetadata(filepath, "");
                 }
             }
-        } catch (final IOException e) {
+        } catch (final IOException | InterruptedException e) {
             e.printStackTrace();
         }
         return;

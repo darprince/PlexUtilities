@@ -1,7 +1,12 @@
 package com.dprince.plex.movie;
 
 import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
+import static com.dprince.plex.settings.PlexSettings.MOVIES_AI;
+import static com.dprince.plex.settings.PlexSettings.MOVIES_JO;
+import static com.dprince.plex.settings.PlexSettings.MOVIES_PS;
+import static com.dprince.plex.settings.PlexSettings.MOVIES_TZ;
 import static com.dprince.plex.settings.PlexSettings.PARSER_LOCATION;
+import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,8 +93,7 @@ public class MovieRenamer {
         final File folder = new File(masterFolderPath);
         if (moveFiles) {
             if (kidsMovie) {
-                destinationPath = PlexSettings.PLEX_PREFIX
-                        + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[3];
+                destinationPath = PlexSettings.PLEX_PREFIX + PlexSettings.KIDS_MOVIES;
             } else {
                 destinationPath = deriveDestinationFolder(formattedMovieName);
             }
@@ -169,17 +173,13 @@ public class MovieRenamer {
         firstLetter = firstLetter.toUpperCase();
 
         if (firstLetter.matches("[A-I]{1}")) {
-            return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[0] + "/"
-                    + firstLetter;
+            return PLEX_PREFIX + MOVIES_AI + "/" + firstLetter;
         } else if (firstLetter.matches("[J-O]{1}")) {
-            return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[1] + "/"
-                    + firstLetter;
+            return PLEX_PREFIX + MOVIES_JO + "/" + firstLetter;
         } else if (firstLetter.matches("[P-S]{1}")) {
-            return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[2] + "/"
-                    + firstLetter;
+            return PLEX_PREFIX + MOVIES_PS + "/" + firstLetter;
         } else if (firstLetter.matches("[T-Z]{1}")) {
-            return PlexSettings.PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[3] + "/"
-                    + firstLetter;
+            return PLEX_PREFIX + MOVIES_TZ + "/" + firstLetter;
         } else {
             return null;
         }

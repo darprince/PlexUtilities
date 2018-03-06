@@ -10,7 +10,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
-import com.dprince.plex.settings.PlexSettings;
 
 public class MovieUtilities {
 
@@ -66,13 +65,6 @@ public class MovieUtilities {
             if (queriedDrive.exists()) {
                 return sharedDrive;
             }
-        }
-
-        queryString = PLEX_PREFIX + PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[4] + "/"
-                + formattedMovieName;
-        queriedDrive = new File(queryString);
-        if (queriedDrive.exists()) {
-            return PlexSettings.DESKTOP_SHARED_MOVIE_DIRECTORIES[4];
         }
 
         return null;
