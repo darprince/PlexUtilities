@@ -223,16 +223,21 @@ public class MovieRenamer {
             String movieName = folderName.substring(folderName.lastIndexOf("\\") + 1,
                     folderName.length());
             final Pattern pattern = Pattern.compile("[0-9]{4}");
-            final Matcher matcher = pattern.matcher(movieName);
+            final Matcher yearMatcher = pattern.matcher(movieName);
 
-            if (matcher.find()) {
-                movieName = movieName.substring(0, movieName.indexOf(matcher.group(0)) - 1);
-                movieName = movieName.replaceAll("\\.", " ").toLowerCase();
+            if (yearMatcher.find()) {
+                movieName = movieName.substring(0, movieName.indexOf(yearMatcher.group(0)) - 1);
+                movieName = movieName.replaceAll("\\.+", " ").replaceAll(" {1,}", " ")
+                        .toLowerCase();
                 final String splitMovie[] = movieName.split(" ");
                 String renamedMovie = "";
                 for (final String bit : splitMovie) {
-                    renamedMovie += bit.substring(0, 1).toUpperCase()
-                            + bit.substring(1, bit.length()) + " ";
+                    if (bit.equals("mr")) {
+                        renamedMovie += "Mr. ";
+                    } else {
+                        renamedMovie += bit.substring(0, 1).toUpperCase()
+                                + bit.substring(1, bit.length()) + " ";
+                    }
                 }
                 renamedMovie = renamedMovie.trim();
                 return renamedMovie;
