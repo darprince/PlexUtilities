@@ -1,0 +1,13 @@
+{
+"name":"RarBG Cleaner",
+"description":"Sets download links to actual downloads instead of linking to page with download link",
+"version":"1",
+"manifest_version":2,
+"content_scripts": [
+    {
+      	"matches": ["http://*/*", "https://*/*"],
+      	"js": ["RarBG.js"],
+		"css" : ["toast.css"]
+    }
+  ]
+}
