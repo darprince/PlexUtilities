@@ -25,6 +25,7 @@ public enum AwkwardTvShows {
     DIMENSION("dimension", "Dimension 404"),
     PRIME_SUSPECT("prime suspect", "Prime Suspect 1973"),
     MANHUNT("manhunt unabomber", "Manhunt, Unabomber"),
+    MARVELS_JESSICA_JONES("marvels jessica jones", "Marvel's, Jessica Jones"),
     THE_100("the", "The 100"),
     YOURE_THE_WORST("youre the worst", "You're the Worst"),
     GREAT_FIRE("the great fire", "The Great Fire, In Real Time"),
