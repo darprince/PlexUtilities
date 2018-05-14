@@ -232,9 +232,27 @@ public class CommonUtilities {
         try {
             Files.move(source, destination, REPLACE_EXISTING);
         } catch (final IOException e) {
-            LOG.info("Recycle file failed", e);
+            LOG.info("Recycle file failed, trying to delete", e);
+            try {
+                Files.delete(source);
+            } catch (final IOException e2) {
+                e2.printStackTrace();
+            }
+
+            if (!source.toFile().exists()) {
+                return true;
+            }
             return false;
         }
+
+        if (source.toFile().exists()) {
+            try {
+                Files.delete(source);
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         return true;
     }
 }

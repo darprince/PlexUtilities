@@ -125,6 +125,7 @@ public class Downloads {
      * @return true if file is moved, false otherwise.
      */
     public static boolean moveEpisodeFile(@NonNull final TvShow tvShow) {
+
         final String episodeExists = episodeExists(tvShow.getDestinationFilepath(),
                 tvShow.getSeasonNumber(), tvShow.getEpisodeNumber());
 

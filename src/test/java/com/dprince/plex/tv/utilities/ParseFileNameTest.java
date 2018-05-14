@@ -88,7 +88,7 @@ public class ParseFileNameTest {
         final String destinationFilepath = ParseFileName.buildDestinationFilepath(
                 "Doctor Who (2005)", "Doctor Who (2005) - S02E01 - An Unearthly Child 1.avi", "02");
         assertEquals("Build destinationFilepath",
-                "//Desktop-plex/tv a-e/Doctor Who (2005)/Season 02/Doctor Who (2005) - S02E01 - An Unearthly Child 1.avi",
+                "//Desktop-plex\\tv a-e\\Doctor Who (2005)\\Season 02\\Doctor Who (2005) - S02E01 - An Unearthly Child 1.avi",
                 destinationFilepath);
     }
 

@@ -43,8 +43,7 @@ public class PlexUtilities {
                 final TvShow tvShow = ParseFileName.parseFileName(args[1], true, true);
                 Downloads.moveEpisodeFile(tvShow);
                 MetaData.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
-                System.exit(0);
-                break;
+                return;
             case ("setMetaData"):
                 final String message = "Enter metadata to set.";
                 final Object[] params = {
@@ -52,7 +51,7 @@ public class PlexUtilities {
                 };
                 final Object metaData = JOptionPane.showInputDialog(new JFrame(), params, "");
                 MetaData.editMetaData(args[1], metaData.toString());
-                break;
+                return;
             case ("TvMetaDataEdit"):
                 System.out.println("TvMetaDataEdit function called");
                 final TvShow metaDataEditTvShow = ParseFileName.parseFileName(args[1], false,
@@ -61,26 +60,26 @@ public class PlexUtilities {
                         metaDataEditTvShow.getEpisodeTitle());
                 CommonUtilities.renameFile(metaDataEditTvShow.getOriginalFilepath(),
                         metaDataEditTvShow.getDestinationFilepath());
-                break;
+                return;
             case ("parseFolder"):
                 ParseNewlyDownloaded.parseFolder(args[1]);
-                break;
+                return;
             case ("extractTvFiles"):
                 System.out.println("Extract TV Shows function called");
                 Downloads.extractTvFiles();
-                break;
+                return;
             case ("renameMovieNoMove"):
                 System.out.println("Rename movie function called");
                 MovieRenamer.renameMovieFromFolder(args[1], false, false);
-                break;
+                return;
             case ("renameMovie"):
                 System.out.println("Rename movie function called");
                 MovieRenamer.renameMovieFromFolder(args[1], false, true);
-                break;
+                return;
             case ("renameKidsMovie"):
                 System.out.println("Rename movie function called");
                 MovieRenamer.renameMovieFromFolder(args[1], true, true);
-                break;
+                return;
             case ("showDataFile"):
                 TheTvDbLookup.createShowDataJSONForShow(new File(args[1]), null);
                 return;
@@ -91,17 +90,17 @@ public class PlexUtilities {
                 final Object result = JOptionPane.showInputDialog(new JFrame(),
                         "What is the showID?", "");
                 TheTvDbLookup.createShowDataJSONForShow(new File(args[1]), result.toString());
-                break;
+                return;
             case ("setMissingEpisodeCheck"):
                 final File file = new File(args[1]);
                 MissingEpisodeCheck.setMissingEpisodeCheckToFalse(file);
-                break;
+                return;
             case ("refreshData"):
                 ShowIDCheck.refreshData(args[1]);
-                break;
+                return;
             case ("getMissingEpisodes"):
                 MissingEpisodeCheck.getMissingEpisodes();
-                break;
+                return;
             default:
                 System.exit(0);
         }

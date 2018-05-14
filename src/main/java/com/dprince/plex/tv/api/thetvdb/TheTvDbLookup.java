@@ -47,7 +47,7 @@ public class TheTvDbLookup {
 
     private static final Logger LOG = Logging.getLogger(TheTvDbLookup.class);
 
-    public static final List<String> failedShowList = new ArrayList<String>();
+    public static final List<String> failedShowList = new ArrayList<>();
 
     public static final String FILE_OUTPUT_NAME = "/showData.json";
     public static final String PAGE = "?page=";
@@ -304,14 +304,17 @@ public class TheTvDbLookup {
         CommonUtilities.writeListToFile(failedShowList,
                 "//Desktop-downloa/Completed/FailedShowRetrieval.txt");
 
+        return;
     }
 
     public static void createShowDataJSONForShow(final File showFolder, final String showID) {
         parentCreateShowDataJSONForShow(showFolder, showID);
+        return;
     }
 
     public static void createShowDataJSONForShow(final File showFolder) {
         parentCreateShowDataJSONForShow(showFolder, null);
+        return;
     }
 
     /**

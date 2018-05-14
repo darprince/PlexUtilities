@@ -88,26 +88,47 @@ public class MetaDataFormatter {
             metaBox.addBox(hdlr);
             userDataBox.addBox(metaBox);
         }
-        AppleItemListBox ilst;
-        if ((ilst = (AppleItemListBox) Path.getPath(metaBox, "ilst")) == null) {
-            ilst = new AppleItemListBox();
-            metaBox.addBox(ilst);
 
+        /**************************************/
+        /* This sets the title box */
+        /*************************************/
+        AppleItemListBox ilst = null;
+        ilst = (AppleItemListBox) Path.getPath(metaBox, "ilst");
+        if (ilst == null) {
+            System.out.println("ILST does not exist.");
+            ilst = setTitleMetaData(title, null);
+            metaBox.addBox(ilst);
+        } else {
+            System.out.println("ILST exists.");
+            setTitleMetaData(title, ilst);
         }
+
+        try {
+            final MetaBox metaBox2 = (MetaBox) Path.getPath(userDataBox, "meta");
+            final AppleItemListBox ilst3 = (AppleItemListBox) Path.getPath(metaBox2, "ilst");
+            System.out.println("Try 2");
+            for (final Box box : ilst3.getBoxes()) {
+                System.out.println(box.getType());
+                if (box instanceof AppleNameBox) {
+                    System.out.println("2 IS AppleNameBox");
+                    final AppleNameBox apBox = (AppleNameBox) box;
+                    System.out.println("2 Value: " + apBox.getValue());
+                }
+            }
+            System.out.println();
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+
         if (freeBox == null) {
             freeBox = new FreeBox(128 * 1024);
             metaBox.addBox(freeBox);
         }
 
         /**************************************/
-        /* This sets the title box */
-        /*************************************/
-        setTitleMetaData(title, ilst);
-
-        /**************************************/
         /* This sets the comment box */
         /*************************************/
-        setCommentMetaData(title, ilst);
+        ilst = setCommentMetaData(title, ilst);
 
         long sizeAfter = moov.getSize();
         long diff = sizeAfter - sizeBefore;
@@ -204,51 +225,84 @@ public class MetaDataFormatter {
         return getTitleMetaData(ilst);
     }
 
-    private static void setCommentMetaData(String title, AppleItemListBox ilst) {
-        AppleCommentBox cmt;
-        if ((cmt = (AppleCommentBox) Path.getPath(ilst, "©cmt")) == null) {
-            cmt = new AppleCommentBox();
-            cmt.setDataCountry(0);
-            cmt.setDataLanguage(0);
-            cmt.setValue(title);
-            ilst.addBox(cmt);
-            // System.out.println("created new cmt box");
+    private static AppleItemListBox setCommentMetaData(String title, AppleItemListBox ilst) {
+
+        if (ilst == null) {
+            ilst = new AppleItemListBox();
+            final AppleCommentBox acb = new AppleCommentBox();
+            acb.setDataCountry(0);
+            acb.setDataLanguage(0);
+            acb.setValue(title);
+            ilst.addBox(acb);
         } else {
-            cmt.setValue(title);
-            // System.out.println("set value of cmt box");
+            for (final Box box : ilst.getBoxes()) {
+                if (box instanceof AppleCommentBox) {
+                    System.out.println("SETTING COMMENT BOX");
+                    final AppleCommentBox acb = (AppleCommentBox) box;
+                    System.out.println("Old Comment: " + acb.getValue());
+                    acb.setDataCountry(0);
+                    acb.setDataLanguage(0);
+                    acb.setValue(title);
+                }
+            }
         }
+
+        for (final Box box : ilst.getBoxes()) {
+            if (box instanceof AppleCommentBox) {
+                final AppleCommentBox acb = (AppleCommentBox) box;
+                System.out.println("New Comment: " + acb.getValue());
+            }
+        }
+
+        return ilst;
+    }
+
+    public static AppleItemListBox setTitleMetaData(String title, AppleItemListBox ilst) {
+
+        if (ilst == null) {
+            ilst = new AppleItemListBox();
+            final AppleNameBox anb = new AppleNameBox();
+            anb.setDataCountry(0);
+            anb.setDataLanguage(0);
+            anb.setValue(title);
+            ilst.addBox(anb);
+        } else {
+            for (final Box box : ilst.getBoxes()) {
+                if (box instanceof AppleNameBox) {
+                    final AppleNameBox anb = (AppleNameBox) box;
+                    System.out.println("Old Title: " + anb.getValue());
+                    anb.setDataCountry(0);
+                    anb.setDataLanguage(0);
+                    anb.setValue(title);
+                }
+            }
+        }
+
+        for (final Box box : ilst.getBoxes()) {
+            if (box instanceof AppleNameBox) {
+                final AppleNameBox anb = (AppleNameBox) box;
+                System.out.println("New Title: " + anb.getValue());
+            }
+        }
+
+        return ilst;
     }
 
     public static String getTitleMetaData(AppleItemListBox ilst) {
-        AppleNameBox nam;
-        String value = null;
-        if ((nam = (AppleNameBox) Path.getPath(ilst, "©nam")) == null) {
-            nam = new AppleNameBox();
-            nam.setDataCountry(0);
-            nam.setDataLanguage(0);
-            value = nam.getValue();
-        } else {
-            value = nam.getValue();
+        AppleNameBox nam = null;
+
+        try {
+            nam = (AppleNameBox) Path.getPath(ilst, AppleNameBox.TYPE);
+        } catch (final Exception e) {
+            System.out.println("Nam box is null while trying to getMetaData.");
+            return null;
         }
 
-        return value;
-    }
-
-    public static String setTitleMetaData(String title, AppleItemListBox ilst) {
-        AppleNameBox nam;
-        if ((nam = (AppleNameBox) Path.getPath(ilst, "©nam")) == null) {
-            nam = new AppleNameBox();
-            nam.setDataCountry(0);
-            nam.setDataLanguage(0);
-            nam.setValue(title);
-            ilst.addBox(nam);
-            // System.out.println("created new nam box");
+        if (nam == null) {
+            return null;
         } else {
-            nam.setValue(title);
-            // System.out.println("set value of nam box");
+            return nam.getValue();
         }
-
-        return nam.getValue();
     }
 
     static FreeBox findFreeBox(Container c) {

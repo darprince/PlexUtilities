@@ -42,19 +42,17 @@ public class MetaData {
      */
     public static void runMP4EditorForTvShow(String filepath, String episodeTitle) {
         try {
-            while (!MetaDataFormatter.getTitleFromMetaData(filepath).equals(episodeTitle)) {
-                LOG.info("ReRunning METADATA FORMATTER for mp4");
-                if (episodeTitle != null) {
-                    MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
-                    Thread.sleep(1000);
-                    MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
-                } else {
-                    MetaDataFormatter.writeRandomMetadata(filepath, "");
-                    Thread.sleep(1000);
-                    MetaDataFormatter.writeRandomMetadata(filepath, "");
-                }
+            if (episodeTitle != null) {
+                MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
+                // Thread.sleep(1000);
+                // MetaDataFormatter.writeRandomMetadata(filepath,
+                // episodeTitle);
+            } else {
+                MetaDataFormatter.writeRandomMetadata(filepath, "");
+                // Thread.sleep(1000);
+                // MetaDataFormatter.writeRandomMetadata(filepath, "");
             }
-        } catch (final IOException | InterruptedException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
         return;

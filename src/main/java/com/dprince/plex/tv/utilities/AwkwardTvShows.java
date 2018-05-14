@@ -30,9 +30,8 @@ public enum AwkwardTvShows {
     YOURE_THE_WORST("youre the worst", "You're the Worst"),
     GREAT_FIRE("the great fire", "The Great Fire, In Real Time"),
     AMERICAN_MASTERS("pbs american masters", "American Masters"),
-    THE_SELECTION(
-            "the selection-special operations experiment",
-            "The Selection, Special Operations Experiment"),
+    THE_LAST_OG("the last o g", "The Last OG"),
+    THE_SELECTION("the selection-special operations experiment", "The Selection, Special Operations Experiment"),
     VICE("vice world of sports", "Vice, World of Sports"),
     VICE_TONIGHT("vice news tonight", "Vice News, Tonight"),
     LAST_MAN("last man standing us", "Last Man Standing"),
@@ -40,9 +39,7 @@ public enum AwkwardTvShows {
     X_FILES("the x-files", "X-Files"),
     A_SEASON_WITH("a season with notre dame football", "A Season With"),
     MCMAFIA("mcmafia", "McMafia"),
-    HUGH_HEFNER(
-            "american playboy the hugh hefner story",
-            "American Playboy, The Hugh Hefner Story"),
+    HUGH_HEFNER("american playboy the hugh hefner story", "American Playboy, The Hugh Hefner Story"),
     ESCOBAR("surviving escobar alias jj", "Surviving Escobar");
 
     String match;

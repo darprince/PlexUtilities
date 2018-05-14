@@ -184,6 +184,8 @@ public class ParseFileName {
                 LOG.error("Failed to get destination filepath in parser");
             }
 
+            System.out.println("EPISODE TITLE: " + episodeTitle);
+
             tvShow = TvShow.builder().setDestinationFilepath(destinationFilepath)
                     .setEpisodeNumber(episodeNumber).setEpisodeTitle(episodeTitle)
                     .setExtension(extension).setFormattedFileName(formattedFileName)
@@ -372,11 +374,11 @@ public class ParseFileName {
         final String showDriveLocation = ShowFolderUtilities
                 .getShowDriveLocation(formattedShowName);
         if (paddedSeasonNumber.equals("00")) {
-            return PLEX_PREFIX + showDriveLocation + "/" + formattedShowName + "/Specials/"
+            return PLEX_PREFIX + showDriveLocation + "\\" + formattedShowName + "\\Specials\\"
                     + formattedFileName;
         } else {
-            return PLEX_PREFIX + showDriveLocation + "/" + formattedShowName + "/Season "
-                    + paddedSeasonNumber + "/" + formattedFileName;
+            return PLEX_PREFIX + showDriveLocation + "\\" + formattedShowName + "\\Season "
+                    + paddedSeasonNumber + "\\" + formattedFileName;
         }
     }
 
