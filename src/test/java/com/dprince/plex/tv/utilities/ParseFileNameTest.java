@@ -102,6 +102,7 @@ public class ParseFileNameTest {
     }
 
     @Test
+    @Ignore
     public void createFolder_Test() throws Exception {
         final TvShow tvShow = ParseFileName.parseFileName("\\blah\\dopesick.nation.s01e01.avi",
                 true, true);
