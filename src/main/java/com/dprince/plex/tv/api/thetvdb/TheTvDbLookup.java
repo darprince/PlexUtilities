@@ -32,6 +32,7 @@ import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData3;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowIdResponse;
 import com.dprince.plex.tv.api.thetvdb.utilities.ApiCalls;
 import com.dprince.plex.tv.utilities.ShowDataFileUtilities;
+import com.dprince.plex.tv.utilities.ShowFolderUtilities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -325,12 +326,13 @@ public class TheTvDbLookup {
      */
     static void parentCreateShowDataJSONForShow(final File showFolder,
             final String showIDIn) {
+        LOG.info("SHowFolder: " + showFolder);
         if (CommonUtilities.isSystemFolder(showFolder)) {
             return;
         }
 
         final List<SeasonData> seasonDataList = new ArrayList<>();
-        System.out.println("Creating showDataJson for " + showFolder.getName());
+        LOG.info("Creating showDataJson for " + showFolder.getName());
 
         ShowIdResponse showIdResponse = null;
         String showID = null;
@@ -379,13 +381,15 @@ public class TheTvDbLookup {
                 seasonDataList.add(seasonData);
             }
 
-            final ShowFolderData currentFolderData = ShowDataFileUtilities
-                    .getSDF(showFolder.getName());
             boolean correctID = false;
             boolean missingEpisodeCheck = true;
-            if (currentFolderData != null) {
-                correctID = currentFolderData.getCorrectShowID();
-                missingEpisodeCheck = currentFolderData.getMissingEpisodeCheck();
+            if (showFolder.exists()) {
+                final ShowFolderData currentFolderData = ShowDataFileUtilities
+                        .getSDF(showFolder.getName());
+                if (currentFolderData != null) {
+                    correctID = currentFolderData.getCorrectShowID();
+                    missingEpisodeCheck = currentFolderData.getMissingEpisodeCheck();
+                }
             }
 
             final ShowFolderData showFolderData = ShowFolderData.builder().setCorrectShowID(true)
@@ -431,12 +435,22 @@ public class TheTvDbLookup {
                     parentCreateShowDataJSONForShow(showFolder, String.valueOf(result));
                 } else if (response == JOptionPane.YES_OPTION) {
                     System.out.println("Yes option");
-                    if (!writeShowDataToFile(showFolder, showFolderData)) {
-                        LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());
-                    } else {
-                        LOG.info("File written");
-                        return;
+
+                    LOG.info("Attempting to create show folder - {}", showFolder.getPath());
+                    try {
+                        final String createdShowFolder = ShowFolderUtilities
+                                .createShowFolder(showFolder.getName());
+                        if (!writeShowDataToFile(new File(createdShowFolder), showFolderData)) {
+                            LOG.info("Failed to write to ShowDataFolder for {}",
+                                    showFolder.getName());
+                        } else {
+                            LOG.info("File written");
+                            return;
+                        }
+                    } catch (final IOException e) {
+                        e.printStackTrace();
                     }
+
                 }
             } else {
                 if (!writeShowDataToFile(showFolder, showFolderData)) {

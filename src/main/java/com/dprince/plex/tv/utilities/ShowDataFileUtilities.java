@@ -28,8 +28,9 @@ public class ShowDataFileUtilities {
     public static ShowFolderData getSDF(@NonNull final String formattedShowName) {
         final String showDriveLocation = ShowFolderUtilities
                 .getShowDriveLocation(formattedShowName);
-        final String showDataFile = PlexSettings.PLEX_PREFIX + "/" + showDriveLocation + "/"
-                + formattedShowName + "/showData.json";
+        final String folderPath = PlexSettings.PLEX_PREFIX + "/" + showDriveLocation + "/"
+                + formattedShowName;
+        final String showDataFile = folderPath + "/showData.json";
 
         if (new File(showDataFile).exists()) {
             try {
@@ -42,6 +43,9 @@ public class ShowDataFileUtilities {
             }
         } else {
             // TODO: create showFolderData file.
+            LOG.info("Attempting to create SDF");
+            TheTvDbLookup.createShowDataJSONForShow(
+                    new File(folderPath), null);
         }
         return null;
     }

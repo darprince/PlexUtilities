@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 
 import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
-import com.dprince.plex.tv.api.thetvdb.TheTvDbLookup;
 import com.dprince.plex.tv.types.TvShow;
 
 public class ShowFolderUtilities {
@@ -148,7 +147,7 @@ public class ShowFolderUtilities {
             seasonFolderToCreate.mkdir();
         }
 
-        TheTvDbLookup.createShowDataJSONForShow(folderToCreate);
-        return resultString;
+        // TheTvDbLookup.createShowDataJSONForShow(folderToCreate);
+        return folderToCreate.getPath();
     }
 }

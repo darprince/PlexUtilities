@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.dprince.plex.tv.api.thetvdb.types.episode.EpisodeData;
@@ -69,13 +68,13 @@ public class TheTvDbLookupTest {
     }
 
     @Test
-    @Ignore
+    // @Ignore
     public void parentCreateShowDataJSONForShow_Test() throws Exception {
         // TheTvDbLookup.parentCreateShowDataJSONForShow(
         // new File("\\\\Desktop-downloa\\TVShowRenamer\\Sick Of It"), null);
 
         TheTvDbLookup.parentCreateShowDataJSONForShow(
-                new File("\\\\Desktop-downloa\\TVShowRenamer\\Madam Secretary"), null);
+                new File("\\\\Desktop-downloa\\TV A-E\\Dopesick Nation"), null);
 
         // TheTvDbLookup.parentCreateShowDataJSONForShow(new File("N:\\Sick Of
         // It"), null);

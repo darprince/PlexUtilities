@@ -100,4 +100,11 @@ public class ParseFileNameTest {
         formatRawShowName = ParseFileName.formatRawShowName("Notorious", false);
         System.out.println(formatRawShowName);
     }
+
+    @Test
+    public void createFolder_Test() throws Exception {
+        final TvShow tvShow = ParseFileName.parseFileName("\\blah\\dopesick.nation.s01e01.avi",
+                true, true);
+        Downloads.moveEpisodeFile(tvShow);
+    }
 }

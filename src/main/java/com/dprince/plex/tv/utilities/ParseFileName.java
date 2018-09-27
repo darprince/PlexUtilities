@@ -6,7 +6,6 @@ import static com.dprince.plex.settings.PlexSettings.PLEX_PREFIX;
 import static com.dprince.plex.settings.PlexSettings.REGEX_FORMATTED_FILENAME;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -146,11 +145,8 @@ public class ParseFileName {
             System.out.println();
             System.out.println("FORMATTED SHOWNAME: " + formattedShowName);
 
-            if (formattedShowName == null) {
-                return null;
-            }
             String episodeTitle = getEpisodeTitleFromSDF(formattedShowName, seasonNumber,
-                    episodeNumber);
+                    episodeNumber, createShowFolder);
 
             if (episodeTitle == null) {
                 final String showDriveLocation = ShowFolderUtilities
@@ -159,7 +155,7 @@ public class ParseFileName {
                         + "/" + formattedShowName;
                 ShowIDCheck.refreshData(showFolderPath);
                 episodeTitle = getEpisodeTitleFromSDF(formattedShowName, seasonNumber,
-                        episodeNumber);
+                        episodeNumber, createShowFolder);
                 if (episodeTitle == null) {
                     LOG.error("Failed to get TV episode title");
                 }
@@ -188,7 +184,7 @@ public class ParseFileName {
             LOG.error("Failed to build TvShow", e);
             return null;
         }
-        System.out.println("FILENAME: " + tvShow.getFormattedFileName());
+        LOG.info("FILENAME: " + tvShow.getFormattedFileName());
         System.out.println();
         return tvShow;
     }
@@ -203,7 +199,16 @@ public class ParseFileName {
      * @return the episode title.
      */
     private static String getEpisodeTitleFromSDF(String formattedShowName, String seasonNumber,
-            String episodeNumber) {
+            String episodeNumber, boolean createShowFolder) {
+
+        // if (createShowFolder) {
+        // try {
+        // formattedShowName =
+        // ShowFolderUtilities.createShowFolder(formattedShowName);
+        // } catch (final IOException e) {
+        // LOG.error("Failed to get formatted show name", e);
+        // }
+        // }
 
         try {
             final ShowFolderData showFolderData = ShowDataFileUtilities.getSDF(formattedShowName);
@@ -276,14 +281,17 @@ public class ParseFileName {
             }
         }
 
-        if (createShowFolder) {
-            try {
-                toReturn = ShowFolderUtilities.createShowFolder(rawTvShowName);
-            } catch (final IOException e) {
-                LOG.error("Failed to get formatted show name", e);
-            }
-        }
-        return toReturn;
+        LOG.info("RawTvShowName: " + rawTvShowName);
+        LOG.info("Skipping folder creation.");
+        // toReturn is the actual formattedShowName returned from jDialog
+        // if (createShowFolder) {
+        // try {
+        // toReturn = ShowFolderUtilities.createShowFolder(rawTvShowName);
+        // } catch (final IOException e) {
+        // LOG.error("Failed to get formatted show name", e);
+        // }
+        // }
+        return rawTvShowName;
     }
 
     /**
