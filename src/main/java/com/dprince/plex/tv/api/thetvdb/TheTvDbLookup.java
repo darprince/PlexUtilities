@@ -32,7 +32,6 @@ import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData3;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowIdResponse;
 import com.dprince.plex.tv.api.thetvdb.utilities.ApiCalls;
 import com.dprince.plex.tv.utilities.ShowDataFileUtilities;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -393,22 +392,19 @@ public class TheTvDbLookup {
                     .setSeasonData(seasonDataList).setShowData(showData).setCorrectShowID(true)
                     .setMissingEpisodeCheck(missingEpisodeCheck).build();
 
-            try {
-                System.out.println(showFolderData.toJsonString());
-            } catch (final JsonProcessingException e) {
-                e.printStackTrace();
-            }
+            // try {
+            // System.out.println(showFolderData.toJsonString());
+            // } catch (final JsonProcessingException e) {
+            // e.printStackTrace();
+            // }
 
             if (correctID == false) {
                 String status = "";
                 if (!showFolderData.getShowData().getStatus().equals("")) {
                     status = "Status: " + showFolderData.getShowData().getStatus() + "<br>";
                 }
-                String firstAired = "";
-                if (!showFolderData.getShowData().getFirstAired().equals("")) {
-                    firstAired = "FirstAired: " + showFolderData.getShowData().getFirstAired()
-                            + "<br>";
-                }
+                final String firstAired = getFirstAired(showFolderData);
+
                 JDialog.setDefaultLookAndFeelDecorated(true);
                 final int response = JOptionPane.showConfirmDialog(null,
                         "<html><body><div width=500px><p style='max-width: 250px;'>"
@@ -416,8 +412,10 @@ public class TheTvDbLookup {
                                 + firstAired
                                 + status
                                 + "<br>"
-                                + showFolderData.getShowData().getOverview()
-                                + "</p></div></body></html>",
+                                + showFolderData.getShowData().getOverview().replaceAll("‘", "'")
+                                        .replaceAll("’", "'")
+                        // + "</p></div></body></html>"
+                        ,
                         "Correct for " + showFolder.getName() + "?", JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE);
 
@@ -450,6 +448,35 @@ public class TheTvDbLookup {
             }
         }
         return;
+    }
+
+    private static String getFirstAired(ShowFolderData showFolderData) {
+        String firstAired = "";
+        if (!(firstAired = showFolderData.getShowData().getFirstAired()).equals("")) {
+            return "FirstAired: " + firstAired + "<br>";
+        } else if ((firstAired = getFirstEpisodeAiredDate(showFolderData)) != null) {
+            return "FirstAired: " + firstAired + "<br>";
+        }
+        return "";
+    }
+
+    private static String getFirstEpisodeAiredDate(final ShowFolderData showFolderData) {
+        for (final SeasonData sd : showFolderData.getSeasonData()) {
+            if (sd.getSeasonNumber() == 1) {
+                for (final EpisodeData ed : sd.getEpisodeList()) {
+                    if (ed.getAiredEpisodeNumber() == 1) {
+                        final String firstAired = ed.getFirstAired();
+                        if (firstAired != null && !firstAired.equals("")) {
+                            return firstAired;
+                        } else {
+                            return null;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

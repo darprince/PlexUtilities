@@ -69,7 +69,6 @@ public abstract class TvShow {
     }
 
     public TvShow addSubtitles(final List<File> subtitlesList) {
-        System.out.println("SUBTITLES LIST SIZE ADDED: " + subtitlesList.size());
         return TvShow.builder()
                 .setDestinationFilepath(getDestinationFilepath())
                 .setEpisodeNumber(getEpisodeNumber())

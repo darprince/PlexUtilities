@@ -1,4 +1,4 @@
-package com.dprince.plex.tv.episodecheck;
+package com.dprince.plex.tv.missingepisodecheck;
 
 import static com.dprince.plex.settings.PlexSettings.DESKTOP_SHARED_DIRECTORIES;
 import static com.dprince.plex.settings.PlexSettings.PLEX_LOGS;

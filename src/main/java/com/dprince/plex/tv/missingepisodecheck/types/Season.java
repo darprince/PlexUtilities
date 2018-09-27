@@ -1,4 +1,4 @@
-package com.dprince.plex.tv.episodecheck.types;
+package com.dprince.plex.tv.missingepisodecheck.types;
 
 import com.google.auto.value.AutoValue;
 

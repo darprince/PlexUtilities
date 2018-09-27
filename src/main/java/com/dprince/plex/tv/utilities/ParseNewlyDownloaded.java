@@ -55,8 +55,6 @@ public class ParseNewlyDownloaded {
             final TvShow tvShow = tvShowList.remove(0);
             final TvShow addSubtitles = tvShow.addSubtitles(getSubtitleFiles(folder));
             tvShowList.add(addSubtitles);
-            System.out.println(
-                    "SUBTITLES LIST SIZE: " + tvShowList.get(0).getSubtitlesFilepaths().size());
         }
         return tvShowList;
     }
