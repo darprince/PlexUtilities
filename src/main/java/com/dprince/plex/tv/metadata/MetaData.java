@@ -26,12 +26,13 @@ public class MetaData {
 
         if (extension.equalsIgnoreCase("mp4")) {
             LOG.info("Setting mp4 metadata with title: {}", episodeTitle);
+            System.out.println();
             runMP4EditorForTvShow(filepath, episodeTitle);
         } else if (extension.equalsIgnoreCase("mkv")) {
             LOG.info("Setting mkv metadata with title: {}", episodeTitle);
+            System.out.println();
             runMKVEditorForTvShow(filepath, episodeTitle);
         }
-        return;
     }
 
     /**
@@ -44,13 +45,8 @@ public class MetaData {
         try {
             if (episodeTitle != null) {
                 MetaDataFormatter.writeRandomMetadata(filepath, episodeTitle);
-                // Thread.sleep(1000);
-                // MetaDataFormatter.writeRandomMetadata(filepath,
-                // episodeTitle);
             } else {
                 MetaDataFormatter.writeRandomMetadata(filepath, "");
-                // Thread.sleep(1000);
-                // MetaDataFormatter.writeRandomMetadata(filepath, "");
             }
         } catch (final IOException e) {
             e.printStackTrace();
@@ -74,15 +70,12 @@ public class MetaData {
                 + episodeTitle
                 + "\" --edit track:a1 --set name=\"\" --edit track:v1 --set name=\"\"";
 
-        LOG.info("Mkv metadata edit command: " + command);
-
         try {
             final Process exec = Runtime.getRuntime().exec(command);
             while (exec.isAlive()) {
 
             }
             LOG.info("Metadata has been set!!!, returning.");
-            return;
         } catch (final Exception e) {
             LOG.error("Failed to edit mkv metadata", e);
         }

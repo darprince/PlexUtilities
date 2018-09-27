@@ -1,5 +1,8 @@
 package com.dprince.plex.tv.types;
 
+import java.io.File;
+import java.util.List;
+
 import javax.inject.Singleton;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -27,6 +30,7 @@ public abstract class TvShow {
     public static final String EPISODE_TITLE = "episodeTitle";
     public static final String FORMATTED_FILE_NAME = "formattedFileName";
     public static final String DESTINATION_FILEPATH = "destinationFilepath";
+    public static final String SUBTITLES_PATHS = "subtitlesFilepaths";
 
     @JsonProperty(RAW_SHOW_NAME)
     public abstract String getRawShowName();
@@ -56,8 +60,28 @@ public abstract class TvShow {
     @JsonProperty(DESTINATION_FILEPATH)
     public abstract String getDestinationFilepath();
 
+    @Nullable
+    @JsonProperty(SUBTITLES_PATHS)
+    public abstract List<File> getSubtitlesFilepaths();
+
     public static Builder builder() {
         return new AutoValue_TvShow.Builder();
+    }
+
+    public TvShow addSubtitles(final List<File> subtitlesList) {
+        System.out.println("SUBTITLES LIST SIZE ADDED: " + subtitlesList.size());
+        return TvShow.builder()
+                .setDestinationFilepath(getDestinationFilepath())
+                .setEpisodeNumber(getEpisodeNumber())
+                .setEpisodeTitle(getEpisodeTitle())
+                .setExtension(getExtension())
+                .setFormattedFileName(getFormattedFileName())
+                .setFormattedShowName(getFormattedShowName())
+                .setOriginalFilepath(getOriginalFilepath())
+                .setRawShowName(getRawShowName())
+                .setSeasonNumber(getSeasonNumber())
+                .setSubtitlesFilepaths(subtitlesList)
+                .build();
     }
 
     @AutoValue.Builder
@@ -91,5 +115,9 @@ public abstract class TvShow {
 
         @JsonProperty(DESTINATION_FILEPATH)
         public abstract Builder setDestinationFilepath(final String destinationFilepath);
+
+        @JsonProperty(SUBTITLES_PATHS)
+        public abstract Builder setSubtitlesFilepaths(
+                @Nullable final List<File> subtitlesFilepaths);
     }
 }

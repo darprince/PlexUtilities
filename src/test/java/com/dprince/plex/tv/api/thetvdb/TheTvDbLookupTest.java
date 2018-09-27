@@ -1,9 +1,9 @@
 package com.dprince.plex.tv.api.thetvdb;
 
-//import static org.junit.Assert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
 import java.util.List;
 
 import org.junit.Test;
@@ -65,5 +65,10 @@ public class TheTvDbLookupTest {
                 .as("Number of seasons should be 6, but was "
                         + seasonResponseData.getAiredSeasons().size())
                 .isEqualTo(6);
+    }
+
+    @Test
+    public void parentCreateShowDataJSONForShow_Test() throws Exception {
+        TheTvDbLookup.parentCreateShowDataJSONForShow(new File("N:\\New Amsterdam (2018)"), null);
     }
 }

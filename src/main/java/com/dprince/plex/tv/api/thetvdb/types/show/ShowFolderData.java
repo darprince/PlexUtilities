@@ -7,6 +7,9 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import com.dprince.plex.tv.api.thetvdb.types.season.SeasonData;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 
@@ -55,5 +58,11 @@ public abstract class ShowFolderData {
 
         @JsonProperty(FIELD_SEASON_DATA)
         public abstract Builder setSeasonData(final List<SeasonData> seasonData);
+    }
+
+    public String toJsonString() throws JsonProcessingException {
+        final ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
+
+        return writer.writeValueAsString(this);
     }
 }

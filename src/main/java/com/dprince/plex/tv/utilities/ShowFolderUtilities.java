@@ -58,6 +58,8 @@ public class ShowFolderUtilities {
         if (file.exists()) {
             if (tvShow.getSeasonNumber().equals("00")) {
                 final File specialsFolder = new File(file.getPath() + "\\Specials");
+                System.out.println("CREATING FOLDER: " + specialsFolder.getName());
+                System.out.println();
                 return specialsFolder.mkdir();
             } else {
                 int season = 1;
@@ -67,6 +69,8 @@ public class ShowFolderUtilities {
                     season++;
                     seasonFolder = new File(seasonFolderPrefix + CommonUtilities.padInt(season));
                 }
+                System.out.println("CREATING FOLDER: " + seasonFolder.getName());
+                System.out.println();
                 return seasonFolder.mkdir();
             }
         }
@@ -89,6 +93,8 @@ public class ShowFolderUtilities {
                 season++;
                 seasonFolder = new File(seasonFolderPrefix + season);
             }
+            System.out.println("CREATING FOLDER: " + seasonFolder.getName());
+            System.out.println();
             return seasonFolder.mkdir();
         }
         return false;
@@ -112,7 +118,6 @@ public class ShowFolderUtilities {
             System.out.println("THIS IS A KIDS SHOW");
             newSubFolderName = "Kids TV\\";
         } else {
-            System.out.println("NOT A KIDS SHOW");
 
             // TODO: add numerical to regex
             String resultWithoutPre = result.toString();

@@ -22,6 +22,7 @@ import com.dprince.plex.tv.api.thetvdb.types.episode.EpisodeData;
 import com.dprince.plex.tv.api.thetvdb.types.season.SeasonData;
 import com.dprince.plex.tv.api.thetvdb.types.show.ShowFolderData;
 import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
+import com.dprince.plex.tv.types.AwkwardTvShows;
 import com.dprince.plex.tv.types.TvShow;
 
 /**
@@ -52,11 +53,10 @@ public class ParseFileName {
             @NonNull final boolean createShowFolder, @NonNull final boolean debugIn) {
         ParseFileName.debug = debugIn;
         String filename = new File(originalFilepath).getName();
-        System.out.println(filename);
+
         filename = filename.toLowerCase().replaceAll("heavy.rescue.401", "heavy.rescue");
         filename = filename.toLowerCase().replaceAll("room.104", "room");
         filename = filename.toLowerCase().replaceAll("the.100", "the");
-        System.out.println(filename);
 
         final Pattern pattern = Pattern.compile(BASIC_REGEX);
         final Matcher matcher = pattern.matcher(filename);
@@ -87,18 +87,15 @@ public class ParseFileName {
 
         rawShowName = matcher.group(1).replaceAll("\\.", " ").toLowerCase().trim();
         if (debug) {
-            System.out.println("M1 RawShowName: " + rawShowName);
+            System.out.println("Matcher1 RawShowName: " + rawShowName);
         }
         if (matcher.group(3) != null) {
-            System.out.println("Matcher g3");
             seasonNumber = CommonUtilities.padString(matcher.group(3));
             episodeNumber = CommonUtilities.padString(matcher.group(4));
         } else if (matcher.group(5) != null) {
-            System.out.println("Matcher g5");
             seasonNumber = "01";
             episodeNumber = CommonUtilities.padString(matcher.group(5));
         } else if (matcher.group(8) != null) {
-            System.out.println("Matcher g8");
             seasonNumber = CommonUtilities.padString(matcher.group(8));
             episodeNumber = CommonUtilities.padString(matcher.group(9));
         } else {
@@ -123,7 +120,7 @@ public class ParseFileName {
         episodeNumber = CommonUtilities.padString(matcherFormatted.group(3));
         extension = matcherFormatted.group(4);
         if (debug) {
-            System.out.println("M2 RawShowName: " + rawShowName);
+            System.out.println("Matcher2 RawShowName: " + rawShowName);
         }
 
         return createTvShow(orginalFilepath, filename, rawShowName, seasonNumber, episodeNumber,
@@ -146,20 +143,14 @@ public class ParseFileName {
         TvShow tvShow = null;
         try {
             final String formattedShowName = formatRawShowName(rawShowName, createShowFolder);
-            if (debug) {
-                System.out.println("Formatted showName: " + formattedShowName);
-            }
+            System.out.println();
+            System.out.println("FORMATTED SHOWNAME: " + formattedShowName);
 
             if (formattedShowName == null) {
                 return null;
             }
             String episodeTitle = getEpisodeTitleFromSDF(formattedShowName, seasonNumber,
                     episodeNumber);
-
-            if (debug) {
-                System.out.println("EpTitle for S" + seasonNumber + "E" + episodeNumber
-                        + " from SDF: " + episodeTitle + " ParseFileName 152");
-            }
 
             if (episodeTitle == null) {
                 final String showDriveLocation = ShowFolderUtilities
@@ -185,6 +176,7 @@ public class ParseFileName {
             }
 
             System.out.println("EPISODE TITLE: " + episodeTitle);
+            System.out.println();
 
             tvShow = TvShow.builder().setDestinationFilepath(destinationFilepath)
                     .setEpisodeNumber(episodeNumber).setEpisodeTitle(episodeTitle)
@@ -196,7 +188,8 @@ public class ParseFileName {
             LOG.error("Failed to build TvShow", e);
             return null;
         }
-
+        System.out.println("FILENAME: " + tvShow.getFormattedFileName());
+        System.out.println();
         return tvShow;
     }
 
@@ -220,10 +213,6 @@ public class ParseFileName {
                         for (final EpisodeData episodeData : seasonData.getEpisodeList()) {
                             if (episodeData.getAiredEpisodeNumber() == Integer
                                     .parseInt(episodeNumber)) {
-                                if (debug) {
-                                    System.out.println("Returning " + episodeData.getEpisodeName()
-                                            + " from SDF.");
-                                }
                                 return episodeData.getEpisodeName();
                             }
                         }
@@ -232,7 +221,8 @@ public class ParseFileName {
             }
         } catch (final Exception e) {
             if (debug) {
-                System.out.println("EpTitle from SDF is null, trying theTVDB. ParseFileName 200");
+                System.out
+                        .println("ParseFileName 200 -> EpTitle from SDF is null, trying theTVDB.");
             }
             return getEpisodeTitleFromTvDB(formattedShowName, seasonNumber, episodeNumber);
         }

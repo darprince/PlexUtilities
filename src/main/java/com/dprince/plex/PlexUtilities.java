@@ -25,13 +25,8 @@ public class PlexUtilities {
             System.exit(0);
         }
 
-        for (final String string : args) {
-            System.out.println("Arg: " + string);
-        }
-
         if (args.length > 2) {
             final int timeToWait = Integer.parseInt(args[2]);
-            System.out.println("SLEEPING for " + timeToWait);
             Thread.sleep(timeToWait);
         }
 
@@ -43,7 +38,7 @@ public class PlexUtilities {
                 final TvShow tvShow = ParseFileName.parseFileName(args[1], true, true);
                 Downloads.moveEpisodeFile(tvShow);
                 MetaData.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
-                return;
+                System.exit(0);
             case ("setMetaData"):
                 final String message = "Enter metadata to set.";
                 final Object[] params = {
