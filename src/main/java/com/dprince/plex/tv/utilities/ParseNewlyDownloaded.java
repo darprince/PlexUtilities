@@ -59,6 +59,12 @@ public class ParseNewlyDownloaded {
         return tvShowList;
     }
 
+    /**
+     * Recursively searches a folder for files with the extension .srt
+     *
+     * @param folder
+     * @return
+     */
     static List<File> getSubtitleFiles(final File folder) {
         final List<File> subtitlesList = new ArrayList<>();
 
@@ -77,8 +83,10 @@ public class ParseNewlyDownloaded {
 
     private static boolean moveTvShow(@NonNull final TvShow tvShow,
             @NonNull final String folderPath) {
-        final String episodeExists = Downloads.episodeExists(tvShow.getDestinationFilepath(),
-                tvShow.getSeasonNumber(), tvShow.getEpisodeNumber());
+        final String episodeExists = TvShowUtilities.episodeExists(
+                tvShow.getDestinationFilepath(),
+                tvShow.getSeasonNumber(),
+                tvShow.getEpisodeNumber());
 
         if (episodeExists != null) {
             System.out.println("\n************ Episode Exists Deleting folder *************");
@@ -95,7 +103,7 @@ public class ParseNewlyDownloaded {
             System.exit(0);
         }
 
-        while (!Downloads.seasonFolderExists(tvShow.getDestinationFilepath())) {
+        while (!TvShowUtilities.seasonFolderExists(tvShow.getDestinationFilepath())) {
             ShowFolderUtilities.createNewSeasonFolder(tvShow);
         }
 

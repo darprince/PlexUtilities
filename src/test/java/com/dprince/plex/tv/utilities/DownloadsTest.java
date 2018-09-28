@@ -11,7 +11,7 @@ public class DownloadsTest {
     @Test
     @Ignore
     public void episodeExists_Test() throws Exception {
-        final String episodeExists = Downloads.episodeExists(
+        final String episodeExists = TvShowUtilities.episodeExists(
                 PLEX_PREFIX
                         + "/tv m-s/Orange Is The New Black/Season 02/Orange Is The New Black - S02E03.avi",
                 "02", "03");

@@ -19,6 +19,11 @@ import com.dprince.logger.Logging;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+/**
+ * Class returning Authorization to hit theTvDb api.
+ * 
+ * @author Darren
+ */
 public class Authorization {
 
     private static final Logger LOG = Logging.getLogger(Authorization.class);

@@ -15,9 +15,9 @@ import com.dprince.logger.Logging;
 import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.tv.types.TvShow;
 
-public class Downloads {
+public class TvShowUtilities {
 
-    private static final Logger LOG = Logging.getLogger(Downloads.class);
+    private static final Logger LOG = Logging.getLogger(TvShowUtilities.class);
 
     /**
      * Extracts all video files from Completed sub-directories to Completed that

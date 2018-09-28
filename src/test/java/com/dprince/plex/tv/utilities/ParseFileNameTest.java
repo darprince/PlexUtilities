@@ -106,6 +106,6 @@ public class ParseFileNameTest {
     public void createFolder_Test() throws Exception {
         final TvShow tvShow = ParseFileName.parseFileName("\\blah\\dopesick.nation.s01e01.avi",
                 true, true);
-        Downloads.moveEpisodeFile(tvShow);
+        TvShowUtilities.moveEpisodeFile(tvShow);
     }
 }

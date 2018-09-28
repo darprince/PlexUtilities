@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
@@ -32,11 +33,6 @@ import com.dprince.plex.tv.types.TvShow;
 public class ParseFileName {
 
     private static final Logger LOG = Logging.getLogger(ParseFileName.class);
-
-    // private static final String BASIC_REGEX =
-    // "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2})[eE]{1}([\\d]{2}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|([\\d]{1})([\\d]{2})[\\.-]{1}).*(mkv|mp4|avi|mpg|flv){1}";
-    // private static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[
-    // -]{3}[sS]{1}([0-9]{2})[eE]{1}([0-9]{2}).*(mkv|mp4|avi|mpg|m4v|flv){1}";
 
     private static boolean debug;
 
@@ -174,11 +170,17 @@ public class ParseFileName {
             System.out.println("EPISODE TITLE: " + episodeTitle);
             System.out.println();
 
-            tvShow = TvShow.builder().setDestinationFilepath(destinationFilepath)
-                    .setEpisodeNumber(episodeNumber).setEpisodeTitle(episodeTitle)
-                    .setExtension(extension).setFormattedFileName(formattedFileName)
-                    .setFormattedShowName(formattedShowName).setOriginalFilepath(originalFilepath)
-                    .setRawShowName(rawShowName).setSeasonNumber(seasonNumber).build();
+            tvShow = TvShow.builder()
+                    .setDestinationFilepath(destinationFilepath)
+                    .setEpisodeNumber(episodeNumber)
+                    .setEpisodeTitle(episodeTitle)
+                    .setExtension(extension)
+                    .setFormattedFileName(formattedFileName)
+                    .setFormattedShowName(formattedShowName)
+                    .setOriginalFilepath(originalFilepath)
+                    .setRawShowName(rawShowName)
+                    .setSeasonNumber(seasonNumber)
+                    .build();
 
         } catch (final Exception e) {
             LOG.error("Failed to build TvShow", e);
@@ -281,16 +283,10 @@ public class ParseFileName {
             }
         }
 
+        rawTvShowName = WordUtils.capitalizeFully(rawTvShowName);
         LOG.info("RawTvShowName: " + rawTvShowName);
         LOG.info("Skipping folder creation.");
-        // toReturn is the actual formattedShowName returned from jDialog
-        // if (createShowFolder) {
-        // try {
-        // toReturn = ShowFolderUtilities.createShowFolder(rawTvShowName);
-        // } catch (final IOException e) {
-        // LOG.error("Failed to get formatted show name", e);
-        // }
-        // }
+
         return rawTvShowName;
     }
 

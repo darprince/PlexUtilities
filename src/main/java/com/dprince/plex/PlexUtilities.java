@@ -13,7 +13,7 @@ import com.dprince.plex.tv.metadata.MetaData;
 import com.dprince.plex.tv.missingepisodecheck.MissingEpisodeCheck;
 import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
 import com.dprince.plex.tv.types.TvShow;
-import com.dprince.plex.tv.utilities.Downloads;
+import com.dprince.plex.tv.utilities.TvShowUtilities;
 import com.dprince.plex.tv.utilities.ParseFileName;
 import com.dprince.plex.tv.utilities.ParseNewlyDownloaded;
 
@@ -36,7 +36,7 @@ public class PlexUtilities {
             case ("tvShowRename"):
                 System.out.println("Renaming function called");
                 final TvShow tvShow = ParseFileName.parseFileName(args[1], true, true);
-                Downloads.moveEpisodeFile(tvShow);
+                TvShowUtilities.moveEpisodeFile(tvShow);
                 MetaData.editMetaData(tvShow.getDestinationFilepath(), tvShow.getEpisodeTitle());
                 System.exit(0);
             case ("setMetaData"):
@@ -61,7 +61,7 @@ public class PlexUtilities {
                 return;
             case ("extractTvFiles"):
                 System.out.println("Extract TV Shows function called");
-                Downloads.extractTvFiles();
+                TvShowUtilities.extractTvFiles();
                 return;
             case ("renameMovieNoMove"):
                 System.out.println("Rename movie function called");
