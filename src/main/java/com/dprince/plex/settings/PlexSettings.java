@@ -18,14 +18,15 @@ public class PlexSettings {
             TV_AE, TV_FL, TV_MS, TV_TZ, KIDS_TV
     };
 
-    public static final String MOVIES_AI = "Movies A-I";
-    public static final String MOVIES_JO = "Movies J-O";
+    public static final String MOVIES_AD = "Movies A-D";
+    public static final String MOVIES_EH = "Movies E-H";
+    public static final String MOVIES_IO = "Movies I-O";
     public static final String MOVIES_PS = "Movies P-S";
     public static final String MOVIES_TZ = "Movies T-Z";
     public static final String KIDS_MOVIES = "Kids Movies";
 
     public static final String DESKTOP_SHARED_MOVIE_DIRECTORIES[] = {
-            MOVIES_AI, MOVIES_JO, MOVIES_PS, MOVIES_TZ, KIDS_MOVIES
+            MOVIES_AD, MOVIES_EH, MOVIES_IO, MOVIES_PS, MOVIES_TZ, KIDS_MOVIES
     };
 
     public static final String PLEX_PREFIX = "//Desktop-plex\\";

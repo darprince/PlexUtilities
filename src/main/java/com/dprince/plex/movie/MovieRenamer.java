@@ -1,8 +1,9 @@
 package com.dprince.plex.movie;
 
 import static com.dprince.plex.settings.PlexSettings.FILES_TO_IGNORE;
-import static com.dprince.plex.settings.PlexSettings.MOVIES_AI;
-import static com.dprince.plex.settings.PlexSettings.MOVIES_JO;
+import static com.dprince.plex.settings.PlexSettings.MOVIES_AD;
+import static com.dprince.plex.settings.PlexSettings.MOVIES_EH;
+import static com.dprince.plex.settings.PlexSettings.MOVIES_IO;
 import static com.dprince.plex.settings.PlexSettings.MOVIES_PS;
 import static com.dprince.plex.settings.PlexSettings.MOVIES_TZ;
 import static com.dprince.plex.settings.PlexSettings.PARSER_LOCATION;
@@ -145,6 +146,12 @@ public class MovieRenamer {
                     new File(target.toString() + file.getName()).mkdir();
                     recursiveMoveFolder(Paths.get(file.toString()),
                             Paths.get(target + "/" + file.getName()));
+                } else if (CommonUtilities.getExtension(file.getName()).equals("exe")) {
+                    try {
+                        Files.delete(Paths.get(file.getPath()));
+                    } catch (final IOException e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     filesToMoveList.add(file);
                 }
@@ -172,10 +179,12 @@ public class MovieRenamer {
         }
         firstLetter = firstLetter.toUpperCase();
 
-        if (firstLetter.matches("[A-I]{1}")) {
-            return PLEX_PREFIX + MOVIES_AI + "/" + firstLetter;
-        } else if (firstLetter.matches("[J-O]{1}")) {
-            return PLEX_PREFIX + MOVIES_JO + "/" + firstLetter;
+        if (firstLetter.matches("[A-D]{1}")) {
+            return PLEX_PREFIX + MOVIES_AD + "/" + firstLetter;
+        } else if (firstLetter.matches("[E-H]{1}")) {
+            return PLEX_PREFIX + MOVIES_EH + "/" + firstLetter;
+        } else if (firstLetter.matches("[I-O]{1}")) {
+            return PLEX_PREFIX + MOVIES_IO + "/" + firstLetter;
         } else if (firstLetter.matches("[P-S]{1}")) {
             return PLEX_PREFIX + MOVIES_PS + "/" + firstLetter;
         } else if (firstLetter.matches("[T-Z]{1}")) {
