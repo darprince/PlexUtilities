@@ -26,38 +26,72 @@ import com.dprince.plex.common.CommonUtilities;
 import com.dprince.plex.movie.utilities.MovieUtilities;
 import com.dprince.plex.settings.PlexSettings;
 
-public class MovieRenamer {
+public class MovieRenamerBackup {
 
-    private static final Logger LOG = Logging.getLogger(MovieRenamer.class);
+    private static final Logger LOG = Logging.getLogger(MovieRenamerBackup.class);
 
-    private static final String MOVIE_FILE_EXTENSIONS = "avi|mkv|mp4";
     private static final String EXTENSIONS_TO_DELETE = "nfo|txt|jpg|png|exe";
     private static final String SUB_EXTENSIONS = "srt|sub|idx";
 
-    public static void main(String[] args) {
-        // final String folder =
-        // "C:\\temp\\The.Tragedy.of.Macbeth.2021.1080p.WEBRip.x265-RARBG -
-        // Copy";
-        //
-        // renameMovieFromFolder(folder, false, true);
-    }
-
-    public static void renameMovieFromFolder(String sourceFolderPath, boolean kidsMovie,
+    public static void renameMovieFromFolder(String masterFolderPath, boolean kidsMovie,
             boolean moveFiles) {
 
-        final String formattedMovieName = getMovieNameFromFolder(sourceFolderPath);
-        final String year = getYear(sourceFolderPath);
+        final String formattedMovieName = getMovieNameFromFolder(masterFolderPath);
+        final String year = getYear(masterFolderPath);
 
         if (formattedMovieName == null || year == null) {
             System.out.println("Movie name could not be parsed.");
             System.exit(0);
         }
-        final File sourceDirectory = new File(sourceFolderPath);
+        final File masterFolderFilePath = new File(masterFolderPath);
 
-        final String fileToMetaEdit = findAndMoveFilesToRoot(sourceDirectory, formattedMovieName,
-                year, sourceDirectory);
+        String formattedFileName = null;
+        String fileToMetaEdit = null;
+        final File[] fileList = masterFolderFilePath.listFiles();
+
+        for (final File file : fileList) {
+            if (file.isDirectory()) {
+                System.out.println(
+                        "FILE IS DIRECTORY " + file.getName() + " " + file.listFiles().length);
+                for (final File subFile : file.listFiles()) {
+                    final String extension = getExtension(subFile.toString());
+                    if (extension.matches(SUB_EXTENSIONS)) {
+                        System.out.println("\nTOP SUB MATCH " + subFile.getName());
+                        formattedFileName = getNewFilename(formattedMovieName, year, extension);
+                        CommonUtilities.renameFile(subFile.toString(),
+                                masterFolderPath + "\\" + formattedFileName);
+                    } else if (extension.matches(EXTENSIONS_TO_DELETE)
+                            || subFile.getName().toLowerCase().contains("sample")) {
+                        System.out.println("\nTOP DELETING " + subFile.getName());
+                        subFile.delete();
+                    }
+                }
+                System.out.println("\nDELETING FOLDER " + file.getName());
+                file.delete();
+            } else {
+                System.out.println("NOT DIRECTORY " + file.getName());
+                final String extension = getExtension(file.toString());
+                if (extension.toLowerCase().matches(EXTENSIONS_TO_DELETE)
+                        || file.getName().toLowerCase().matches(FILES_TO_IGNORE)
+                        || file.getName().toLowerCase().contains("sample")) {
+                    System.out.println("\nDELETING " + file.getName());
+                    file.delete();
+                } else {
+                    formattedFileName = getNewFilename(formattedMovieName, year, extension);
+                    System.out.println("RENAMING " + file.getName());
+                    CommonUtilities.renameFile(file.toString(),
+                            masterFolderPath + "\\" + formattedFileName);
+                    if (extension.matches("mp4|mkv")) {
+                        fileToMetaEdit = formattedFileName;
+                        // setMetaData(masterFolderPath + "/" +
+                        // formattedFileName);
+                    }
+                }
+            }
+        }
 
         String destinationPath = null;
+        final File folder = new File(masterFolderPath);
         if (moveFiles) {
             if (kidsMovie) {
                 destinationPath = PlexSettings.PLEX_PREFIX + PlexSettings.KIDS_MOVIES;
@@ -69,13 +103,13 @@ public class MovieRenamer {
         System.out.println("FormattedMovieName = " + formattedMovieName);
         System.out.println("DestinationPath = " + destinationPath);
 
-        System.out.println("RENAMING FOLDER " + sourceDirectory.toString());
+        System.out.println("RENAMING FOLDER " + folder.toString());
         if (destinationPath == null) {
-            destinationPath = sourceDirectory.getParent();
-            CommonUtilities.renameFile(sourceFolderPath,
-                    sourceDirectory.getParent() + "\\" + formattedMovieName + " (" + year + ")");
+            destinationPath = folder.getParent();
+            CommonUtilities.renameFile(masterFolderPath,
+                    folder.getParent() + "\\" + formattedMovieName + " (" + year + ")");
         } else {
-            final Path source = Paths.get(sourceFolderPath);
+            final Path source = Paths.get(masterFolderPath);
             final Path target = Paths
                     .get(destinationPath + "\\" + formattedMovieName + " (" + year + ")");
 
@@ -84,8 +118,7 @@ public class MovieRenamer {
         }
 
         if (new File(destinationPath + "\\" + formattedMovieName + " (" + year + ")").exists()) {
-            LOG.info("File has been written to " + destinationPath + "\\" + formattedMovieName
-                    + " (" + year + ")");
+            LOG.info("File has been written");
         }
 
         try {
@@ -97,53 +130,13 @@ public class MovieRenamer {
         }
 
         if (moveFiles) {
-            final File masterFolder = new File(sourceFolderPath);
+            final File masterFolder = new File(masterFolderPath);
             if (masterFolder.listFiles().length == 0) {
                 masterFolder.delete();
                 LOG.info("Folder has been deleted");
             }
         }
 
-    }
-
-    private static String findAndMoveFilesToRoot(final File sourceDirectory,
-            final String formattedMovieName, final String year, final File folder) {
-
-        String fileToMetaEdit = null;
-        List.of(folder.listFiles()).stream().forEach(System.out::println);
-        for (final File file : folder.listFiles()) {
-            System.out.println(file.getName());
-            if (file.isDirectory()) {
-                fileToMetaEdit = findAndMoveFilesToRoot(sourceDirectory,
-                        formattedMovieName, year, file);
-                if (file.listFiles().length == 0) {
-                    LOG.info("\nDELETING " + file.getName());
-                    file.delete();
-                }
-            } else if (getExtension(file).toLowerCase().matches(EXTENSIONS_TO_DELETE)
-                    || file.getName().toLowerCase().matches(FILES_TO_IGNORE)
-                    || file.getName().toLowerCase().contains("sample")) {
-                LOG.info("\nDELETING " + file.getName());
-                file.delete();
-            } else if (getExtension(file).toLowerCase().matches(SUB_EXTENSIONS)) {
-                if (file.getName().toLowerCase().contains("eng")) {
-                    CommonUtilities.renameFile(file.getAbsolutePath(),
-                            sourceDirectory + "\\" + file.getName());
-                } else {
-                    file.delete();
-                }
-            } else if (getExtension(file).toLowerCase().matches(MOVIE_FILE_EXTENSIONS)) {
-                final String formattedFileName = getNewFilename(formattedMovieName, year,
-                        getExtension(file).toLowerCase());
-                CommonUtilities.renameFile(file.toString(),
-                        sourceDirectory + "\\" + formattedFileName);
-                if (getExtension(file).toLowerCase().matches("mp4|mkv")) {
-                    fileToMetaEdit = formattedFileName;
-                }
-            }
-        }
-
-        return fileToMetaEdit;
     }
 
     private static void recursiveMoveFolder(final Path source, final Path target) {
@@ -283,15 +276,6 @@ public class MovieRenamer {
             e.printStackTrace();
         }
         return null;
-    }
-
-    /**
-     * Takes a filepath and returns the file's extension.
-     *
-     * @return the file's extension
-     */
-    private static String getExtension(File fileName) {
-        return getExtension(fileName.getName());
     }
 
     /**

@@ -8,8 +8,8 @@ public class PlexSettings {
     public static final String BASIC_REGEX = "(.*?)([\\d]{4})?[\\.](?:(?:[sS]{1}([\\d]{2,4})[eE]{1}([\\d]{2,3}))|([\\d]{1})[ofx]{1,2}([\\d]{1,2})|[pP]{1}art[\\.]?([\\d]{1,2})|[0]{0,1}([\\d]{1})([\\d]{2})[\\.-]{1}).*(mkv|mp4|avi|mpg|m4v|flv){1}";
     public static final String REGEX_FORMATTED_FILENAME = "(^[^-]*)[ -]{1,3}[sS]{1}([0-9]{2,4})[eE]{1}([0-9]{2,3}).*(mkv|mp4|avi|mpg|m4v|flv){1}";
 
-    public static final String TV_AE = "tv a-e";
-    public static final String TV_FL = "tv f-l";
+    public static final String TV_AE = "tv a-f";
+    public static final String TV_FL = "tv g-l";
     public static final String TV_MS = "tv m-s";
     public static final String TV_TZ = "tv t-z";
     public static final String KIDS_TV = "Kids Tv";

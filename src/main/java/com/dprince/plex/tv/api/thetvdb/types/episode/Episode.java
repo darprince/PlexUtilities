@@ -24,9 +24,7 @@ public abstract class Episode {
         return builder;
     }
 
-    public static Builder builder(final Episode source) {
-        return new AutoValue_Episode.Builder(source);
-    }
+    public abstract Builder toBuilder();
 
     @AutoValue.Builder
     public static abstract class Builder {

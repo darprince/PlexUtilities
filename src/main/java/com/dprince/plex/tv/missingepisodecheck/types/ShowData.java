@@ -31,9 +31,7 @@ public abstract class ShowData {
     @JsonProperty(FIELD_SEASONS)
     public abstract List<Season> getSeasons();
 
-    public static Builder builder(final ShowData source) {
-        return new AutoValue_ShowData.Builder(source);
-    }
+    public abstract Builder toBuilder();
 
     /**
      * Used to build {@link ShowData} instances.

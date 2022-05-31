@@ -326,8 +326,10 @@ public class TheTvDbLookup {
      */
     static void parentCreateShowDataJSONForShow(final File showFolder,
             final String showIDIn) {
-        LOG.info("SHowFolder: " + showFolder);
+        LOG.info("ShowFolder: " + showFolder);
+        LOG.info("ShowID: {}", showIDIn);
         if (CommonUtilities.isSystemFolder(showFolder)) {
+            LOG.info("Folder is system folder, returnin");
             return;
         }
 
@@ -345,6 +347,7 @@ public class TheTvDbLookup {
             }
             showData = showIdResponse.getData();
             showID = showData.getId();
+            LOG.info("ShowID: {}", showID);
         } else {
             showIdResponse = getShowIdResponseFromShowID(showIDIn);
             if (showIdResponse == null) {
@@ -355,112 +358,119 @@ public class TheTvDbLookup {
             showID = showIDIn;
         }
 
-        if (showIdResponse != null) {
-            final List<String> seasons = getSeasonResponseData(showID).getAiredSeasons();
-            final List<EpisodeData> allEpisodesForShow = getAllEpisodesForShow(showID);
+        LOG.info("ShowIdResponse is not null");
+        final List<String> seasons = getSeasonResponseData(showID).getAiredSeasons();
+        final List<EpisodeData> allEpisodesForShow = getAllEpisodesForShow(showID);
 
-            if (allEpisodesForShow == null) {
-                LOG.error("Failed to get episode list");
-                failedShowList.add(showFolder.getName());
+        if (allEpisodesForShow == null) {
+            LOG.error("Failed to get episode list");
+            failedShowList.add(showFolder.getName());
+            return;
+        }
+
+        for (final String season : seasons) {
+            LOG.info("Buildin season {}", season);
+            final List<EpisodeData> episodeDataList = new ArrayList<>();
+            int totalEpisodesCount = 0;
+            for (final EpisodeData episodeData : allEpisodesForShow) {
+                if (season.equals(String.valueOf(episodeData.getAiredSeason()))) {
+                    episodeDataList.add(episodeData);
+                    totalEpisodesCount++;
+                }
+            }
+
+            final SeasonData seasonData = SeasonData.builder().setEpisodeList(episodeDataList)
+                    .setSeasonNumber(Integer.parseInt(season))
+                    .setTotalEpisodes(totalEpisodesCount).build();
+            seasonDataList.add(seasonData);
+        }
+
+        final boolean correctID = true;
+        final boolean missingEpisodeCheck = true;
+        // if (showFolder.exists()) {
+        // LOG.info("Show folder exists");
+        // final ShowFolderData currentFolderData = ShowDataFileUtilities
+        // .getSDF(showFolder.getName());
+        // if (currentFolderData != null) {
+        // correctID = currentFolderData.getCorrectShowID();
+        // missingEpisodeCheck = currentFolderData.getMissingEpisodeCheck();
+        // }
+        // }
+
+        LOG.info("Buildin ShowFolderData");
+        final ShowFolderData showFolderData = ShowFolderData.builder()
+                .setCorrectShowID(true)
+                .setSeasonData(seasonDataList)
+                .setShowData(showData)
+                .setCorrectShowID(true)
+                .setMissingEpisodeCheck(missingEpisodeCheck)
+                .build();
+
+        // try {
+        // System.out.println(showFolderData.toJsonString());
+        // } catch (final JsonProcessingException e) {
+        // e.printStackTrace();
+        // }
+
+        if (correctID == false) {
+            String status = "";
+            if (!showFolderData.getShowData().getStatus().equals("")) {
+                status = "Status: " + showFolderData.getShowData().getStatus() + "<br>";
+            }
+            final String firstAired = getFirstAired(showFolderData);
+
+            JDialog.setDefaultLookAndFeelDecorated(true);
+            final int response = JOptionPane.showConfirmDialog(null,
+                    "<html><body><div width=500px><p style='max-width: 250px;'>"
+                            + showFolderData.getShowData().getSeriesName() + "<br>"
+                            + firstAired
+                            + status
+                            + "<br>"
+                            + showFolderData.getShowData().getOverview().replaceAll("‘", "'")
+                                    .replaceAll("’", "'")
+                    // + "</p></div></body></html>"
+                    ,
+                    "Correct for " + showFolder.getName() + "?", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+
+            if (response == JOptionPane.NO_OPTION) {
+                System.out.println("Option close");
+                final Object result = JOptionPane.showInputDialog(new JFrame(),
+                        "Add series Id?", "");
+                // TODO: fix this.
+                if (result == null) {
+                    System.out.println("Closed option");
+                    System.exit(0);
+                }
+                parentCreateShowDataJSONForShow(showFolder, String.valueOf(result));
+            } else if (response == JOptionPane.YES_OPTION) {
+                System.out.println("Yes option");
+
+                LOG.info("Attempting to create show folder - {}", showFolder.getPath());
+                try {
+                    final String createdShowFolder = ShowFolderUtilities
+                            .createShowFolder(showFolder.getName());
+                    if (!writeShowDataToFile(new File(createdShowFolder), showFolderData)) {
+                        LOG.info("Failed to write to ShowDataFolder for {}",
+                                showFolder.getName());
+                    } else {
+                        LOG.info("File written");
+                        return;
+                    }
+                } catch (final IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        } else {
+            if (!writeShowDataToFile(showFolder, showFolderData)) {
+                LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());
+            } else {
+                LOG.info("File written");
                 return;
             }
-
-            for (final String season : seasons) {
-                final List<EpisodeData> episodeDataList = new ArrayList<>();
-                int totalEpisodesCount = 0;
-                for (final EpisodeData episodeData : allEpisodesForShow) {
-                    if (season.equals(String.valueOf(episodeData.getAiredSeason()))) {
-                        episodeDataList.add(episodeData);
-                        totalEpisodesCount++;
-                    }
-                }
-
-                final SeasonData seasonData = SeasonData.builder().setEpisodeList(episodeDataList)
-                        .setSeasonNumber(Integer.parseInt(season))
-                        .setTotalEpisodes(totalEpisodesCount).build();
-                seasonDataList.add(seasonData);
-            }
-
-            boolean correctID = false;
-            boolean missingEpisodeCheck = true;
-            if (showFolder.exists()) {
-                final ShowFolderData currentFolderData = ShowDataFileUtilities
-                        .getSDF(showFolder.getName());
-                if (currentFolderData != null) {
-                    correctID = currentFolderData.getCorrectShowID();
-                    missingEpisodeCheck = currentFolderData.getMissingEpisodeCheck();
-                }
-            }
-
-            final ShowFolderData showFolderData = ShowFolderData.builder().setCorrectShowID(true)
-                    .setSeasonData(seasonDataList).setShowData(showData).setCorrectShowID(true)
-                    .setMissingEpisodeCheck(missingEpisodeCheck).build();
-
-            // try {
-            // System.out.println(showFolderData.toJsonString());
-            // } catch (final JsonProcessingException e) {
-            // e.printStackTrace();
-            // }
-
-            if (correctID == false) {
-                String status = "";
-                if (!showFolderData.getShowData().getStatus().equals("")) {
-                    status = "Status: " + showFolderData.getShowData().getStatus() + "<br>";
-                }
-                final String firstAired = getFirstAired(showFolderData);
-
-                JDialog.setDefaultLookAndFeelDecorated(true);
-                final int response = JOptionPane.showConfirmDialog(null,
-                        "<html><body><div width=500px><p style='max-width: 250px;'>"
-                                + showFolderData.getShowData().getSeriesName() + "<br>"
-                                + firstAired
-                                + status
-                                + "<br>"
-                                + showFolderData.getShowData().getOverview().replaceAll("‘", "'")
-                                        .replaceAll("’", "'")
-                        // + "</p></div></body></html>"
-                        ,
-                        "Correct for " + showFolder.getName() + "?", JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-
-                if (response == JOptionPane.NO_OPTION) {
-                    System.out.println("Option close");
-                    final Object result = JOptionPane.showInputDialog(new JFrame(),
-                            "Add series Id?", "");
-                    // TODO: fix this.
-                    if (result == null) {
-                        System.out.println("Closed option");
-                        System.exit(0);
-                    }
-                    parentCreateShowDataJSONForShow(showFolder, String.valueOf(result));
-                } else if (response == JOptionPane.YES_OPTION) {
-                    System.out.println("Yes option");
-
-                    LOG.info("Attempting to create show folder - {}", showFolder.getPath());
-                    try {
-                        final String createdShowFolder = ShowFolderUtilities
-                                .createShowFolder(showFolder.getName());
-                        if (!writeShowDataToFile(new File(createdShowFolder), showFolderData)) {
-                            LOG.info("Failed to write to ShowDataFolder for {}",
-                                    showFolder.getName());
-                        } else {
-                            LOG.info("File written");
-                            return;
-                        }
-                    } catch (final IOException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            } else {
-                if (!writeShowDataToFile(showFolder, showFolderData)) {
-                    LOG.info("Failed to write to ShowDataFolder for {}", showFolder.getName());
-                } else {
-                    LOG.info("File written");
-                    return;
-                }
-            }
         }
+
         return;
     }
 

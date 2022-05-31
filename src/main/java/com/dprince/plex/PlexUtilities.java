@@ -13,9 +13,9 @@ import com.dprince.plex.tv.metadata.MetaData;
 import com.dprince.plex.tv.missingepisodecheck.MissingEpisodeCheck;
 import com.dprince.plex.tv.showIDCheck.ShowIDCheck;
 import com.dprince.plex.tv.types.TvShow;
-import com.dprince.plex.tv.utilities.TvShowUtilities;
 import com.dprince.plex.tv.utilities.ParseFileName;
 import com.dprince.plex.tv.utilities.ParseNewlyDownloaded;
+import com.dprince.plex.tv.utilities.TvShowUtilities;
 
 public class PlexUtilities {
 

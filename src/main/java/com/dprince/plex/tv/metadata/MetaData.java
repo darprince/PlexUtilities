@@ -3,6 +3,7 @@ package com.dprince.plex.tv.metadata;
 import static com.dprince.plex.settings.PlexSettings.MKVPROPEDIT_LOCATION;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
@@ -21,17 +22,18 @@ public class MetaData {
      * @param filepath
      * @param episodeTitle
      */
-    public static void editMetaData(@NonNull final String filepath, final String episodeTitle) {
+    public static void editMetaData(@NonNull final String filepath, String episodeTitle) {
         final String extension = CommonUtilities.getExtension(filepath);
 
+        final String utf8episodeTitle = new String(episodeTitle.getBytes(), StandardCharsets.UTF_8);
         if (extension.equalsIgnoreCase("mp4")) {
-            LOG.info("Setting mp4 metadata with title: {}", episodeTitle);
+            LOG.info("Setting mp4 metadata with title: {}", utf8episodeTitle);
             System.out.println();
-            runMP4EditorForTvShow(filepath, episodeTitle);
+            runMP4EditorForTvShow(filepath, utf8episodeTitle);
         } else if (extension.equalsIgnoreCase("mkv")) {
-            LOG.info("Setting mkv metadata with title: {}", episodeTitle);
+            LOG.info("Setting mkv metadata with title: {}", utf8episodeTitle);
             System.out.println();
-            runMKVEditorForTvShow(filepath, episodeTitle);
+            runMKVEditorForTvShow(filepath, utf8episodeTitle);
         }
     }
 

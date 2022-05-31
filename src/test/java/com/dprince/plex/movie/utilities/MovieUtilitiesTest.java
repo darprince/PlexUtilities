@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-import com.dprince.plex.movie.MovieRenamer;
+import com.dprince.plex.movie.MovieRenamerBackup;
 import com.dprince.plex.settings.PlexSettings;
 
 public class MovieUtilitiesTest {
@@ -37,24 +37,24 @@ public class MovieUtilitiesTest {
         assertThat(KIDS_MOVIES).as("Mapped directories are not the same for Kids Movies")
                 .isEqualTo(DESKTOP_SHARED_MOVIE_DIRECTORIES[5]);
 
-        final String theAccountant = MovieRenamer.deriveDestinationFolder(THE_ACCOUNTANT_2016);
+        final String theAccountant = MovieRenamerBackup.deriveDestinationFolder(THE_ACCOUNTANT_2016);
         assertThat(theAccountant)
                 .as("Shared Directory for %s should be: %s, but was: %s", THE_ACCOUNTANT_2016,
                         PlexSettings.MOVIES_AD, theAccountant)
                 .contains(DESKTOP_SHARED_MOVIE_DIRECTORIES[0]);
 
-        final String johnWick = MovieRenamer.deriveDestinationFolder(JOHN_WICK_2014);
+        final String johnWick = MovieRenamerBackup.deriveDestinationFolder(JOHN_WICK_2014);
         assertThat(johnWick)
                 .as("Shared Directory for %s should be: %s, but was: %s", JOHN_WICK_2014,
                         PlexSettings.MOVIES_IO, johnWick)
                 .contains(DESKTOP_SHARED_MOVIE_DIRECTORIES[2]);
 
-        final String resevoirDogs = MovieRenamer.deriveDestinationFolder(RESEVOIR_DOGS_1992);
+        final String resevoirDogs = MovieRenamerBackup.deriveDestinationFolder(RESEVOIR_DOGS_1992);
         assertThat(resevoirDogs).as("Shared Directory for %s should be: %s, but was: %s",
                 RESEVOIR_DOGS_1992, MOVIES_PS, resevoirDogs)
                 .contains(DESKTOP_SHARED_MOVIE_DIRECTORIES[3]);
 
-        final String worldWarZ = MovieRenamer.deriveDestinationFolder(WORLD_WAR_Z_2013);
+        final String worldWarZ = MovieRenamerBackup.deriveDestinationFolder(WORLD_WAR_Z_2013);
         assertThat(worldWarZ)
                 .as("Shared Directory for %s should be: %s, but was: %s", WORLD_WAR_Z_2013,
                         PlexSettings.MOVIES_TZ, worldWarZ)

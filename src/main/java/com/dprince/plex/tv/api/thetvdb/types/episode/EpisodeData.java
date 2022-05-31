@@ -8,9 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 
-/**
- * @author Darren
- */
 @AutoValue
 @JsonDeserialize(builder = AutoValue_EpisodeData.Builder.class)
 @NonNullByDefault
@@ -66,8 +63,7 @@ public abstract class EpisodeData {
     public abstract String getOverview();
 
     public static Builder builder() {
-        final Builder builder = new AutoValue_EpisodeData.Builder();
-        return builder;
+        return new AutoValue_EpisodeData.Builder();
     }
 
     @AutoValue.Builder
